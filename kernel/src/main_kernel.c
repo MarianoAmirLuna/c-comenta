@@ -1,8 +1,6 @@
 #include "main_kernel.h"
 #include <stdlib.h>
 #include <stdio.h>
-//#include <utils/hello.h>
-
 
 int main(void) {
 	logger = log_create("log.log", "Servidor", 1, LOG_LEVEL_DEBUG);
