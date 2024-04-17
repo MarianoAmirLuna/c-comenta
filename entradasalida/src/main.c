@@ -1,13 +1,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 //#include <utils/hello.h>
-
 #include "main.h"
 
 int main(){
+
+	iniciar_conexion("IP_KERNEL","PUERTO_KERNEL","/home/utnso/Desktop/tp_operativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
+
+	return 0;
+}
+
+
+void iniciar_conexion(char *nombreIp, char *puertoIp,char *rutaConexion){
 	int conexion;
-	char* ip_kernel;
-	char* puerto_kernel;
+	char* ip;
+	char* puerto;
 	char* valor;
 
 	t_log* logger;
@@ -19,32 +26,22 @@ int main(){
 
 	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
 
-	config = iniciar_config();
+	config = iniciar_config(rutaConexion);
 
-	
 	valor = config_get_string_value(config, "CLAVE");
-	ip_kernel = config_get_string_value(config, "IP_KERNEL");
-	puerto_kernel = config_get_string_value(config, "PUERTO_KERNEL");
+	ip = config_get_string_value(config, nombreIp);
+	puerto = config_get_string_value(config, puertoIp);
 
-	log_info(logger,ip_kernel);
-	log_info(logger, puerto_kernel);
+	//log_info(logger,ip_kernel);
+	//log_info(logger, puerto_kernel);
 
 	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
 
     
 	// Creamos una conexión hacia el servidor
-	conexion = crear_conexion(ip_kernel,puerto_kernel); //crear conexion te retorna el socket
+	conexion = crear_conexion(ip,puerto); //crear conexion te retorna el socket
 
 	enviar_mensaje(valor,conexion);
-
-
-
-
-
-
-
-
-	return 0;
 }
 
 t_log* iniciar_logger(void)
@@ -59,9 +56,9 @@ t_log* iniciar_logger(void)
 	return nuevo_logger;
 }
 
-t_config* iniciar_config(void)
+t_config* iniciar_config(char *rutaConexion)
 {
-	t_config* nuevo_config = config_create("/home/utnso/Desktop/tp_operativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
+	t_config* nuevo_config = config_create(rutaConexion); //esto te pide la ruta del config
 
 	if ( nuevo_config == NULL)	
 	{
