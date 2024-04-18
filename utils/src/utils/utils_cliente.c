@@ -1,10 +1,12 @@
 #include "utils_cliente.h"
 
-void iniciar_conexion(char *nombreIp, char *puertoIp,char *rutaConexion){
+void *iniciar_conexion(void *ptr){
 	int conexion;
 	char* ip;
 	char* puerto;
 	char* valor;
+
+    datos_conexion *datos = (datos_conexion *)ptr;
 
 	//t_log* logger;
 	t_config* config;
@@ -15,11 +17,11 @@ void iniciar_conexion(char *nombreIp, char *puertoIp,char *rutaConexion){
 
 	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
 
-	config = iniciar_config(rutaConexion);
+	config = iniciar_config(datos->ruta_interna);
 
 	valor = config_get_string_value(config, "CLAVE");
-	ip = config_get_string_value(config, nombreIp);
-	puerto = config_get_string_value(config, puertoIp);
+	ip = config_get_string_value(config, datos->ip);
+	puerto = config_get_string_value(config, datos->puerto);
 
 	//log_info(logger,ip_kernel);
 	//log_info(logger, puerto_kernel);

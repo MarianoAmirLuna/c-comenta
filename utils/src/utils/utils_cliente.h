@@ -29,7 +29,11 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
-
+typedef struct {
+	char *ip;
+	char *puerto;
+	char *ruta_interna;
+} datos_conexion;
 
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);
@@ -40,7 +44,7 @@ void liberar_conexion(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete);
 
 
-void iniciar_conexion(char *nombreIp, char *puertoIp,char *rutaConexion);
+void *iniciar_conexion(void *ptr);
 t_log* iniciar_logger(void);
 t_config* iniciar_config(char *rutaConexion);
 void leer_consola(t_log* logger);
