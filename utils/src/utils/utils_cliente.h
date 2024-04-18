@@ -46,5 +46,6 @@ t_config* iniciar_config(char *rutaConexion);
 void leer_consola(t_log* logger);
 void paquete(int conexion);
 void terminar_programa(int conexion, t_log* logger, t_config* config);
+char* concatenar(char* str1, char* str2);
 
 #endif /* UTILS_H_ */

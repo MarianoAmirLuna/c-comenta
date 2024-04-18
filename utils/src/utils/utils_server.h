@@ -7,6 +7,7 @@
 #include<unistd.h>
 #include<netdb.h>
 #include<commons/log.h>
+#include<commons/config.h>
 #include<commons/collections/list.h>
 #include<string.h>
 #include<assert.h>
@@ -25,8 +26,10 @@ int esperar_cliente(int);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
-int crear_servidor(char *ip,char *puerto);
+int crear_servidor(char *nombreCliente,char *ip,char *puerto);
 void iterator(char* value);
-int iniciar_servidor(char *ip,char *puerto);
+int iniciar_servidor(char *ip, char *puerto);
+t_config* iniciar_config(char *rutaConexion);
+char* concatenar(char* str1, char* str2);
 
 #endif /* UTILS_H_ */

@@ -6,12 +6,12 @@ void iniciar_conexion(char *nombreIp, char *puertoIp,char *rutaConexion){
 	char* puerto;
 	char* valor;
 
-	t_log* logger;
+	//t_log* logger;
 	t_config* config;
 
-    logger = iniciar_logger();
+    //logger = iniciar_logger();
 
-	log_info(logger,"Soy un Log");
+	//log_info(logger,"");
 
 	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
 
@@ -217,4 +217,18 @@ void eliminar_paquete(t_paquete* paquete)
 void liberar_conexion(int socket_cliente)
 {
 	close(socket_cliente);
+}
+
+char* concatenar(char* str1, char* str2) {
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+    size_t len_total = len1 + len2 + 1; 
+    
+    char* resultado = (char*)malloc(len_total * sizeof(char));
+    
+    strcpy(resultado, str1);
+ 
+    strcat(resultado, str2);
+    
+    return resultado;
 }

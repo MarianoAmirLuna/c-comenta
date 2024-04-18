@@ -1,5 +1,6 @@
-#include"utils_server.h"
-
+#include "utils_server.h"
+#include <commons/config.h>
+#include <string.h>
 
 t_log* logger;
 
@@ -7,14 +8,14 @@ int iniciar_servidor(char *ip,char *puerto)
 {
 	int socket_servidor;
 
-	struct addrinfo hints, *servinfo, *p;
+	struct addrinfo hints, *servinfo;
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	getaddrinfo(ip, puerto, &hints, &servinfo);
+	getaddrinfo(ip,puerto, &hints, &servinfo);	
 
 	// Creamos el socket de escucha del servidor
 	socket_servidor = socket(servinfo->ai_family,
@@ -105,11 +106,12 @@ t_list* recibir_paquete(int socket_cliente)
 
 ///////////
 
-int crear_servidor(char *ip,char *puerto) {
-	logger = log_create("log.log", "Servidor", 1, LOG_LEVEL_DEBUG);
+int crear_servidor(char *nombreCliente,char *ip,char *puerto) {
+	logger = log_create("log.log", "", 1, LOG_LEVEL_DEBUG);
 
 	int server_fd = iniciar_servidor(ip, puerto);
-	log_info(logger, "Servidor listo para recibir al cliente");
+
+	log_info(logger, concatenar("listo para recibir al ", nombreCliente));
 	int cliente_fd = esperar_cliente(server_fd); //dentro de esta funcion hay un accept la cual es bloqueante
 	//retorna un nuevo socket (file descriptor) que representa la conexión BIDIRECCIONAL entre ambos procesos.
 
@@ -123,7 +125,7 @@ int crear_servidor(char *ip,char *puerto) {
 			break;
 		case PAQUETE:
 			lista = recibir_paquete(cliente_fd);
-			log_info(logger, "Me llegaron los siguientes valores:\n");
+			log_info(logger,"Me llegaron los siguientes valores:\n");
 			list_iterate(lista, (void*) iterator);
 			break;
 		case -1:
@@ -139,4 +141,31 @@ int crear_servidor(char *ip,char *puerto) {
 
 void iterator(char* value) {
 	log_info(logger,"%s", value);
+}
+
+t_config* iniciar_config(char *rutaConexion)
+{
+	t_config* nuevo_config = config_create(rutaConexion); //esto te pide la ruta del config
+
+	if ( nuevo_config == NULL)	
+	{
+		perror("Hay un error al iniciar el config.");
+	}
+	
+	return nuevo_config;
+
+}
+
+char* concatenar(char* str1, char* str2) {
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+    size_t len_total = len1 + len2 + 1; 
+    
+    char* resultado = (char*)malloc(len_total * sizeof(char));
+    
+    strcpy(resultado, str1);
+ 
+    strcat(resultado, str2);
+    
+    return resultado;
 }

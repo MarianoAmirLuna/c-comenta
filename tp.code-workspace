@@ -9,7 +9,12 @@
 			"unordered_map": "c",
 			"vector": "c",
 			"string_view": "c",
-			"initializer_list": "c"
+			"initializer_list": "c",
+			"system_error": "c",
+			"functional": "c",
+			"tuple": "c",
+			"type_traits": "c",
+			"utility": "c"
 		},
 		"C_Cpp.errorSquiggles": "disabled",
 	},
