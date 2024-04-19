@@ -7,7 +7,7 @@
 
 int main(void) {
 
-	t_config* config = iniciar_config("/home/utnso/Desktop/tp_operativos1/tp-2024-1c-Granizado/cpu/cpu.config");
+	t_config* config = iniciar_config("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/cpu.config");
 	char* ip_kernel = config_get_string_value(config,"IP_KERNEL");
 	char* puerto_kernel = config_get_string_value(config,"PUERTO_ESCUCHA_DISPATCH");
 

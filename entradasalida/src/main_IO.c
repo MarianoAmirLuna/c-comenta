@@ -15,7 +15,7 @@ int main(){
 
 	info_conexion.ip = "IP_KERNEL";
 	info_conexion.puerto = "PUERTO_KERNEL";
-	info_conexion.ruta_interna = "/home/utnso/Desktop/tp_operativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config";
+	info_conexion.ruta_interna = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config";
 
     iret1 = pthread_create(&hilo1, NULL, iniciar_conexion, (void *) &info_conexion);
 	pthread_join(hilo1,NULL);

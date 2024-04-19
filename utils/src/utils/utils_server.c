@@ -143,6 +143,8 @@ void iterator(char* value) {
 	log_info(logger,"%s", value);
 }
 
+//aca borre iniciar config y concatenar
+/*
 t_config* iniciar_config(char *rutaConexion)
 {
 	t_config* nuevo_config = config_create(rutaConexion); //esto te pide la ruta del config
@@ -169,3 +171,4 @@ char* concatenar(char* str1, char* str2) {
     
     return resultado;
 }
+*/
