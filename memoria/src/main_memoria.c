@@ -5,7 +5,7 @@
 #include <commons/config.h> 
 #include <pthread.h>
 
-int *crear_servidor(void *ptr);
+void *crear_servidor(void *ptr);
 
 typedef struct {
 	char *nombreCliente;
@@ -39,11 +39,11 @@ int main(void) {
 	
 
     iret1 = pthread_create(&hilo1, NULL,crear_servidor, (void*) &info_conexion_server);
-	pthread_join(hilo1,NULL);
+	pthread_detach(hilo1);
 	
 
-
 //SERVIDOR CON HILO Kernel ==> Memoria
+
     pthread_t hilo2;
 	int iret2;
 
@@ -56,11 +56,9 @@ int main(void) {
 	
 
     iret2 = pthread_create(&hilo2, NULL,crear_servidor, (void*) &info_conexion_server2);
-	pthread_join(hilo2,NULL);
+	pthread_detach(hilo2);
 	
-//SERVIDOR CON HILO I/O ==> Memoria
-	pthread_t hilo3;
-	int iret3;
+//SERVIDOR SIN HILO I/O ==> Memoria
 
 	datos_conexion_server info_conexion_server3;
 	config = iniciar_config("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/memoria.config");
@@ -68,12 +66,8 @@ int main(void) {
 	info_conexion_server3.nombreCliente = "Entrada-salida";
 	info_conexion_server3.ip = config_get_string_value(config,"IP_IO");
 	info_conexion_server3.puerto = config_get_string_value(config,"PUERTO_ESCUCHA");
-	
 
-    iret3 = pthread_create(&hilo3, NULL,crear_servidor, (void*) &info_conexion_server3);
-	pthread_join(hilo3,NULL);
-	
-
+    crear_servidor((void*) &info_conexion_server3);
 
 	return 0;
 }

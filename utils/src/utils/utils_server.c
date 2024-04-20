@@ -106,17 +106,15 @@ t_list* recibir_paquete(int socket_cliente)
 
 ///////////
 
-int *crear_servidor(void *ptr) {
-
-	datos_conexion_server *datos = (datos_conexion_server *)ptr;
-
-
+void *crear_servidor(void *ptr) {
 	logger = log_create("log.log", "", 1, LOG_LEVEL_DEBUG);
+	datos_conexion_server *datos = (datos_conexion_server *)ptr;
 
 	int server_fd = iniciar_servidor(datos->ip, datos->puerto);
 
 	log_info(logger, concatenar("listo para recibir al ", datos->nombreCliente));
 	int cliente_fd = esperar_cliente(server_fd); //dentro de esta funcion hay un accept la cual es bloqueante
+	log_info(logger, "espero al cliente");
 	//retorna un nuevo socket (file descriptor) que representa la conexión BIDIRECCIONAL entre ambos procesos.
 
 	t_list* lista;
