@@ -1,54 +1,53 @@
-#include "utils/utils_server.h"
-#include "utils/utils_cliente.h"
+#include <kernel.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <commons/config.h>
 #include <pthread.h>
+#include "utils/shared.h"
+#include <commons/log.h>
 
-void *iniciar_conexion(void *ptr);
-void *crear_servidor(void *ptr);
+int main(void)
+{
+	kernel_logger = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_INFO);
 
-typedef struct {
-	char *ip;
-	char *puerto;
-	char *ruta_interna;
-} datos_conexion;
+	if (kernel_logger == NULL)
+	{
+		perror("Hay un error al iniciar el log.");
+		exit(EXIT_FAILURE);
+	}
 
+	kernel_log_debug = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_TRACE);
 
-int main(void) {
+	if (kernel_log_debug == NULL)
+	{
+		perror("Hay un error al iniciar el log.");
+		exit(EXIT_FAILURE);
+	}
 
-    //CLIENTE SIN HILO KERNEL ==> CPU
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config"); 
 
-	datos_conexion info_conexion;
+	if (kernel_config == NULL)
+	{
+		perror("Hay un error al iniciar el config.");
+		exit(EXIT_FAILURE);
+	}
 
-	info_conexion.ip = "IP_CPU";
-	info_conexion.puerto = "PUERTO_CPU_DISPATCH";
-	info_conexion.ruta_interna = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config";	
-	
-	iniciar_conexion((void*) &info_conexion);
-	
-	//CLIENTE SIN HILO Kernel ==> Memoria
-	
-	datos_conexion info_conexion2;
+	PUERTO_ESCUCHA = config_get_string_value(kernel_config,"PUERTO_ESCUCHA");
+	IP_MEMORIA = config_get_string_value(kernel_config,"IP_MEMORIA");
+	PUERTO_MEMORIA = config_get_string_value(kernel_config,"PUERTO_MEMORIA");
+	IP_CPU = config_get_string_value(kernel_config,"IP_CPU");
+	PUERTO_CPU_DISPATCH = config_get_string_value(kernel_config,"PUERTO_CPU_DISPATCH");
+	PUERTO_CPU_INTERRUPT = config_get_string_value(kernel_config,"PUERTO_CPU_INTERRUPT");
+	ALGORITMO_PLANIFICACION = config_get_string_value(kernel_config,"ALGORITMO_PLANIFICACION");
+	QUANTUM = config_get_int_value(kernel_config,"QUANTUM");
+	RECURSOS = config_get_string_value(kernel_config,"RECURSOS");
+	INSTANCIAS_RECURSOS = config_get_string_value(kernel_config,"INSTANCIAS_RECURSOS");
+	GRADO_MULTIPROGRAMACION = config_get_int_value(kernel_config,"GRADO_MULTIPROGRAMACION");
 
-	info_conexion2.ip = "IP_MEMORIA";
-	info_conexion2.puerto = "PUERTO_MEMORIA";
-	info_conexion2.ruta_interna = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config";	
-
-
-	iniciar_conexion((void*) &info_conexion2);
-
-    //SERVIDOR SIN HILO I/O ==>Kernel
-
-	datos_conexion_server info_conexion_server;
-	t_config* config = iniciar_config("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config");
-
-	info_conexion_server.nombreCliente = "Entrada-salida";
-	info_conexion_server.ip = config_get_string_value(config,"IP_IO");
-	info_conexion_server.puerto = config_get_string_value(config,"PUERTO_ESCUCHA");
-	
-	crear_servidor((void*) &info_conexion_server);
+	log_info(kernel_logger, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
+	log_warning(kernel_logger, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
+	log_debug(kernel_log_debug, "RECURSOS: %s", RECURSOS);
+	log_trace(kernel_log_debug, "QUANTUM: %d", QUANTUM);
 
 	return 0;
 }
-

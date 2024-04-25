@@ -10,11 +10,20 @@
 #include<string.h>
 #include<commons/log.h>
 #include<commons/config.h>
+#include<commons/collections/list.h>
+#include<assert.h>
 
 typedef enum
 {
 	MENSAJE,
-	PAQUETE
+	PAQUETE,
+	HANDSHAKE,
+	RPTA_HANDSHAKE,
+	//KERNEL-MEMORIA------
+	CREAR_PROCESO_KM,
+	RPTA_CREAR_PROCESO_MK,
+	//KERNEL-CPU------
+
 }op_code;
 
 typedef struct
@@ -33,7 +42,21 @@ typedef struct {
 	char *ip;
 	char *puerto;
 	char *ruta_interna;
+	char *nombreCliente;
 } datos_conexion;
+
+
+extern t_log* logger;
+
+void* recibir_buffer(int*, int);
+
+int esperar_cliente(int);
+t_list* recibir_paquete(int);
+void recibir_mensaje(int);
+int recibir_operacion(int);
+void *crear_servidor(void *ptr);
+void iterator(char* value);
+int iniciar_servidor(char *ip, char *puerto);
 
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);

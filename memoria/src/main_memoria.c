@@ -1,74 +1,48 @@
-#include "utils/utils_cliente.h"
-#include "utils/utils_server.h"
+#include <memoria.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <commons/config.h> 
+#include <commons/config.h>
 #include <pthread.h>
-
-void *crear_servidor(void *ptr);
-
-typedef struct {
-	char *nombreCliente;
-	char *ip;
-	char *puerto;
-} datos_conexion_server;
-
+#include "utils/shared.h"
+#include <commons/log.h>
 
 int main(void) {
-	//Levantar servidor sin usar hilos
-/*
-	t_config* config = iniciar_config("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/memoria.config");
-	char* ip_IO = config_get_string_value(config,"IP_IO");
-	char* puerto_IO = config_get_string_value(config,"PUERTO_ESCUCHA");
+    
+	memoria_logger = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_INFO);
 
-	crear_servidor("entrada-salida",ip_IO,puerto_IO);
-*/
+	if (memoria_logger == NULL)
+	{
+		perror("Hay un error al iniciar el log.");
+		exit(EXIT_FAILURE);
+	}
 
+	memoria_log_debug = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_TRACE);
 
-//SERVER CON HILO CPU ==> MEMORIA
+	if (memoria_log_debug == NULL)
+	{
+		perror("Hay un error al iniciar el log.");
+		exit(EXIT_FAILURE);
+	}
 
-    pthread_t hilo1;
-	int iret1;
+	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/memoria.config"); 
 
-	datos_conexion_server info_conexion_server;
-	t_config* config = iniciar_config("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/memoria.config");
+	if (memoria_config == NULL)
+	{
+		perror("Hay un error al iniciar el config.");
+		exit(EXIT_FAILURE);
+	}
 
-	info_conexion_server.nombreCliente = "CPU";
-	info_conexion_server.ip = config_get_string_value(config,"IP_CPU");
-	info_conexion_server.puerto = config_get_string_value(config,"PUERTO_ESCUCHA");
+	PUERTO_ESCUCHA = config_get_string_value(memoria_config,"PUERTO_ESCUCHA");
+    TAM_MEMORIA = config_get_string_value(memoria_config,"TAM_MEMORIA");
+    TAM_PAGINA = config_get_string_value(memoria_config,"TAM_PAGINA");
+    PATH_INSTRUCCIONES = config_get_string_value(memoria_config,"PATH_INSTRUCCIONES");
+    RETARDO_RESPUESTA = config_get_int_value(memoria_config,"RETARDO_RESPUESTA");
 	
-
-    iret1 = pthread_create(&hilo1, NULL,crear_servidor, (void*) &info_conexion_server);
-	pthread_detach(hilo1);
 	
-
-//SERVIDOR CON HILO Kernel ==> Memoria
-
-    pthread_t hilo2;
-	int iret2;
-
-	datos_conexion_server info_conexion_server2;
-	config = iniciar_config("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/memoria.config");
-
-	info_conexion_server2.nombreCliente = "KERNEL";
-	info_conexion_server2.ip = config_get_string_value(config,"IP_KERNEL");
-	info_conexion_server2.puerto = config_get_string_value(config,"PUERTO_ESCUCHA");
-	
-
-    iret2 = pthread_create(&hilo2, NULL,crear_servidor, (void*) &info_conexion_server2);
-	pthread_detach(hilo2);
-	
-//SERVIDOR SIN HILO I/O ==> Memoria
-
-	datos_conexion_server info_conexion_server3;
-	config = iniciar_config("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/memoria.config");
-
-	info_conexion_server3.nombreCliente = "Entrada-salida";
-	info_conexion_server3.ip = config_get_string_value(config,"IP_IO");
-	info_conexion_server3.puerto = config_get_string_value(config,"PUERTO_ESCUCHA");
-
-    crear_servidor((void*) &info_conexion_server3);
+	log_info(memoria_logger, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
+	log_warning(memoria_log_debug, "TAM_MEMORIA: %s", TAM_MEMORIA);
+	log_debug(memoria_log_debug, "TAM_PAGINA: %s", TAM_PAGINA);
+	log_trace(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
 
 	return 0;
 }
-
