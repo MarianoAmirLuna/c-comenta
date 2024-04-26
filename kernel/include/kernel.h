@@ -1,13 +1,10 @@
 #ifndef FILESYSTEM_H_
 #define FILESYSTEM_H_
 
-#include <stdlib.h>
-#include <stdio.h>
 
-#include <commons/log.h>
-#include <commons/config.h>
+#include "k_gestor.h"
 
-
+#include "inicializar_kernel.h"
 t_log* kernel_logger;
 t_log* kernel_log_debug;
 t_config* kernel_config;

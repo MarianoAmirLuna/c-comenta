@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "readline.h": "c",
-        "config.h": "c"
+        "config.h": "c",
+        "inicializar_kernel.h": "c"
     }
 }

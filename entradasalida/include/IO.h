@@ -1,13 +1,7 @@
 #ifndef CPU_H_
 #define CPU_H_
 
-#include "utils/shared.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <commons/config.h>
-#include <pthread.h>
-#include <commons/log.h>
-
+#include "i_gestor.h"
 //Variables GLOBALES
 
 t_log* io_logger;
