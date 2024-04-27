@@ -1,10 +1,10 @@
-#include "../include/cpu_memoria.h"
+#include "../include/io_kernel.h"
 #include <utils/shared.h>
 
-void atender_cpu_memoria(){
+void atender_io_kernel(){
     bool control_key = 1;
 	while (control_key) {
-		int cod_op = recibir_operacion(fd_memoria); 
+		int cod_op = recibir_operacion(fd_kernel); 
 		switch (cod_op) {
 		case MENSAJE:
 			//
@@ -13,10 +13,10 @@ void atender_cpu_memoria(){
             //
 			break;
 		case -1:
-			log_error(logger, "Desconexion de CPU - MEMORIA");
+			log_error(logger, "Desconexion de KERNEL - IO");
 			return EXIT_FAILURE;
 		default:
-			log_warning(logger,"Operacion desconocida de CPU - MEMORIA");
+			log_warning(logger,"Operacion desconocida de KERNEL - IO");
 			break;
 		}
 	}

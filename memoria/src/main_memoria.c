@@ -24,6 +24,14 @@ int main() {
 	log_trace(memoria_log_debug, "listo para escuchar al IO");
 	fd_io = esperar_cliente(fd_memoria);
 
+	//Atender los mensajes del kernel
+	atender_memoria_kernel();
+	
+	//Atender los mensajes del CPU
+	atender_memoria_cpu();
+
+	//Atender los mensajes del IO
+	atender_memoria_io();
 
 	return 0;
 }

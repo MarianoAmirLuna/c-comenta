@@ -1,10 +1,14 @@
 #ifndef FILESYSTEM_H_
 #define FILESYSTEM_H_
 
-
 #include "k_gestor.h"
 
 #include "inicializar_kernel.h"
+#include "kernel_dispatch.h"
+#include "kernel_interrupt.h"
+#include "kernel_io.h"
+#include "kernel_memoria.h"
+
 t_log* kernel_logger;
 t_log* kernel_log_debug;
 t_config* kernel_config;

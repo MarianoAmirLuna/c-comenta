@@ -1,10 +1,10 @@
-#include "../include/cpu_memoria.h"
+#include "../include/memoria_cpu.h"
 #include <utils/shared.h>
 
-void atender_cpu_memoria(){
+void atender_memoria_cpu(){
     bool control_key = 1;
 	while (control_key) {
-		int cod_op = recibir_operacion(fd_memoria); 
+		int cod_op = recibir_operacion(fd_cpu); 
 		switch (cod_op) {
 		case MENSAJE:
 			//

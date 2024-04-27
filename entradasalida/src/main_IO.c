@@ -14,6 +14,10 @@ int main(){
 	fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",io_log_debug);
 
 	fd_kernel = iniciar_conexion(PUERTO_KERNEL, "KERNEL",io_log_debug);
+
+	atender_io_kernel();
+
+	atender_io_memoria();
 	
 	return 0;
 }

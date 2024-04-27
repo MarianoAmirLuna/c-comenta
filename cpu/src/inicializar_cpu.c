@@ -1,4 +1,5 @@
 #include "../include/inicializar_cpu.h"
+#include <utils/shared.h>
 
 void inicializar_cpu(){
     iniciar_logs();

@@ -1,4 +1,5 @@
 #include "../include/cpu_kernel_dispatch.h"
+#include <utils/shared.h>
 
 void atender_cpu_kernel_dispatch(){
     bool control_key = 1;

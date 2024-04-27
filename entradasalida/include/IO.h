@@ -2,6 +2,9 @@
 #define CPU_H_
 
 #include "i_gestor.h"
+#include "io_memoria.h"
+#include "io_kernel.h"
+
 //Variables GLOBALES
 
 t_log* io_logger;

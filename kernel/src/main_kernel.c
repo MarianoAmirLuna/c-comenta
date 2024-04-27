@@ -6,7 +6,6 @@
 #include "utils/shared.h"
 #include <commons/log.h>
 
-
 int main(void)
 {
 	//recibe mensajes del interrupt / dispatch / io / memoria
@@ -24,13 +23,13 @@ int main(void)
     log_trace(kernel_logger, "listo para escuchar al IO");
 	fd_io = esperar_cliente(fd_kernel);
 
-	kernel_interrupt();
+    atender_kernel_interrupt();
 
-	kernel_dispatch();
+	atender_kernel_dispatch();
 
-	kernel_io();
+	atender_kernel_io();
 
-	kernel_memoria();
+	atender_kernel_memoria();
 
 	return 0;
 }

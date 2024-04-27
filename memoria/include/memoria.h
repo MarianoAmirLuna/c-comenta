@@ -1,8 +1,12 @@
-#ifndef FILESYSTEM_H_
-#define FILESYSTEM_H_
+#ifndef MEMORIA_H_
+#define MEMORIA_H_
 
 #include "m_gestor.h"
 #include "inicializar_memoria.h"
+#include "memoria_kernel.h"
+#include "memoria_io.h"
+#include "memoria_cpu.h"
+
 t_log* memoria_logger;
 t_log* memoria_log_debug;
 t_config* memoria_config;
