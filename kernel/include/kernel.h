@@ -9,6 +9,12 @@ t_log* kernel_logger;
 t_log* kernel_log_debug;
 t_config* kernel_config;
 
+int fd_kernel;
+int fd_memoria;
+int fd_cpu_interrupt;
+int fd_cpu_dispatch;
+int fd_io;
+
 char* PUERTO_ESCUCHA;
 char* IP_MEMORIA;
 char* PUERTO_MEMORIA;

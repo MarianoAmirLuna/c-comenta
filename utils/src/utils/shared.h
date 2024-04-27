@@ -47,7 +47,7 @@ int esperar_cliente(int);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
-void crear_servidor(char* puerto, char* nombreCliente);
+int crear_servidor(char* puerto, char* nombreCliente);
 void iterator(char* value);
 int iniciar_servidor(char *puerto);
 
@@ -59,7 +59,7 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente);
 void liberar_conexion(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete);
 
-void iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug);
+int iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug);
 t_log* iniciar_logger(void);
 t_config* iniciar_configuracion(char *rutaConexion);
 void leer_consola(t_log* logger);

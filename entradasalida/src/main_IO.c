@@ -11,12 +11,16 @@ int main(){
 
 	inicializar_io();
 
-	iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",io_log_debug);
+	fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",io_log_debug);
 
-	iniciar_conexion(PUERTO_KERNEL, "KERNEL",io_log_debug);
+	fd_kernel = iniciar_conexion(PUERTO_KERNEL, "KERNEL",io_log_debug);
 	
 	return 0;
 }
+
+//iniciar servidor => retorna socket servidor
+//esperar cliente => retorna socket cliente
+//iniciar conexion / crear conexion => retorna socket cliente
 
 
 

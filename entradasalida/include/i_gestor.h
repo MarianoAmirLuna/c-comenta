@@ -15,6 +15,9 @@ extern t_log* io_logger;
 extern t_log* io_log_debug;
 extern t_config* io_config;
 
+extern int fd_memoria;
+extern int fd_kernel;
+
 extern char* TIPO_INTERFAZ;
 extern char* IP_MEMORIA;
 extern char* PUERTO_MEMORIA;

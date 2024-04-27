@@ -8,6 +8,9 @@ t_log* io_logger;
 t_log* io_log_debug;
 t_config* io_config;
 
+int fd_memoria;
+int fd_kernel;
+
 char* TIPO_INTERFAZ;
 char* IP_MEMORIA;
 char* PUERTO_MEMORIA;

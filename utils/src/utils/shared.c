@@ -2,12 +2,14 @@
 
 t_log* logger;
 
-void iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug ){
+int iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug){
 
-	int conexion = crear_conexion("127.0.0.1",puerto); //crear conexion te retorna el socket
+	int socket_cliente = crear_conexion("127.0.0.1",puerto); //crear conexion te retorna el socket
 	
 	log_trace(logger_debug,concatenar("Se conecto correctamente el ",nombre));
-	
+
+    return socket_cliente;
+
 }
 
 t_log* iniciar_logger(void)
@@ -117,17 +119,17 @@ int crear_conexion(char *ip, char* puerto)
 	getaddrinfo(ip, puerto, &hints, &server_info);
 
 	// Ahora vamos a crear el socket.
-	int socket_IO = socket(server_info->ai_family,
+	int socket = socket(server_info->ai_family,
                          server_info->ai_socktype,
                          server_info->ai_protocol);
 
 	// Ahora que tenemos el socket, vamos a conectarlo
 
-	connect(socket_IO , server_info->ai_addr, server_info->ai_addrlen);
+	connect(socket , server_info->ai_addr, server_info->ai_addrlen);
 
 	freeaddrinfo(server_info);
 
-	return socket_IO;
+	return socket;
 }
 
 void enviar_mensaje(char* mensaje, int socket_cliente)
@@ -256,7 +258,6 @@ int iniciar_servidor(char *puerto)
 
 int esperar_cliente(int socket_servidor)
 {
-
 	// Aceptamos un nuevo cliente
 	int socket_cliente = accept(socket_servidor, NULL, NULL); //se queda esperando al que el cliente envie algo
 	//log_info(logger, "Se conecto un cliente!");
@@ -319,7 +320,7 @@ t_list* recibir_paquete(int socket_cliente)
 
 ///////////
 
-void crear_servidor(char* puerto, char* nombreCliente) {
+int crear_servidor(char* puerto, char* nombreCliente) {
 	logger = log_create("log.log", "", 1, LOG_LEVEL_DEBUG);
 
 	int server_fd = iniciar_servidor(puerto);

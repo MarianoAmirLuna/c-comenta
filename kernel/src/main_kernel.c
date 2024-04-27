@@ -9,20 +9,33 @@
 
 int main(void)
 {
-	
+	//recibe mensajes del interrupt / dispatch / io / memoria
+
 	inicializar_kernel();
 
-	int socket_KERNEL = iniciar_servidor(PUERTO_ESCUCHA);
+	fd_kernel = iniciar_servidor(PUERTO_ESCUCHA);
 
-    iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);
+    fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);
 
-	iniciar_conexion(PUERTO_CPU_INTERRUPT, "CPU-INTERRUPT",kernel_log_debug);
+	fd_cpu_interrupt = iniciar_conexion(PUERTO_CPU_INTERRUPT, "CPU-INTERRUPT",kernel_log_debug);
 
-	iniciar_conexion(PUERTO_CPU_DISPATCH, "CPU-DISPATCH",kernel_log_debug);
+	fd_cpu_dispatch = iniciar_conexion(PUERTO_CPU_DISPATCH, "CPU-DISPATCH",kernel_log_debug);
 
     log_trace(kernel_logger, "listo para escuchar al IO");
-	int socket_cliente_INTERRUPT = esperar_cliente(socket_KERNEL);
+	fd_io = esperar_cliente(fd_kernel);
+
+	kernel_interrupt();
+
+	kernel_dispatch();
+
+	kernel_io();
+
+	kernel_memoria();
 
 	return 0;
 }
+
+//iniciar servidor => retorna socket servidor
+//esperar cliente => retorna socket cliente
+//iniciar conexion / crear conexion => retorna socket cliente
 
