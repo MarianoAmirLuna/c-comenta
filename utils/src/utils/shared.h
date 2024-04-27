@@ -38,13 +38,6 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
-typedef struct {
-	char *ip;
-	char *puerto;
-	char *ruta_interna;
-	char *nombreCliente;
-} datos_conexion;
-
 
 extern t_log* logger;
 
@@ -54,9 +47,9 @@ int esperar_cliente(int);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
-void *crear_servidor(void *ptr);
+void crear_servidor(char* puerto, char* nombreCliente);
 void iterator(char* value);
-int iniciar_servidor(char *ip, char *puerto);
+int iniciar_servidor(char *puerto);
 
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);
@@ -66,10 +59,9 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente);
 void liberar_conexion(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete);
 
-
-void *iniciar_conexion(void *ptr);
+void iniciar_conexion(char* puerto,char *nombre);
 t_log* iniciar_logger(void);
-t_config* iniciar_config(char *rutaConexion);
+t_config* iniciar_configuracion(char *rutaConexion);
 void leer_consola(t_log* logger);
 void paquete(int conexion);
 void terminar_programa(int conexion, t_log* logger, t_config* config);

@@ -6,12 +6,13 @@
 #include <commons/log.h>
 #include <../include/IO.h>
 
-void *crear_servidor(void *ptr);
-
-
 int main(){
 
 	inicializar_io();
+
+	iniciar_conexion(PUERTO_MEMORIA, "MEMORIA");
+
+	iniciar_conexion(PUERTO_KERNEL, "KERNEL");
 	
 	return 0;
 }

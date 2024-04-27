@@ -17,5 +17,9 @@ extern char* TAM_PAGINA;
 extern char* PATH_INSTRUCCIONES;
 extern int RETARDO_RESPUESTA;
 
+extern int socket_cliente_CPU;
+extern int socket_cliente_KERNEL;
+extern int socket_cliente_IO;
+
 
 #endif

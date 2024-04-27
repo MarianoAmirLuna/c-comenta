@@ -2,39 +2,12 @@
 
 t_log* logger;
 
-void *iniciar_conexion(void *ptr){
-	int conexion;
-	char* ip;
-	char* puerto;
-	char* valor;
+void iniciar_conexion(char* puerto,char *nombre){
 
-    datos_conexion *datos = (datos_conexion *)ptr;
-
-	//t_log* logger;
-	t_config* config;
-
-    //logger = iniciar_logger();
-
-	//log_info(logger,"");
-
-	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
-
-	config = iniciar_config(datos->ruta_interna);
-
-	valor = config_get_string_value(config, "CLAVE");
-	ip = config_get_string_value(config, datos->ip);
-	puerto = config_get_string_value(config, datos->puerto);
-
-	//log_info(logger,ip_kernel);
-	//log_info(logger, puerto_kernel);
-
-	/* ---------------- ARCHIVOS DE CONFIGURACION ---------------- */
-
-    
-	// Creamos una conexión hacia el servidor
-	conexion = crear_conexion(ip,puerto); //crear conexion te retorna el socket
-
-	enviar_mensaje(valor,conexion);
+	int conexion = crear_conexion("127.0.0.1",puerto); //crear conexion te retorna el socket
+	
+	//log_info(logger,concatenar("Se conecto el ",nombre));
+	
 }
 
 t_log* iniciar_logger(void)
@@ -50,7 +23,7 @@ t_log* iniciar_logger(void)
 	return nuevo_logger;
 }
 
-t_config* iniciar_config(char *rutaConexion)
+t_config* iniciar_configuracion(char *rutaConexion)
 {
 	t_config* nuevo_config = config_create(rutaConexion); //esto te pide la ruta del config
 
@@ -244,7 +217,7 @@ char* concatenar(char* str1, char* str2) {
 // ####################################
 
 
-int iniciar_servidor(char *ip,char *puerto)
+int iniciar_servidor(char *puerto)
 {
 	int socket_servidor;
 
@@ -255,7 +228,7 @@ int iniciar_servidor(char *ip,char *puerto)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	getaddrinfo(ip,puerto, &hints, &servinfo);	
+	getaddrinfo("127.0.0.1",puerto, &hints, &servinfo);	
 
 	// Creamos el socket de escucha del servidor
 	socket_servidor = socket(servinfo->ai_family,
@@ -274,7 +247,7 @@ int iniciar_servidor(char *ip,char *puerto)
 	listen(socket_servidor, SOMAXCONN); //marca en el sistema el socket cuya única responsabilidad es notificar cuando un nuevo cliente esté intentando conectarse.
 
 	freeaddrinfo(servinfo);
-	log_trace(logger, "Listo para escuchar a mi cliente");
+	//log_trace(logger, "listo para escuchar al cliente");
 
 	return socket_servidor;
 
@@ -286,7 +259,7 @@ int esperar_cliente(int socket_servidor)
 
 	// Aceptamos un nuevo cliente
 	int socket_cliente = accept(socket_servidor, NULL, NULL); //se queda esperando al que el cliente envie algo
-	log_info(logger, "Se conecto un cliente!");
+	//log_info(logger, "Se conecto un cliente!");
 
 	return socket_cliente;
 }
@@ -346,13 +319,12 @@ t_list* recibir_paquete(int socket_cliente)
 
 ///////////
 
-void *crear_servidor(void *ptr) {
+void crear_servidor(char* puerto, char* nombreCliente) {
 	logger = log_create("log.log", "", 1, LOG_LEVEL_DEBUG);
-	datos_conexion *datos = (datos_conexion *)ptr;
 
-	int server_fd = iniciar_servidor(datos->ip, datos->puerto);
+	int server_fd = iniciar_servidor(puerto);
 
-	log_info(logger, concatenar("listo para recibir al ", datos->nombreCliente));
+	log_info(logger, concatenar("listo para recibir al ", nombreCliente));
 	int cliente_fd = esperar_cliente(server_fd); //dentro de esta funcion hay un accept la cual es bloqueante
 	log_info(logger, "espero al cliente");
 	//retorna un nuevo socket (file descriptor) que representa la conexión BIDIRECCIONAL entre ambos procesos.

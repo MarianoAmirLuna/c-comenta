@@ -12,5 +12,8 @@ char* TAM_MEMORIA;
 char* TAM_PAGINA;
 char* PATH_INSTRUCCIONES;
 int RETARDO_RESPUESTA;
+int socket_cliente_CPU;
+int socket_cliente_KERNEL;
+int socket_cliente_IO;
 
 #endif
