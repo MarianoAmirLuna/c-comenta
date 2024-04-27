@@ -7,6 +7,11 @@ t_log* memoria_logger;
 t_log* memoria_log_debug;
 t_config* memoria_config;
 
+int fd_memoria;
+int fd_kernel;
+int fd_io;
+int fd_cpu;
+
 char* PUERTO_ESCUCHA;
 char* TAM_MEMORIA;
 char* TAM_PAGINA;

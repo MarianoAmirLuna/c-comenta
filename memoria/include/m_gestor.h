@@ -11,6 +11,11 @@ extern t_log* memoria_logger;
 extern t_log* memoria_log_debug;
 extern t_config* memoria_config;
 
+extern int fd_memoria;
+extern int fd_kernel;
+extern int fd_io;
+extern int fd_cpu;
+
 extern char* PUERTO_ESCUCHA;
 extern char* TAM_MEMORIA;
 extern char* TAM_PAGINA;

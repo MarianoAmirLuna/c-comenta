@@ -12,17 +12,17 @@ int main() {
 
 	inicializar_memoria();	
 	
-	int socket_memoria = iniciar_servidor(PUERTO_ESCUCHA);
+	fd_memoria = iniciar_servidor(PUERTO_ESCUCHA);
    
-	log_trace(memoria_logger, "listo para escuchar al CPU");
+	log_trace(memoria_log_debug, "listo para escuchar al CPU");
 	
-	socket_cliente_CPU = esperar_cliente(socket_memoria);  //esto me esta rompiendo todo
+	fd_cpu = esperar_cliente(socket_memoria);  
 
-	log_trace(memoria_logger, "listo para escuchar al KERNEL");
-	socket_cliente_KERNEL = esperar_cliente(socket_memoria);
+	log_trace(memoria_log_debug, "listo para escuchar al KERNEL");
+	fd_kernel = esperar_cliente(socket_memoria);
 
-	log_trace(memoria_logger, "listo para escuchar al IO");
-	socket_cliente_IO = esperar_cliente(socket_memoria);
+	log_trace(memoria_log_debug, "listo para escuchar al IO");
+	fd_io = esperar_cliente(socket_memoria);
 
 
 	return 0;

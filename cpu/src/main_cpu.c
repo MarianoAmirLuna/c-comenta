@@ -14,7 +14,7 @@ int main(void) {
 
 	int socket_CPU_INTERRUPT = iniciar_servidor(PUERTO_ESCUCHA_INTERRUPT);
 
-    iniciar_conexion(PUERTO_MEMORIA, "CPU");
+    iniciar_conexion(PUERTO_MEMORIA, "CPU",cpu_log_debug);
 
 	int socket_cliente_DISPATCH = esperar_cliente(socket_CPU_DISPATCH);
 

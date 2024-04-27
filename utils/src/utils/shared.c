@@ -2,11 +2,11 @@
 
 t_log* logger;
 
-void iniciar_conexion(char* puerto,char *nombre){
+void iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug ){
 
 	int conexion = crear_conexion("127.0.0.1",puerto); //crear conexion te retorna el socket
 	
-	//log_info(logger,concatenar("Se conecto el ",nombre));
+	log_trace(logger_debug,concatenar("Se conecto correctamente el ",nombre));
 	
 }
 
