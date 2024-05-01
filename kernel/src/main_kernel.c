@@ -23,13 +23,21 @@ int main(void)
     log_trace(kernel_logger, "listo para escuchar al IO");
 	fd_io = esperar_cliente(fd_kernel);
 
-    atender_kernel_interrupt();
+	pthread_t hilo_cpu_interrupt;
+	pthread_create(&hilo_cpu_interrupt, NULL, (void*)atender_kernel_interrupt, NULL);
+	pthread_detach(hilo_cpu_interrupt);
 
-	atender_kernel_dispatch();
+	pthread_t hilo_cpu_dispatch;
+	pthread_create(&hilo_cpu_dispatch, NULL, (void*)atender_kernel_dispatch, NULL);
+	pthread_detach(hilo_cpu_dispatch);
 
-	atender_kernel_io();
-
-	atender_kernel_memoria();
+	pthread_t hilo_io;
+	pthread_create(&hilo_io, NULL, (void*)atender_kernel_io, NULL);
+	pthread_detach(hilo_io);
+	
+	pthread_t hilo_memoria;
+	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
+	pthread_join(hilo_memoria, NULL);
 
 	return 0;
 }

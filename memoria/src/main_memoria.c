@@ -25,13 +25,22 @@ int main() {
 	fd_io = esperar_cliente(fd_memoria);
 
 	//Atender los mensajes del kernel
-	atender_memoria_kernel();
+
+	pthread_t hilo_kernel;
+	pthread_create(&hilo_kernel, NULL, (void*)atender_memoria_kernel, NULL);
+	pthread_detach(hilo_kernel);	
 	
 	//Atender los mensajes del CPU
-	atender_memoria_cpu();
+	pthread_t hilo_cpu;
+	pthread_create(&hilo_cpu, NULL, (void*)atender_memoria_cpu, NULL);
+	pthread_detach(hilo_cpu);
+	
 
 	//Atender los mensajes del IO
-	atender_memoria_io();
+	pthread_t hilo_io;
+	pthread_create(&hilo_io, NULL, (void*)atender_memoria_io, NULL);
+	pthread_join(hilo_io, NULL);
+	
 
 	return 0;
 }

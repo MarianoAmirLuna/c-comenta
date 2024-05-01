@@ -21,13 +21,19 @@ int main(void) {
 	fd_kernel_interrupt = esperar_cliente(fd_cpu_interrupt);
 
 	//atender los mensajes del kernel dispatch
-	atender_cpu_kernel_dispatch();
+	pthread_t hilo_kernel_dispatch;
+	pthread_create(&hilo_kernel_dispatch, NULL, (void*)atender_cpu_kernel_dispatch, NULL);
+	pthread_detach(hilo_kernel_dispatch);
 	
 	//atender los mensajes del kernel interrupt
-	atender_cpu_kernel_interrupt();
+	pthread_t hilo_kernel_interrupt;
+	pthread_create(&hilo_kernel_interrupt, NULL, (void*)atender_cpu_kernel_interrupt, NULL);
+	pthread_detach(hilo_kernel_interrupt);
 
     //atender los mensajes de la memoria
-	atender_cpu_memoria();
+	pthread_t hilo_memoria;
+	pthread_create(&hilo_memoria, NULL, (void*)atender_cpu_memoria, NULL);
+	pthread_join(hilo_memoria, NULL);
 
 	return 0;
 }
