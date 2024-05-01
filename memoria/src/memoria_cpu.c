@@ -13,8 +13,9 @@ void atender_memoria_cpu(){
             //
 			break;
 		case -1:
-			log_error(logger, "Desconexion de CPU - MEMORIA");
-			return EXIT_FAILURE;
+			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");
+			control_key = 0;
+			break;
 		default:
 			log_warning(logger,"Operacion desconocida de CPU - MEMORIA");
 			break;

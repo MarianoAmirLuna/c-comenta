@@ -13,8 +13,9 @@ void atender_kernel_io(){
             //
 			break;
 		case -1:
-			log_error(logger, "Desconexion de KERNEL - IO");
-			return EXIT_FAILURE;
+			log_trace(kernel_log_debug, "Desconexion de KERNEL - IO");
+			control_key = 0;
+			break;
 		default:
 			log_warning(logger,"Operacion desconocida de KERNEL - IO");
 			break;

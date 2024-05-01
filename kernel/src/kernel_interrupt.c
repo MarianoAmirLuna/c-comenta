@@ -13,8 +13,9 @@ void atender_kernel_interrupt(){
             //
 			break;
 		case -1:
-			log_error(logger, "Desconexion de KERNEL - Interrupt");
-			return EXIT_FAILURE;
+			log_trace(kernel_log_debug, "Desconexion de KERNEL - Interrupt");
+			control_key = 0;
+			break;
 		default:
 			log_warning(logger,"Operacion desconocida de KERNEL - Interrupt");
 			break;

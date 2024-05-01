@@ -13,8 +13,9 @@ void atender_memoria_io(){
             //
 			break;
 		case -1:
-			log_error(logger, "Desconexion de IO - MEMORIA");
-			return EXIT_FAILURE;
+			log_trace(memoria_log_debug, "Desconexion de IO - MEMORIA");
+			control_key = 0;
+			break;
 		default:
 			log_warning(logger,"Operacion desconocida de IO - MEMORIA");
 			break;

@@ -13,8 +13,9 @@ void atender_memoria_kernel(){
             //
 			break;
 		case -1:
-			log_error(logger, "Desconexion de KERNEL - MEMORIA");
-			return EXIT_FAILURE;
+			log_trace(memoria_log_debug, "Desconexion de KERNEL - MEMORIA");
+			control_key = 0;
+			break;
 		default:
 			log_warning(logger,"Operacion desconocida de KERNEL - MEMORIA");
 			break;

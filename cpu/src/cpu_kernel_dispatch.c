@@ -13,8 +13,9 @@ void atender_cpu_kernel_dispatch(){
             //
 			break;
 		case -1:
-			log_error(logger, "Desconexion de KERNEL - Dispatch");
-			return EXIT_FAILURE;
+			log_trace(cpu_log_debug, "Desconexion de KERNEL - Dispatch");
+			control_key = 0;
+			break;
 		default:
 			log_warning(logger,"Operacion desconocida de KERNEL - Dispatch");
 			break;
