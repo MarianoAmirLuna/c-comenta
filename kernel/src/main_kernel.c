@@ -37,7 +37,12 @@ int main(void)
 	
 	pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
-	pthread_join(hilo_memoria, NULL);
+	pthread_detach(hilo_memoria);
+
+	//Iniciar la consola interactiva
+	iniciar_consola_interactiva();
+	
+	log_debug(kernel_log_debug, "Advertencia de salida de Kernel");
 
 	return 0;
 }

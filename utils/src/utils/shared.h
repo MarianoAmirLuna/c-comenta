@@ -67,4 +67,17 @@ void paquete(int conexion);
 void terminar_programa(int conexion, t_log* logger, t_config* config);
 char* concatenar(char* str1, char* str2);
 
+/////////////////////////////
+t_buffer* recibir_todo_el_buffer(int conexion);
+void* extraer_choclo_del_buffer(t_buffer* un_buffer);
+int extraer_int_del_buffer(t_buffer* un_buffer);
+t_buffer* crear_buffer();
+void destruir_buffer(t_buffer* un_buffer);
+void cargar_choclo_al_buffer(t_buffer* un_buffer, void* un_choclo, int size_choclo);
+void cargar_int_al_buffer(t_buffer* un_buffer, int int_value);
+void cargar_uint32_al_buffer(t_buffer* un_buffer, uint32_t un_valor);
+void cargar_string_al_buffer(t_buffer* un_buffer, char* un_string);
+t_paquete* crear_super_paquete(op_code cod_op, t_buffer* un_buffer);
+void destruir_paquete(t_paquete* un_paquete);
+
 #endif /* UTILS_H_ */

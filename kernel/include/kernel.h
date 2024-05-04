@@ -1,5 +1,5 @@
-#ifndef FILESYSTEM_H_
-#define FILESYSTEM_H_
+#ifndef KERNEL_H_
+#define KERNEL_H_
 
 #include "k_gestor.h"
 
@@ -30,5 +30,10 @@ int QUANTUM;
 char* RECURSOS;
 char* INSTANCIAS_RECURSOS;
 int GRADO_MULTIPROGRAMACION;
+
+int identificador_PID = 1;
+int contador_pcbs = 1;
+
+pthread_mutex_t mutex_pid;
 
 #endif

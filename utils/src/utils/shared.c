@@ -152,13 +152,14 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 	eliminar_paquete(paquete);
 }
 
-
+/*
 void crear_buffer(t_paquete* paquete)
 {
 	paquete->buffer = malloc(sizeof(t_buffer));
 	paquete->buffer->size = 0;
 	paquete->buffer->stream = NULL;
 }
+*/
 
 t_paquete* crear_paquete(void)
 {
@@ -358,3 +359,142 @@ void iterator(char* value) {
 	log_info(logger,"%s", value);
 }
 
+//////////////////////////////////////////
+t_buffer* recibir_todo_el_buffer(int conexion){
+	t_buffer* un_buffer = malloc(sizeof(t_buffer));
+
+	if (recv(conexion, &(un_buffer->size), sizeof (int), MSG_WAITALL) > 0)
+	{
+		un_buffer -> stream = malloc(un_buffer->size);
+		if(recv(conexion, un_buffer->stream, un_buffer->size, MSG_WAITALL) > 0)
+		{
+			return un_buffer;
+		}else{
+			perror("Error al recibir el void* del buffer de la conexion");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else{
+		perror("Error al recibir el tamanio del buffer de la conexion");
+		exit(EXIT_FAILURE);
+	}
+	return un_buffer;
+}
+
+void* extraer_choclo_del_buffer(t_buffer* un_buffer)
+{
+	if(un_buffer ->size == 0)
+	{
+		printf("\n[ERROR] Al intentar extraer un contenido de un t_buffer vacio");
+		exit(EXIT_FAILURE);
+	}
+	if(un_buffer->size < 0)
+	{
+		printf("\n[ERROR] Esto es raro. el t_buffer contiene un size NEGATIVO \n");
+		exit(EXIT_FAILURE);
+	}
+
+	int size_choclo;
+	memcpy(&size_choclo, un_buffer->stream, sizeof(int));
+	void* choclo = malloc(size_choclo);
+	memcpy(choclo, un_buffer->stream + sizeof(int), size_choclo);
+
+	int nuevo_size = un_buffer ->size- sizeof(int) - size_choclo;
+	if(nuevo_size == 0)
+	{
+		un_buffer -> size = 0;
+		free (un_buffer->stream);
+		un_buffer->stream = NULL;
+		return choclo;
+	}
+	if(nuevo_size < 0)
+	{
+		perror("\n[ERROR CHOCLO] BUFFER contamanio negativo");
+		exit(EXIT_FAILURE);
+	}
+
+	void* nuevo_stream = malloc(nuevo_size);
+	memcpy(nuevo_stream, un_buffer->stream + sizeof(int) +size_choclo, nuevo_stream);
+	free(un_buffer->stream);
+	un_buffer->size = nuevo_size;
+	un_buffer->stream = nuevo_stream;
+	
+	return choclo;
+}
+int extraer_int_del_buffer(t_buffer* un_buffer)
+{
+	int *un_entero = extraer_choclo_del_buffer(un_buffer);
+	int valor_retorno = *un_entero;
+	free(un_entero);
+	return valor_retorno;
+}
+char *extraer_string_del_buffer(t_buffer* un_buffer)
+{
+	char *un_string = extraer_choclo_del_buffer(un_buffer);
+	return un_string;
+}
+
+uint32_t extraer_uint32_del_buffer(t_buffer *un_buffer)
+{
+	uint32_t *un_valor = extraer_choclo_del_buffer(un_buffer);
+	uint32_t valor_retorno = *un_valor;
+	free(un_valor);
+	return valor_retorno;
+}
+
+
+t_buffer* crear_buffer(){
+	t_buffer* un_buffer = malloc(sizeof(t_buffer));
+	un_buffer->size = 0;
+	un_buffer->stream = NULL;
+	return un_buffer;
+}
+
+
+void destruir_buffer(t_buffer* un_buffer){
+	if(un_buffer->stream != NULL){
+		free(un_buffer->stream);
+	}
+	free(un_buffer);
+}
+
+void cargar_choclo_al_buffer(t_buffer* un_buffer, void* un_choclo, int size_choclo){
+	if(un_buffer -> size == 0){
+		un_buffer->stream = malloc(sizeof(int) + size_choclo);
+		memcpy(un_buffer->stream, &size_choclo, sizeof(int));
+		memcpy(un_buffer->stream + sizeof(int), un_choclo, size_choclo);
+	} else {
+		un_buffer->stream = realloc(un_buffer->stream, un_buffer->size + sizeof(int) + size_choclo);
+		memcpy(un_buffer->stream + un_buffer->size, &size_choclo, sizeof(int));
+		memcpy(un_buffer->stream + un_buffer->size + sizeof(int), un_choclo, size_choclo);
+	}
+	un_buffer->size += sizeof(int);
+	un_buffer->size += size_choclo;
+}
+
+void cargar_int_al_buffer(t_buffer* un_buffer, int int_value){
+	cargar_choclo_al_buffer(un_buffer, &int_value, sizeof(int));
+}
+
+void cargar_uint32_al_buffer(t_buffer* un_buffer, uint32_t un_valor){
+	cargar_choclo_al_buffer(un_buffer, &un_valor, sizeof(uint32_t));
+}
+
+void cargar_string_al_buffer(t_buffer* un_buffer, char* un_string){
+	cargar_choclo_al_buffer(un_buffer, un_string, strlen(un_string)+1);
+
+}
+
+//==============================
+
+t_paquete* crear_super_paquete(op_code cod_op, t_buffer* un_buffer){
+	t_paquete* un_paquete = malloc(sizeof(t_paquete));
+	un_paquete->codigo_operacion = cod_op;
+	un_paquete->buffer = un_buffer;
+	return un_paquete;
+}
+
+void destruir_paquete(t_paquete* un_paquete){
+	destruir_buffer(un_paquete->buffer);
+	free(un_paquete);
+}
