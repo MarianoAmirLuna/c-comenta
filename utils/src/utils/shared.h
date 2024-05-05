@@ -38,6 +38,31 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
+typedef struct{
+	uint8_t  AX;
+	uint8_t  BX;
+	uint8_t  CX;
+	uint8_t  DX;
+	uint32_t  EAX;
+	uint32_t  EBX;
+	uint32_t  ECX;
+	uint32_t  EDX;
+	uint32_t  SI;
+	uint32_t  DI;
+}registros;
+
+typedef struct{
+	int pid;
+	int program_counter; //si rompe es culpa de brandon
+	int quantum;
+	registros registros_cpu;
+} PCB;
+
+typedef struct{
+	int id;
+	char* path;
+} path_conID;
+
 
 extern t_log* logger;
 
@@ -71,6 +96,7 @@ char* concatenar(char* str1, char* str2);
 t_buffer* recibir_todo_el_buffer(int conexion);
 void* extraer_choclo_del_buffer(t_buffer* un_buffer);
 int extraer_int_del_buffer(t_buffer* un_buffer);
+char *extraer_string_del_buffer(t_buffer* un_buffer);
 t_buffer* crear_buffer();
 void destruir_buffer(t_buffer* un_buffer);
 void cargar_choclo_al_buffer(t_buffer* un_buffer, void* un_choclo, int size_choclo);

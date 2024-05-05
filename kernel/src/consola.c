@@ -1,4 +1,5 @@
 #include "../include/consola.h"
+#include "../include/funciones_kernel.h"
 
 void iniciar_consola_interactiva(){
     char* leido;
@@ -6,8 +7,8 @@ void iniciar_consola_interactiva(){
     bool validacion_leido;
 
     while(strcmp(leido, "\0") != 0){
-        validacion_leido = _validacion_de_instruccion_de_consola(leido);
-        if(!validacion_leido){
+        validacion_leido = _validacion_de_instruccion_de_consola(leido); 
+        if(!validacion_leido){ //esta bien el primer comando?
             log_error(kernel_logger, "Comando de CONSOLA no reconocido");
             free(leido);
             leido = readline("> ");
@@ -21,7 +22,7 @@ void iniciar_consola_interactiva(){
     free(leido);
 }    
 
-bool _validacion_de_instruccion_de_consola(char* leido){
+bool _validacion_de_instruccion_de_consola(char* leido){ //esta funcion solo sirve para ver si escribiste bien el primer comando
     bool resultado_validacion = false;
 
     //[FALTA] Hacer hacer mas controles de validacion
@@ -44,7 +45,7 @@ bool _validacion_de_instruccion_de_consola(char* leido){
     }else if(strcmp(comando_consola[0], "PRINT") == 0){
         resultado_validacion = true;
     }else{
-        log_error(kernel_logger, "Comando no reconocido.");
+        //log_error(kernel_logger, "Comando no reconocido.");
         resultado_validacion = false;
     }
 
@@ -55,13 +56,10 @@ bool _validacion_de_instruccion_de_consola(char* leido){
 
 void _atender_instruccion_validada(char* leido){
     char** comando_consola = string_split(leido, " ");
-    t_buffer* un_buffer = crear_buffer();
 
     if(strcmp(comando_consola[0], "INICIAR_PROCESO") == 0){
-        cargar_string_al_buffer(un_buffer, comando_consola[1]);
-        cargar_string_al_buffer(un_buffer, comando_consola[2]);
-        cargar_string_al_buffer(un_buffer, comando_consola[2]);
-        _f_iniciar_proceso(un_buffer);
+
+        iniciar_proceso(comando_consola[1]);
 
     } else if (strcmp(comando_consola[0], "FINALIZAR_PROCESO") == 0){
 
@@ -84,27 +82,5 @@ void _atender_instruccion_validada(char* leido){
     string_array_destroy(comando_consola);
 }
 
-void _f_iniciar_proceso(t_buffer* un_buffer){
-    char* path = extraer_string_del_buffer(un_buffer);
-    char* size = extraer_string_del_buffer(un_buffer);
-    char* prioridad = extraer_string_del_buffer(un_buffer);
-    
-    //log_trace(kerne_log_debug, "BUFFER(%d): [PATH:&s][SIZE:%s][PRIO:%s]", un_buffer->size, path, size, prioridad);
-    destruir_buffer(un_buffer);
-
-    int pid = asignar_pid();
-    int size_num = atoi(size);
-
-    //avisar a memoria
-    t_buffer* a_enviar = crear_buffer();
-    cargar_int_al_buffer(a_enviar, pid);
-    cargar_string_al_buffer(a_enviar, path);
-    cargar_int_al_buffer(a_enviar, size_num);
-    t_paquete* un_paquete = crear_super_paquete(CREAR_PROCESO_KM, a_enviar);
-    enviar_paquete(un_paquete, fd_memoria);
-    destruir_paquete(un_paquete);
-
-    //falta la lógica para el funcaionamiento del kernel, va acá parece
-}
 
 

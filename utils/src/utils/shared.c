@@ -383,7 +383,7 @@ t_buffer* recibir_todo_el_buffer(int conexion){
 
 void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 {
-	if(un_buffer ->size == 0)
+	if(un_buffer->size == 0)
 	{
 		printf("\n[ERROR] Al intentar extraer un contenido de un t_buffer vacio");
 		exit(EXIT_FAILURE);
@@ -399,28 +399,31 @@ void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 	void* choclo = malloc(size_choclo);
 	memcpy(choclo, un_buffer->stream + sizeof(int), size_choclo);
 
-	int nuevo_size = un_buffer ->size- sizeof(int) - size_choclo;
+	int nuevo_size = un_buffer->size - sizeof(int) - size_choclo;
 	if(nuevo_size == 0)
 	{
-		un_buffer -> size = 0;
+		un_buffer->size = 0;
 		free (un_buffer->stream);
 		un_buffer->stream = NULL;
 		return choclo;
 	}
 	if(nuevo_size < 0)
 	{
-		perror("\n[ERROR CHOCLO] BUFFER contamanio negativo");
+		perror("\n[ERROR CHOCLO] BUFFER con tamanio negativo");
 		exit(EXIT_FAILURE);
 	}
 
 	void* nuevo_stream = malloc(nuevo_size);
-	memcpy(nuevo_stream, un_buffer->stream + sizeof(int) +size_choclo, nuevo_stream);
+	//memcpy(nuevo_stream, un_buffer->stream + sizeof(int) + size_choclo, nuevo_stream);
+	memcpy(nuevo_stream, un_buffer->stream + sizeof(int) + size_choclo, nuevo_size);
 	free(un_buffer->stream);
 	un_buffer->size = nuevo_size;
 	un_buffer->stream = nuevo_stream;
 	
 	return choclo;
 }
+
+
 int extraer_int_del_buffer(t_buffer* un_buffer)
 {
 	int *un_entero = extraer_choclo_del_buffer(un_buffer);
@@ -449,7 +452,6 @@ t_buffer* crear_buffer(){
 	un_buffer->stream = NULL;
 	return un_buffer;
 }
-
 
 void destruir_buffer(t_buffer* un_buffer){
 	if(un_buffer->stream != NULL){
@@ -498,3 +500,5 @@ void destruir_paquete(t_paquete* un_paquete){
 	destruir_buffer(un_paquete->buffer);
 	free(un_paquete);
 }
+
+
