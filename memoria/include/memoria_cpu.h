@@ -3,6 +3,7 @@
 
 #include "m_gestor.h"
 
+void enviarInstruccion(char*, uint32_t);
 void atender_memoria_cpu();
 
 #endif
