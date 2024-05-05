@@ -400,6 +400,12 @@ void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 	memcpy(choclo, un_buffer->stream + sizeof(int), size_choclo);
 
 	int nuevo_size = un_buffer->size - sizeof(int) - size_choclo;
+
+    //printf("buffer size: %d\n",un_buffer->size);
+    //printf(" choclo: %d\n",size_choclo);
+	//printf("nuevo_size: %d\n",nuevo_size);
+	//printf("---------------------------------\n");
+
 	if(nuevo_size == 0)
 	{
 		un_buffer->size = 0;
@@ -414,7 +420,6 @@ void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 	}
 
 	void* nuevo_stream = malloc(nuevo_size);
-	//memcpy(nuevo_stream, un_buffer->stream + sizeof(int) + size_choclo, nuevo_stream);
 	memcpy(nuevo_stream, un_buffer->stream + sizeof(int) + size_choclo, nuevo_size);
 	free(un_buffer->stream);
 	un_buffer->size = nuevo_size;

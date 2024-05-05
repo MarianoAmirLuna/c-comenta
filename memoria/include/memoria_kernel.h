@@ -5,6 +5,6 @@
 #include <utils/shared.h>
 
 void atender_memoria_kernel();
-path_conID* deserializar(t_buffer* buffer);
+void atender_crear_proceso(t_buffer* un_buffer);
 
 #endif

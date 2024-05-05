@@ -59,6 +59,9 @@ void _atender_instruccion_validada(char* leido){
 
     if(strcmp(comando_consola[0], "INICIAR_PROCESO") == 0){
 
+        printf("%s\n",comando_consola[0]);
+        printf("%s\n",comando_consola[1]);
+
         iniciar_proceso(comando_consola[1]);
 
     } else if (strcmp(comando_consola[0], "FINALIZAR_PROCESO") == 0){

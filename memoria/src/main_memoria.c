@@ -6,8 +6,6 @@
 #include "utils/shared.h"
 #include <commons/log.h>
 
-
-
 int main() {
 
 	inicializar_memoria();	
@@ -45,9 +43,11 @@ int main() {
 	return 0;
 }
 
+/*
 void atender_proceso(t_buffer* un_buffer){
   int pid = extraer_int_del_buffer(un_buffer);
   char* path = extraer_string_del_buffer(un_buffer);
 
   free(path);
 }
+*/

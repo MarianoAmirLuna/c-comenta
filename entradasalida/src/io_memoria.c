@@ -18,7 +18,7 @@ void atender_io_memoria()
         case -1:
             log_trace(io_log_debug, "Desconexion de MEMORIA - IO");
             control_key = 0;
-			break;
+            break;
         default:
             log_warning(logger, "Operacion desconocida de MEMORIA - IO");
             break;

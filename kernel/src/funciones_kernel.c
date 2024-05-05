@@ -17,11 +17,18 @@ PCB iniciar_PCB(){ //revisar si anda o hay que poner struct adelante
   pcb.program_counter = 0;
   pcb.quantum = config_get_int_value(config,"QUANTUM");
 
+  printf("El numero del pcb es: ");
+  printf("%d\n",pcb.pid);
+
   return pcb;
 }
 
+
 void enviar_path_memoria(char* path, int pid){
   t_buffer* a_enviar = crear_buffer();
+
+  a_enviar->size = 0;
+  a_enviar->stream = NULL;
   
   cargar_int_al_buffer(a_enviar, pid);
   cargar_string_al_buffer(a_enviar, path);
