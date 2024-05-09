@@ -40,4 +40,9 @@ extern int contador_pcbs;
 
 extern pthread_mutex_t mutex_pid;
 
+extern t_list procesosNEW;
+extern t_list procesosREADY;
+extern int procesoEXEC;
+
+
 #endif
