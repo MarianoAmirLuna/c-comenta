@@ -4,6 +4,7 @@ void inicializar_memoria(){
     iniciar_logs();
     iniciar_config();
     imprimir_config();
+	iniciar_listas();
 }
 void iniciar_logs(){
     
@@ -23,6 +24,10 @@ void iniciar_logs(){
 		exit(EXIT_FAILURE);
 	}
 
+}
+
+void iniciar_listas(){
+	list_path_id = list_create();
 }
 
 void iniciar_config(){

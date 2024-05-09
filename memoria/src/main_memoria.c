@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include "utils/shared.h"
 #include <commons/log.h>
+#include <commons/collections/list.h>
 
 int main() {
 

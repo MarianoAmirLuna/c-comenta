@@ -507,3 +507,4 @@ void destruir_paquete(t_paquete* un_paquete){
 }
 
 
+

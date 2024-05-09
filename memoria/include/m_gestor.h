@@ -26,5 +26,8 @@ extern int socket_cliente_CPU;
 extern int socket_cliente_KERNEL;
 extern int socket_cliente_IO;
 
+extern int id_lamba;
+extern t_list* list_path_id;
+
 
 #endif

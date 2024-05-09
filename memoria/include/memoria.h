@@ -25,4 +25,8 @@ int socket_cliente_CPU;
 int socket_cliente_KERNEL;
 int socket_cliente_IO;
 
+int id_lamba;
+t_list* list_path_id;
+
+
 #endif
