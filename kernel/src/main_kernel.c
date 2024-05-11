@@ -40,9 +40,9 @@ int main(void)
 	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
 	pthread_detach(hilo_memoria);
 
-	pthread_t hilo_planificacion;
+	/*pthread_t hilo_planificacion;
 	pthread_create(&hilo_planificacion, NULL, (void*)ciclo_planificacion, NULL);
-	pthread_detach(hilo_planificacion);
+	pthread_detach(hilo_planificacion);*/
 
 	//Iniciar la consola interactiva
 	iniciar_consola_interactiva();

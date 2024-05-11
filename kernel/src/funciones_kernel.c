@@ -43,24 +43,25 @@ void iniciar_proceso(char* path){
   
   PCB pcb = iniciar_PCB();
   enviar_path_memoria(path,pcb.pid);
-  list_add<int>(procesosNEW, &(pcb.pid));
+  list_add(procesosNEW, &(pcb.pid));
 }
 
 void iniciar_planificacion(){
-  procesosNEW=list_create<int>();
-  procesosREADY=list_create<int>();
+  procesosNEW=list_create();
+  procesosREADY=list_create();
   procesoEXEC=0;
 }
 
-void ciclo_planificacion(){
-  while(1){
-    while(list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){
-      list_add(procesosREADY, list_remove(procesosNEW, 0));
-    }
-    if (procesoEXEC==0) //si no hay ningun proceso en ejecucion, pone el primero de READY
-    {
-      procesoEXEC=list_remove(procesosREADY, 0);
-    }
+void ciclo_planificacion_FIFO(){
+  while(list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){
+    list_add(procesosREADY, list_remove(procesosNEW, 0));
+  }
+  if (procesoEXEC==0) //si no hay ningun proceso en ejecucion, pone el primero de READY
+  {
+    pthread_mutex_t *mutexExec;
+    pthread_mutex_lock(mutexExec);
+    procesoEXEC=list_remove(procesosREADY, 0); 
+    pthread_mutex_unlock(mutexExec); 
   }
 }
 
