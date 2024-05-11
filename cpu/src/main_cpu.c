@@ -35,6 +35,11 @@ int main(void) {
 	pthread_create(&hilo_memoria, NULL, (void*)atender_cpu_memoria, NULL);
 	pthread_join(hilo_memoria, NULL);
 
+	printf("empeze a contar");
+    sleep(25);
+	printf("termino de contar");
+	procesamiento_cpu();
+
 	return 0;
 }
 

@@ -450,6 +450,13 @@ uint32_t extraer_uint32_del_buffer(t_buffer *un_buffer)
 	return valor_retorno;
 }
 
+uint8_t extraer_uint8_del_buffer(t_buffer *un_buffer)
+{
+	uint8_t *un_valor = extraer_choclo_del_buffer(un_buffer);
+	uint8_t valor_retorno = *un_valor;
+	free(un_valor);
+	return valor_retorno;
+}
 
 t_buffer* crear_buffer(){
 	t_buffer* un_buffer = malloc(sizeof(t_buffer));
@@ -485,6 +492,10 @@ void cargar_int_al_buffer(t_buffer* un_buffer, int int_value){
 
 void cargar_uint32_al_buffer(t_buffer* un_buffer, uint32_t un_valor){
 	cargar_choclo_al_buffer(un_buffer, &un_valor, sizeof(uint32_t));
+}
+
+void cargar_uint8_al_buffer(t_buffer* un_buffer, uint32_t un_valor){
+	cargar_choclo_al_buffer(un_buffer, &un_valor, sizeof(uint8_t));
 }
 
 void cargar_string_al_buffer(t_buffer* un_buffer, char* un_string){

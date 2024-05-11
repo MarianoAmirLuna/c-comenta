@@ -24,4 +24,6 @@ char* PUERTO_MEMORIA;
 char* PUERTO_ESCUCHA_DISPATCH;
 char* PUERTO_ESCUCHA_INTERRUPT;
 
+PCB pcb_ejecucion;
+
 #endif

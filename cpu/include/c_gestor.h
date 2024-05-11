@@ -25,4 +25,6 @@ extern char* PUERTO_MEMORIA;
 extern char* PUERTO_ESCUCHA_DISPATCH;
 extern char* PUERTO_ESCUCHA_INTERRUPT;
 
+extern PCB pcb_ejecucion;
+
 #endif
