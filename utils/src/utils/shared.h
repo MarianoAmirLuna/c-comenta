@@ -23,6 +23,7 @@ typedef enum
 	CREAR_PROCESO_KM,
 	RPTA_CREAR_PROCESO_MK,
 	//KERNEL-CPU------
+	CONSULTA_PLANIFICACION
 
 }op_code;
 

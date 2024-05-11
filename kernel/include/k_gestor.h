@@ -44,5 +44,7 @@ extern t_list procesosNEW;
 extern t_list procesosREADY;
 extern int procesoEXEC;
 
+extern int sem_planificacion=1;
+
 
 #endif
