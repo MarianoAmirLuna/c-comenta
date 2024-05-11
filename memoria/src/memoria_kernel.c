@@ -8,7 +8,6 @@ path_conID* iniciar_path_id(int id, char* path){
 	return estructura;
 }
 
-
 void atender_memoria_kernel()
 {
 	bool control_key = 1;
@@ -35,7 +34,7 @@ void atender_memoria_kernel()
 			break;
 
 		default:
-			log_warning(logger,"Operacion desconocida de KERNEL");
+			//log_warning(logger,"Operacion desconocida de KERNEL");
 			break;
 		}
 	}

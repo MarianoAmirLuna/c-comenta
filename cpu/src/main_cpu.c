@@ -20,6 +20,12 @@ int main(void) {
 
 	fd_kernel_interrupt = esperar_cliente(fd_cpu_interrupt);
 
+    printf("el fd_cpu_dispatch es: %d\n",fd_cpu_dispatch);
+	printf("el fd_cpu_interrupt es: %d\n",fd_cpu_interrupt);
+	printf("el fd_kernel_dispatch es: %d\n",fd_kernel_dispatch);
+    printf("el fd_kernel_interrupt es: %d\n",fd_kernel_interrupt);
+	printf("el fd_memoria es: %d\n",fd_memoria);
+
 	//atender los mensajes del kernel dispatch
 	pthread_t hilo_kernel_dispatch;
 	pthread_create(&hilo_kernel_dispatch, NULL, (void*)atender_cpu_kernel_dispatch, NULL);
@@ -35,10 +41,10 @@ int main(void) {
 	pthread_create(&hilo_memoria, NULL, (void*)atender_cpu_memoria, NULL);
 	pthread_join(hilo_memoria, NULL);
 
-	printf("empeze a contar");
-    sleep(25);
-	printf("termino de contar");
-	procesamiento_cpu();
+	//printf("empeze a contar");
+    //sleep(40);
+	//printf("termino de contar");
+	//procesamiento_cpu();
 
 	return 0;
 }

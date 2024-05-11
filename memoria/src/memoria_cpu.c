@@ -7,7 +7,7 @@ void atender_memoria_cpu()
 	t_buffer *un_buffer;
 	while (control_key)
 	{
-		int cod_op = recibir_operacion(fd_kernel);
+		int cod_op = recibir_operacion(fd_cpu);
 		switch (cod_op)
 		{
 		case MENSAJE:
@@ -18,7 +18,7 @@ void atender_memoria_cpu()
 			break;
 		case SOLICITUD_INSTRUCCION:
 			printf("se solicito instruccion a memoria\n");
-			un_buffer = recibir_todo_el_buffer(fd_kernel);
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			devolver_instruccion(un_buffer);
 
 			break;

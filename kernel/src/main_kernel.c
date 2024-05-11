@@ -23,6 +23,12 @@ int main(void)
     log_trace(kernel_logger, "listo para escuchar al IO");
 	fd_io = esperar_cliente(fd_kernel);
 
+    printf("socket de fd_memoria %d\n",fd_memoria);
+	printf("socket de fd_kernel %d\n",fd_kernel);
+	printf("socket de fd_cpu_interrupt %d\n",fd_cpu_interrupt);
+	printf("socket de fd_cpu_dispatch %d\n",fd_cpu_dispatch);
+	printf("socket de fd_io %d\n",fd_io);
+
 	pthread_t hilo_cpu_interrupt;
 	pthread_create(&hilo_cpu_interrupt, NULL, (void*)atender_kernel_interrupt, NULL);
 	pthread_detach(hilo_cpu_interrupt);
@@ -34,7 +40,7 @@ int main(void)
 	pthread_t hilo_io;
 	pthread_create(&hilo_io, NULL, (void*)atender_kernel_io, NULL);
 	pthread_detach(hilo_io);
-	
+
 	pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
 	pthread_detach(hilo_memoria);

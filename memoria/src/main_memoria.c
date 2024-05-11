@@ -25,6 +25,11 @@ int main() {
 
 	//Atender los mensajes del kernel
 
+    printf("el fd_memoria es: %d\n",fd_memoria);
+	printf("el fd_cpu es: %d\n",fd_cpu);
+	printf("el fd_io es: %d\n",fd_io);
+	printf("el fd_kernel es: %d\n",fd_kernel);
+
 	pthread_t hilo_kernel;
 	pthread_create(&hilo_kernel, NULL, (void*)atender_memoria_kernel, NULL);
 	pthread_detach(hilo_kernel);	
@@ -33,13 +38,11 @@ int main() {
 	pthread_t hilo_cpu;
 	pthread_create(&hilo_cpu, NULL, (void*)atender_memoria_cpu, NULL);
 	pthread_detach(hilo_cpu);
-	
 
 	//Atender los mensajes del IO
 	pthread_t hilo_io;
 	pthread_create(&hilo_io, NULL, (void*)atender_memoria_io, NULL);
-	pthread_join(hilo_io, NULL);
-	
+	pthread_join(hilo_io, NULL);	
 
 	return 0;
 }
