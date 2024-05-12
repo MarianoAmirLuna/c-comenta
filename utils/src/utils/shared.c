@@ -273,6 +273,7 @@ int recibir_operacion(int socket_cliente)
 		return cod_op;
 	else
 	{
+		perror("ocurrio algo con la llegada del mensaje hacia socket");
 		close(socket_cliente);
 		return -1;
 	}
