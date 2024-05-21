@@ -52,7 +52,17 @@ void iniciar_planificacion(){
   procesoEXEC=0;
 }
 
-void ciclo_planificacion_FIFO(){
+void ciclo_planificacion(){
+  switch(tipoPlanificacion){
+    case FIFO:
+      ciclo_plani_FIFO();
+      break;
+    default:
+    break;
+  }
+}
+
+void ciclo_plani_FIFO(){
   wait(sem_planificacion);
   while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     list_add(procesosREADY, list_remove(procesosNEW, 0));
