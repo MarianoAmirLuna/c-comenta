@@ -9,6 +9,9 @@
 
 int main() {
 
+	//sem_t sem_llego_instruccion;
+	//sem_init(&sem_llego_instruccion, 0, 0);
+
 	inicializar_memoria();	
 	
 	fd_memoria = iniciar_servidor(PUERTO_ESCUCHA);
@@ -24,11 +27,6 @@ int main() {
 	fd_io = esperar_cliente(fd_memoria);
 
 	//Atender los mensajes del kernel
-
-    printf("el fd_memoria es: %d\n",fd_memoria);
-	printf("el fd_cpu es: %d\n",fd_cpu);
-	printf("el fd_io es: %d\n",fd_io);
-	printf("el fd_kernel es: %d\n",fd_kernel);
 
 	pthread_t hilo_kernel;
 	pthread_create(&hilo_kernel, NULL, (void*)atender_memoria_kernel, NULL);

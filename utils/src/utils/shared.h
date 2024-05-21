@@ -12,6 +12,7 @@
 #include<commons/config.h>
 #include<commons/collections/list.h>
 #include<assert.h>
+//#include<semaphore.h>
 
 typedef enum
 {
@@ -28,6 +29,10 @@ typedef enum
 	RECIBIR_INSTRUCCION,
 
 }op_code;
+
+//semaforos
+
+//sem_t sem_llego_instruccion;
 
 typedef struct
 {
@@ -65,7 +70,6 @@ typedef struct{
 	int id;
 	char* path;
 } path_conID;
-
 
 extern t_log* logger;
 

@@ -7,8 +7,7 @@
 #include <pthread.h>
 #include "../include/funciones_cpu.h"
 
-
-char *solicitar_instruccion(int pid, int program_counter)
+void solicitar_instruccion(int pid, int program_counter)
 {
     t_buffer *a_enviar = crear_buffer();
 
@@ -23,12 +22,16 @@ char *solicitar_instruccion(int pid, int program_counter)
     destruir_paquete(un_paquete);
 }
 
-
 void procesamiento_cpu()
 {
-    char *instruccion = solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
-    // ejecutar_instruccion(instruccion);
-    printf("la primera linea del txt es: %s", instruccion);
+    printf("empeze a procesar");
+
+    //sem_post(sem_llego_instruccion);
+
+    printf("el pid es: %d\n",pcb_ejecucion.pid);
+
+    solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
+
 }
 
 

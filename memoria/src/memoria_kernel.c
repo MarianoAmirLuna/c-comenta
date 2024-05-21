@@ -47,6 +47,15 @@ void atender_crear_proceso(t_buffer* un_buffer){
     path_conID* path_con_id = iniciar_path_id(pid, path);
 
 	list_add(list_path_id,path_con_id);
+
+	//sem_wait(sem_llego_instruccion);
+
+
+
+	//path_conID* xd = list_get(list_path_id,0);
+
+	//printf("el recien cargado es: %s\n",xd->path);
+    
+	//ya confirmamos que la lista esta bien cargada por printf
 	
-	free(path);
 }

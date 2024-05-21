@@ -20,9 +20,9 @@ void atender_cpu_memoria()
 			printf("llego la instruccion a cpu\n");
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
 
-            char* path = extraer_string_del_buffer(un_buffer);
+            char* instruccion = extraer_string_del_buffer(un_buffer);
 
-			printf("la instruccion es: %s\n",path);
+			printf("La instruccion es: %s\n",instruccion);
 			
 			break;
 		case -1:

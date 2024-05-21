@@ -2,6 +2,10 @@
 
 t_log* logger;
 
+//semaforos
+
+//sem_init(&sem_llego_instruccion, 0, 0);
+
 int iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug){
 
 	int socket_cliente = crear_conexion("127.0.0.1",puerto); //crear conexion te retorna el socket
@@ -9,12 +13,10 @@ int iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug){
 	log_trace(logger_debug,concatenar("Se conecto correctamente el ",nombre));
 
     return socket_cliente;
-
 }
 
 t_log* iniciar_logger(void)
 {
-	
 	t_log* nuevo_logger = log_create("cliente.log","", 1 ,LOG_LEVEL_INFO);
 
 	if(nuevo_logger == NULL){
@@ -400,11 +402,6 @@ void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 	memcpy(choclo, un_buffer->stream + sizeof(int), size_choclo);
 
 	int nuevo_size = un_buffer->size - sizeof(int) - size_choclo;
-
-    //printf("buffer size: %d\n",un_buffer->size);
-    //printf(" choclo: %d\n",size_choclo);
-	//printf("nuevo_size: %d\n",nuevo_size);
-	//printf("---------------------------------\n");
 
 	if(nuevo_size == 0)
 	{

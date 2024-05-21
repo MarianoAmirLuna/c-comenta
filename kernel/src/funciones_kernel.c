@@ -14,7 +14,7 @@ PCB iniciar_PCB(){ //revisar si anda o hay que poner struct adelante
   PCB pcb;
 
   pcb.pid = asignar_pid();
-  pcb.program_counter = 0;
+  pcb.program_counter = 1;
   pcb.quantum = config_get_int_value(config,"QUANTUM");
   pcb.registros_cpu.AX = 0;
   pcb.registros_cpu.BX = 0;

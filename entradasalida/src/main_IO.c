@@ -16,9 +16,6 @@ int main(){
 
 	fd_kernel = iniciar_conexion(PUERTO_KERNEL, "KERNEL",io_log_debug);
 
-	printf("EL socket de memoria es: %d\n",fd_memoria);
-	printf("EL socket de kernel es: %d\n",fd_kernel);
-
 	pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_io_memoria, NULL);
 	pthread_join(hilo_memoria, NULL);
