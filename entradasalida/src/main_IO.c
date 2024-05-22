@@ -16,7 +16,7 @@ void EjecutarInterfazGenerica(char* nombre,t_config* config_interface){
 
 	log_info(io_logger,"Buenas noches es hora de dormirse");
 	//sleep(20);//Aca se podria usar usar la variable TIEMPO_UNIDAD_TRABAJOO de alguna forma
-	usleep(TIEMPO_UNIDAD_TRABAJOO*1000);//esta funcion anda con microsegundo, por eso se multiplican por 1000
+	usleep(TIEMPO_UNIDAD_TRABAJOO*1000);//esta funcion anda con microsegundo, por eso se multiplican por 1000, asi cada unidad de trabajo equivale a un milisegundo
 	log_info(io_logger,"Ya desperte del sueño");
 
 
