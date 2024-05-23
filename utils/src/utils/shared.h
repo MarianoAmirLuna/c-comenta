@@ -60,6 +60,7 @@ typedef struct{
 	int pid;
 	int program_counter;
 	int quantum;
+	char* pathTXT;
 	registros registros_cpu;
 } PCB;
 

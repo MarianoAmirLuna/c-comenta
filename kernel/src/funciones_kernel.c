@@ -7,7 +7,7 @@
 #include "../include/funciones_kernel.h"
 #include "../include/servicios_kernel.h"
 
-PCB iniciar_PCB()
+PCB iniciar_PCB(char* path)
 { // revisar si anda o hay que poner struct adelante
 
   t_config *config = iniciar_configuracion("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config");
@@ -17,6 +17,7 @@ PCB iniciar_PCB()
   pcb.pid = asignar_pid();
   pcb.program_counter = 1;
   pcb.quantum = config_get_int_value(config, "QUANTUM");
+  pcb.pathTXT = path;
   pcb.registros_cpu.AX = 0;
   pcb.registros_cpu.BX = 0;
   pcb.registros_cpu.CX = 0;
@@ -28,8 +29,8 @@ PCB iniciar_PCB()
   pcb.registros_cpu.SI = 0;
   pcb.registros_cpu.DI = 0;
 
-  printf("El numero del pcb es: ");
-  printf("%d\n", pcb.pid);
+  //printf("El numero del pcb es: ");
+  //printf("%d\n", pcb.pid);
 
   return pcb;
 }
@@ -59,6 +60,7 @@ void enviar_pcb(PCB pcb, int socket_enviar)
   cargar_int_al_buffer(a_enviar, pcb.pid);
   cargar_int_al_buffer(a_enviar, pcb.program_counter);
   cargar_int_al_buffer(a_enviar, pcb.quantum);
+  cargar_string_al_buffer(a_enviar,pcb.pathTXT);
   cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.AX);
   cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.BX);
   cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.CX);
@@ -77,8 +79,7 @@ void enviar_pcb(PCB pcb, int socket_enviar)
 
 void iniciar_proceso(char *path)
 {
-
-  PCB pcb = iniciar_PCB();
+  PCB pcb = iniciar_PCB(path);
   enviar_path_memoria(path, pcb.pid);
   enviar_pcb(pcb, fd_cpu_dispatch);
 }

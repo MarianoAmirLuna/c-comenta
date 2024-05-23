@@ -1,7 +1,7 @@
 #include "../include/cpu_kernel_dispatch.h"
 #include <utils/shared.h>
 
-PCB inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint8_t bx, uint8_t cx,
+PCB inicializar_PCB(int pid, int program_counter, int quantum,char* path, uint8_t ax, uint8_t bx, uint8_t cx,
 					uint8_t dx, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t si, uint32_t di)
 {
 
@@ -10,6 +10,7 @@ PCB inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint8
 	pcb.pid = pid;
 	pcb.program_counter = program_counter;
 	pcb.quantum = quantum;
+	pcb.pathTXT = path;
 	pcb.registros_cpu.AX = ax;
 	pcb.registros_cpu.BX = bx;
 	pcb.registros_cpu.CX = cx;
@@ -64,6 +65,7 @@ void atender_recibir_pcb(t_buffer *un_buffer)
 	int pid = extraer_int_del_buffer(un_buffer);
 	int program_counter = extraer_int_del_buffer(un_buffer);
 	int quantum = extraer_int_del_buffer(un_buffer);
+	char* path = extraer_string_del_buffer(un_buffer);
 	uint8_t ax = extraer_uint8_del_buffer(un_buffer);
 	uint8_t bx = extraer_uint8_del_buffer(un_buffer);
 	uint8_t cx = extraer_uint8_del_buffer(un_buffer);
@@ -75,8 +77,8 @@ void atender_recibir_pcb(t_buffer *un_buffer)
 	uint32_t si = extraer_uint32_del_buffer(un_buffer);
 	uint32_t di = extraer_uint32_del_buffer(un_buffer);
 
-	pcb_ejecucion = inicializar_PCB(pid, program_counter, quantum, ax, bx, cx, dx, eax, ebx, ecx, edx, si, di);
+	pcb_ejecucion = inicializar_PCB(pid, program_counter, quantum, path, ax, bx, cx, dx, eax, ebx, ecx, edx, si, di);
 
-	printf("el pid es: %d\n", pid);
+	//printf("el pid es: %d\n", pid);
 	printf("el pid del pcb_ejecucion: %d\n",pcb_ejecucion.pid);
 }

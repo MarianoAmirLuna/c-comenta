@@ -70,10 +70,6 @@ void _atender_instruccion_validada(char* leido){
 
     } else if (strcmp(comando_consola[0], "INICIAR_PLANIFICACION") == 0){
 
-
-
-        
-
         iniciar_cpu();
 
     } else if (strcmp(comando_consola[0], "MULTIPROGRAMACION") == 0){

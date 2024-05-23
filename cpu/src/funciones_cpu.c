@@ -33,9 +33,13 @@ void procesamiento_cpu()
     //printf("cantidad lineas txt %d\n",cantidad_lineas_txt_ejecutando);
     //printf("program counter ejecutando %d\n",pcb_ejecucion.program_counter);
 
-    //while (cantidad_lineas_txt_ejecutando >= pcb_ejecucion.program_counter){
+    int cantidad_lineas_txt_ejecutando = contarLineas(pcb_ejecucion.pathTXT);
+
+    while (cantidad_lineas_txt_ejecutando >= pcb_ejecucion.program_counter){
 
     solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
-        //sleep(2);
-    //}
+        sleep(2);
+
+    pcb_ejecucion.program_counter ++;
+    }
 }
