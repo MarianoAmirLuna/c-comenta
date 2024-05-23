@@ -2,10 +2,6 @@
 
 t_log* logger;
 
-//semaforos
-
-//sem_init(&sem_llego_instruccion, 0, 0);
-
 int iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug){
 
 	int socket_cliente = crear_conexion("127.0.0.1",puerto); //crear conexion te retorna el socket
@@ -512,6 +508,27 @@ t_paquete* crear_super_paquete(op_code cod_op, t_buffer* un_buffer){
 void destruir_paquete(t_paquete* un_paquete){
 	destruir_buffer(un_paquete->buffer);
 	free(un_paquete);
+}
+
+int contarLineas(char *nombreArchivo){
+
+    FILE *archivo = fopen(nombreArchivo, "r");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    int lineas = 0;
+    int caracter;
+
+    while ((caracter = fgetc(archivo)) != EOF) {
+        if (caracter == '\n') {
+            lineas++;
+        }
+    }
+
+    fclose(archivo);
+    return lineas;
 }
 
 

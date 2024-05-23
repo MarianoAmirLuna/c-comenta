@@ -4,6 +4,7 @@
 #include "k_gestor.h"
 
 void iniciar_proceso(char* path);
+void iniciar_cpu();
 
 #endif
 

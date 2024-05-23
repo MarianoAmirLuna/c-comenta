@@ -6,13 +6,11 @@
 #include "utils/shared.h"
 #include <commons/log.h>
 #include <commons/collections/list.h>
+#include <commons/string.h>
 
 int main() {
 
-	//sem_t sem_llego_instruccion;
-	//sem_init(&sem_llego_instruccion, 0, 0);
-
-	inicializar_memoria();	
+	inicializar_memoria();
 	
 	fd_memoria = iniciar_servidor(PUERTO_ESCUCHA);
    

@@ -42,7 +42,7 @@ char *obtener_instruccion_lista(int pid, int program_counter)
 
 	path_conID *elemento_lista = list_find(list_path_id, condition_id_igual_n);
 
-	printf("el path es: %s\n",elemento_lista->path);
+	printf("el path es: %s\n",elemento_lista->path); //si rompe esto es probablemente porque saco algo inexistente de la lista
 
 	return elemento_lista->path;
 }

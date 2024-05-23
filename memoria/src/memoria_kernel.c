@@ -1,4 +1,5 @@
 #include "../include/memoria_kernel.h"
+#include <pthread.h>
 
 path_conID* iniciar_path_id(int id, char* path){
 	path_conID* estructura = malloc(sizeof(path_conID));
@@ -48,7 +49,18 @@ void atender_crear_proceso(t_buffer* un_buffer){
 
 	list_add(list_path_id,path_con_id);
 
-	//sem_wait(sem_llego_instruccion);
+	//cantidad_lineas_txt_ejecutando = contarLineas(path);
+
+	//printf("cantidad de lineas txt: %d\n",cantidad_lineas_txt_ejecutando);
+	
+	//printf("justo antes del post");
+	//sem_post(&sem_llego_instruccion);
+	//printf("el valor del semaforo es: %d\n",sem_llego_instruccion.__align);
+	//printf("pase el post\n");
+
+	//    return 0;
+}
+	//printf("pase el post\n");
 
 
 
@@ -58,4 +70,4 @@ void atender_crear_proceso(t_buffer* un_buffer){
     
 	//ya confirmamos que la lista esta bien cargada por printf
 	
-}
+

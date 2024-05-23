@@ -12,8 +12,7 @@
 #include<commons/config.h>
 #include<commons/collections/list.h>
 #include<assert.h>
-//#include<semaphore.h>
-
+#include<semaphore.h>
 typedef enum
 {
 	MENSAJE,
@@ -27,12 +26,10 @@ typedef enum
 	RECIBIR_PCB,
 	SOLICITUD_INSTRUCCION,
 	RECIBIR_INSTRUCCION,
-
+	INICIAR_CPU,
 }op_code;
 
 //semaforos
-
-//sem_t sem_llego_instruccion;
 
 typedef struct
 {
@@ -115,5 +112,6 @@ void cargar_uint8_al_buffer(t_buffer* un_buffer, uint32_t un_valor);
 void cargar_string_al_buffer(t_buffer* un_buffer, char* un_string);
 t_paquete* crear_super_paquete(op_code cod_op, t_buffer* un_buffer);
 void destruir_paquete(t_paquete* un_paquete);
+int contarLineas(char *nombreArchivo);
 
 #endif /* UTILS_H_ */

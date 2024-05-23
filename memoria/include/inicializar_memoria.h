@@ -3,6 +3,7 @@
 
 #include "m_gestor.h"
 
+void iniciar_semaforos();
 void inicializar_memoria();
 void iniciar_logs();
 void iniciar_config();

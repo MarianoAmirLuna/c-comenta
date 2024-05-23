@@ -5,7 +5,9 @@ void inicializar_cpu(){
     iniciar_logs();
     iniciar_config_cpu();
     imprimir_config();
+	iniciar_semaforos();
 }
+
 void iniciar_logs(){
 	cpu_logger = log_create("cliente.log","", 1 ,LOG_LEVEL_INFO);
 
@@ -44,3 +46,9 @@ void imprimir_config(){
 	log_trace(cpu_log_debug, "PUERTO_ESCUCHA_INTERRUPT: %s", PUERTO_ESCUCHA_INTERRUPT);
 
 }
+
+void iniciar_semaforos(){
+	printf("se creo el semaforo");
+	sem_init(&arrancar_cpu, 1, 0);
+}
+

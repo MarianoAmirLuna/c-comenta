@@ -6,6 +6,7 @@
 #include <commons/log.h>
 #include <pthread.h>
 #include "../include/funciones_cpu.h"
+#include <semaphore.h>
 
 void solicitar_instruccion(int pid, int program_counter)
 {
@@ -24,16 +25,17 @@ void solicitar_instruccion(int pid, int program_counter)
 
 void procesamiento_cpu()
 {
-    printf("empeze a procesar");
 
-    //sem_post(sem_llego_instruccion);
+    printf("toy esperando\n");
+    sem_wait(&arrancar_cpu);
+    printf("pase el wait\n");
 
-    printf("el pid es: %d\n",pcb_ejecucion.pid);
+    //printf("cantidad lineas txt %d\n",cantidad_lineas_txt_ejecutando);
+    //printf("program counter ejecutando %d\n",pcb_ejecucion.program_counter);
+
+    //while (cantidad_lineas_txt_ejecutando >= pcb_ejecucion.program_counter){
 
     solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
-
+        //sleep(2);
+    //}
 }
-
-
-
-

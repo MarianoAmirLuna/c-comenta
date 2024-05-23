@@ -66,9 +66,15 @@ void _atender_instruccion_validada(char* leido){
 
     } else if (strcmp(comando_consola[0], "FINALIZAR_PROCESO") == 0){
 
-    } else if (strcmp(comando_consola[0], "DETERNER_PLANIFICACION") == 0){
+    } else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0){
 
-    } else if (strcmp(comando_consola[0], "INICIAR_PLANICACION") == 0){
+    } else if (strcmp(comando_consola[0], "INICIAR_PLANIFICACION") == 0){
+
+
+
+        
+
+        iniciar_cpu();
 
     } else if (strcmp(comando_consola[0], "MULTIPROGRAMACION") == 0){
 
