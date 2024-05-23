@@ -11,6 +11,13 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>
+
+typedef enum{
+    FIFO,
+    RR,
+    VRR
+} t_planificacion;
+
 //Variables GLOBALES
 
 extern t_log* kernel_logger;
@@ -45,6 +52,12 @@ extern t_list procesosREADY;
 extern int procesoEXEC;
 
 extern int sem_planificacion=1;
+
+extern int quantum=10;
+
+extern int tiempoTranscurrido=0;
+
+t_planificacion tipoPlanificacion=FIFO;
 
 
 #endif
