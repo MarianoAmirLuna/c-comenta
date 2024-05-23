@@ -13,7 +13,7 @@ void atender_kernel_dispatch(){
             //
 			break;
 		case CONSULTA_PLANIFICACION:
-			ciclo_planificacion_FIFO();
+			ciclo_planificacion();
 			t_paquete *paquete_pid = crear_paquete();
 			agregar_a_paquete(paquete_pid, procesoEXEC, sizeof(int))
 			enviar_paquete(paquete_pid, fd_cpu_dispatch);

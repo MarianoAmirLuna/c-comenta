@@ -57,24 +57,44 @@ void ciclo_planificacion(){
     case FIFO:
       ciclo_plani_FIFO();
       break;
+    case RR:
+      ciclo_plani_RR();
     default:
-    break;
+      break;
   }
 }
 
 void ciclo_plani_FIFO(){
-  wait(sem_planificacion);
+  //wait(sem_planificacion);//CORREGIR
   while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     list_add(procesosREADY, list_remove(procesosNEW, 0));
   } 
   if (procesoEXEC==0) //si no hay ningun proceso en ejecucion, pone el primero de READY
   {
-    pthread_mutex_t *mutexExec;
-    pthread_mutex_lock(mutexExec);
+    pthread_mutex_lock(&mutexExec);
     procesoEXEC=list_remove(procesosREADY, 0); 
-    pthread_mutex_unlock(mutexExec); 
+    pthread_mutex_unlock(&mutexExec); 
   }
-  signal(sem_planificacion)
+  //signal(sem_planificacion)//CORREGIR
+}
+
+void ciclo_plani_RR(){
+  quantum++;
+  if(tiempoTranscurrido>=quantum){
+    int procesoDesalojado = procesoEXEC;
+    pthread_mutex_lock(&mutexExec);
+    procesoEXEC=0;
+    pthread_mutex_unlock(&mutexExec);
+  }
+  while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+    list_add(procesosREADY, list_remove(procesosNEW, 0));
+  } 
+  if(procesoEXEC==0){
+    pthread_mutex_lock(&mutexExec);
+    procesoEXEC=list_remove(procesosREADY, 0);
+    pthread_mutex_unlock(&mutexExec);
+  }
+  
 }
 
 

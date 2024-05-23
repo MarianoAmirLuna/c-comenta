@@ -46,6 +46,7 @@ extern int identificador_PID;
 extern int contador_pcbs;
 
 extern pthread_mutex_t mutex_pid;
+extern pthread_mutex_t mutexExec=0;
 
 extern t_list procesosNEW;
 extern t_list procesosREADY;
