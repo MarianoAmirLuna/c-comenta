@@ -12,6 +12,13 @@ void atender_kernel_dispatch(){
 		case PAQUETE:
             //
 			break;
+		case CONSULTA_PLANIFICACION:
+			ciclo_planificacion();
+			t_paquete *paquete_pid = crear_paquete();
+			agregar_a_paquete(paquete_pid, procesoEXEC, sizeof(int))
+			enviar_paquete(paquete_pid, fd_cpu_dispatch);
+			destruir_paquete(paquete_pid);
+			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			control_key = 0;

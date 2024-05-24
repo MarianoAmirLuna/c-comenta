@@ -11,6 +11,7 @@ void inicializar_kernel(){
 	inicializar_logs();
 	inicializar_configs();
     imprimir_configs();
+	iniciar_planificacion();
 }
 
 void inicializar_logs(){

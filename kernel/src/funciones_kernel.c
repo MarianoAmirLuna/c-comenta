@@ -77,6 +77,65 @@ void enviar_pcb(PCB pcb, int socket_enviar)
   destruir_paquete(un_paquete);
 }
 
+
+void iniciar_proceso(char* path){
+  
+  PCB pcb = iniciar_PCB();
+  enviar_path_memoria(path,pcb.pid);
+  list_add(procesosNEW, &(pcb.pid));
+}
+
+void iniciar_planificacion(){
+  procesosNEW=list_create();
+  procesosREADY=list_create();
+  procesoEXEC=0;
+}
+
+void ciclo_planificacion(){
+  switch(tipoPlanificacion){
+    case FIFO:
+      ciclo_plani_FIFO();
+      break;
+    case RR:
+      ciclo_plani_RR();
+    default:
+      break;
+  }
+}
+
+void ciclo_plani_FIFO(){
+  //wait(sem_planificacion);//CORREGIR
+  while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+    list_add(procesosREADY, list_remove(procesosNEW, 0));
+  } 
+  if (procesoEXEC==0) //si no hay ningun proceso en ejecucion, pone el primero de READY
+  {
+    pthread_mutex_lock(&mutexExec);
+    procesoEXEC=list_remove(procesosREADY, 0); 
+    pthread_mutex_unlock(&mutexExec); 
+  }
+  //signal(sem_planificacion)//CORREGIR
+}
+
+void ciclo_plani_RR(){
+  quantum++;
+  if(tiempoTranscurrido>=quantum){
+    int procesoDesalojado = procesoEXEC;
+    pthread_mutex_lock(&mutexExec);
+    procesoEXEC=0;
+    pthread_mutex_unlock(&mutexExec);
+  }
+  while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+    list_add(procesosREADY, list_remove(procesosNEW, 0));
+  } 
+  if(procesoEXEC==0){
+    pthread_mutex_lock(&mutexExec);
+    procesoEXEC=list_remove(procesosREADY, 0);
+    pthread_mutex_unlock(&mutexExec);
+  }
+  
+}
+
 void iniciar_proceso(char *path)
 {
   PCB pcb = iniciar_PCB(path);
@@ -87,6 +146,7 @@ void iniciar_proceso(char *path)
 void iniciar_cpu()
 {
   t_buffer *a_enviar = crear_buffer();
+
 
   a_enviar->size = 0;
   a_enviar->stream = NULL;

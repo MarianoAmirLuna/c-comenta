@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include "utils/shared.h"
 #include <commons/log.h>
+#include "../include/funciones_kernel.h"
 
 int main(void)
 {
@@ -38,6 +39,10 @@ int main(void)
 	pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
 	pthread_detach(hilo_memoria);
+
+	/*pthread_t hilo_planificacion;
+	pthread_create(&hilo_planificacion, NULL, (void*)ciclo_planificacion, NULL);
+	pthread_detach(hilo_planificacion);*/
 
 	//Iniciar la consola interactiva
 	iniciar_consola_interactiva();
