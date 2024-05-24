@@ -44,11 +44,10 @@ void imprimir_config(){
 	log_warning(cpu_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
 	log_debug(cpu_log_debug, "PUERTO_ESCUCHA_DISPATCH: %s", PUERTO_ESCUCHA_DISPATCH);
 	log_trace(cpu_log_debug, "PUERTO_ESCUCHA_INTERRUPT: %s", PUERTO_ESCUCHA_INTERRUPT);
-
 }
 
 void iniciar_semaforos(){
-	printf("se creo el semaforo");
 	sem_init(&arrancar_cpu, 1, 0);
+	sem_init(&wait_instruccion, 1, 0);
 }
 

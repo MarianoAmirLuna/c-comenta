@@ -25,6 +25,7 @@ extern char* PUERTO_MEMORIA;
 extern char* PUERTO_ESCUCHA_DISPATCH;
 extern char* PUERTO_ESCUCHA_INTERRUPT;
 extern sem_t arrancar_cpu;
+extern sem_t wait_instruccion;
 
 extern PCB pcb_ejecucion;
 

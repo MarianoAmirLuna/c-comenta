@@ -4,5 +4,6 @@
 #include "c_gestor.h"
 
 void procesamiento_cpu();
+void ejecutar_instruccion(char* instruccion, PCB* pcb);
 
 #endif

@@ -27,5 +27,6 @@ char* PUERTO_ESCUCHA_INTERRUPT;
 
 PCB pcb_ejecucion;
 sem_t arrancar_cpu;
+sem_t wait_instruccion;
 
 #endif

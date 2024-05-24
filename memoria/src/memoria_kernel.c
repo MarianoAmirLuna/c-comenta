@@ -48,26 +48,9 @@ void atender_crear_proceso(t_buffer* un_buffer){
     path_conID* path_con_id = iniciar_path_id(pid, path);
 
 	list_add(list_path_id,path_con_id);
-
-	//cantidad_lineas_txt_ejecutando = contarLineas(path);
-
-	//printf("cantidad de lineas txt: %d\n",cantidad_lineas_txt_ejecutando);
 	
-	//printf("justo antes del post");
-	//sem_post(&sem_llego_instruccion);
-	//printf("el valor del semaforo es: %d\n",sem_llego_instruccion.__align);
-	//printf("pase el post\n");
-
-	//    return 0;
 }
-	//printf("pase el post\n");
 
 
 
-	//path_conID* xd = list_get(list_path_id,0);
-
-	//printf("el recien cargado es: %s\n",xd->path);
-    
-	//ya confirmamos que la lista esta bien cargada por printf
-	
 
