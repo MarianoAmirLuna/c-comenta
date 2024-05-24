@@ -1,4 +1,5 @@
 #include "../include/memoria_kernel.h"
+#include <pthread.h>
 
 path_conID* iniciar_path_id(int id, char* path){
 	path_conID* estructura = malloc(sizeof(path_conID));
@@ -7,7 +8,6 @@ path_conID* iniciar_path_id(int id, char* path){
 
 	return estructura;
 }
-
 
 void atender_memoria_kernel()
 {
@@ -35,7 +35,7 @@ void atender_memoria_kernel()
 			break;
 
 		default:
-			log_warning(logger,"Operacion desconocida de KERNEL");
+			//log_warning(logger,"Operacion desconocida de KERNEL");
 			break;
 		}
 	}
@@ -49,5 +49,8 @@ void atender_crear_proceso(t_buffer* un_buffer){
 
 	list_add(list_path_id,path_con_id);
 	
-	free(path);
 }
+
+
+
+

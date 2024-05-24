@@ -9,12 +9,10 @@ int iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug){
 	log_trace(logger_debug,concatenar("Se conecto correctamente el ",nombre));
 
     return socket_cliente;
-
 }
 
 t_log* iniciar_logger(void)
 {
-	
 	t_log* nuevo_logger = log_create("cliente.log","", 1 ,LOG_LEVEL_INFO);
 
 	if(nuevo_logger == NULL){
@@ -401,11 +399,6 @@ void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 
 	int nuevo_size = un_buffer->size - sizeof(int) - size_choclo;
 
-    //printf("buffer size: %d\n",un_buffer->size);
-    //printf(" choclo: %d\n",size_choclo);
-	//printf("nuevo_size: %d\n",nuevo_size);
-	//printf("---------------------------------\n");
-
 	if(nuevo_size == 0)
 	{
 		un_buffer->size = 0;
@@ -450,6 +443,13 @@ uint32_t extraer_uint32_del_buffer(t_buffer *un_buffer)
 	return valor_retorno;
 }
 
+uint8_t extraer_uint8_del_buffer(t_buffer *un_buffer)
+{
+	uint8_t *un_valor = extraer_choclo_del_buffer(un_buffer);
+	uint8_t valor_retorno = *un_valor;
+	free(un_valor);
+	return valor_retorno;
+}
 
 t_buffer* crear_buffer(){
 	t_buffer* un_buffer = malloc(sizeof(t_buffer));
@@ -487,6 +487,10 @@ void cargar_uint32_al_buffer(t_buffer* un_buffer, uint32_t un_valor){
 	cargar_choclo_al_buffer(un_buffer, &un_valor, sizeof(uint32_t));
 }
 
+void cargar_uint8_al_buffer(t_buffer* un_buffer, uint32_t un_valor){
+	cargar_choclo_al_buffer(un_buffer, &un_valor, sizeof(uint8_t));
+}
+
 void cargar_string_al_buffer(t_buffer* un_buffer, char* un_string){
 	cargar_choclo_al_buffer(un_buffer, un_string, strlen(un_string)+1);
 
@@ -504,6 +508,27 @@ t_paquete* crear_super_paquete(op_code cod_op, t_buffer* un_buffer){
 void destruir_paquete(t_paquete* un_paquete){
 	destruir_buffer(un_paquete->buffer);
 	free(un_paquete);
+}
+
+int contarLineas(char *nombreArchivo){
+
+    FILE *archivo = fopen(nombreArchivo, "r");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        return -1;
+    }
+
+    int lineas = 0;
+    int caracter;
+
+    while ((caracter = fgetc(archivo)) != EOF) {
+        if (caracter == '\n') {
+            lineas++;
+        }
+    }
+
+    fclose(archivo);
+    return lineas;
 }
 
 

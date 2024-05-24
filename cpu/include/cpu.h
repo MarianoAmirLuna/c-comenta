@@ -6,6 +6,7 @@
 #include "cpu_memoria.h"
 #include "cpu_kernel_dispatch.h"
 #include "cpu_kernel_interrupt.h"
+#include "funciones_cpu.h"
 
 //Variables GLOBALES
 
@@ -23,5 +24,11 @@ char* IP_MEMORIA;
 char* PUERTO_MEMORIA;
 char* PUERTO_ESCUCHA_DISPATCH;
 char* PUERTO_ESCUCHA_INTERRUPT;
+
+PCB pcb_ejecucion;
+sem_t arrancar_cpu;
+sem_t wait_instruccion;
+
+char* instruccion_actual;
 
 #endif

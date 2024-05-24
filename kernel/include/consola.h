@@ -8,5 +8,6 @@ void iniciar_consola_interactiva();
 bool _validacion_de_instruccion_de_consola(char* leido);
 void _atender_instruccion_validada(char* leido);
 void _f_iniciar_proceso(t_buffer* un_buffer);
+void iniciar_cpu();
 
 #endif /* CONSOLA_H_ */

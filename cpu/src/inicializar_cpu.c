@@ -5,7 +5,9 @@ void inicializar_cpu(){
     iniciar_logs();
     iniciar_config_cpu();
     imprimir_config();
+	iniciar_semaforos();
 }
+
 void iniciar_logs(){
 	cpu_logger = log_create("cliente.log","", 1 ,LOG_LEVEL_INFO);
 
@@ -42,5 +44,10 @@ void imprimir_config(){
 	log_warning(cpu_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
 	log_debug(cpu_log_debug, "PUERTO_ESCUCHA_DISPATCH: %s", PUERTO_ESCUCHA_DISPATCH);
 	log_trace(cpu_log_debug, "PUERTO_ESCUCHA_INTERRUPT: %s", PUERTO_ESCUCHA_INTERRUPT);
-
 }
+
+void iniciar_semaforos(){
+	sem_init(&arrancar_cpu, 1, 0);
+	sem_init(&wait_instruccion, 1, 0);
+}
+

@@ -12,7 +12,7 @@
 #include<commons/config.h>
 #include<commons/collections/list.h>
 #include<assert.h>
-
+#include<semaphore.h>
 typedef enum
 {
 	MENSAJE,
@@ -24,8 +24,14 @@ typedef enum
 	RPTA_CREAR_PROCESO_MK,
 	//KERNEL-CPU------
 	CONSULTA_PLANIFICACION
+	RECIBIR_PCB,
+	SOLICITUD_INSTRUCCION,
+	RECIBIR_INSTRUCCION,
+	INICIAR_CPU,
 
 }op_code;
+
+//semaforos
 
 typedef struct
 {
@@ -54,8 +60,9 @@ typedef struct{
 
 typedef struct{
 	int pid;
-	int program_counter; //si rompe es culpa de brandon
+	int program_counter;
 	int quantum;
+	char* pathTXT;
 	registros registros_cpu;
 } PCB;
 
@@ -63,7 +70,6 @@ typedef struct{
 	int id;
 	char* path;
 } path_conID;
-
 
 extern t_log* logger;
 
@@ -98,13 +104,17 @@ t_buffer* recibir_todo_el_buffer(int conexion);
 void* extraer_choclo_del_buffer(t_buffer* un_buffer);
 int extraer_int_del_buffer(t_buffer* un_buffer);
 char *extraer_string_del_buffer(t_buffer* un_buffer);
+uint32_t extraer_uint32_del_buffer(t_buffer *un_buffer);
+uint8_t extraer_uint8_del_buffer(t_buffer *un_buffer);
 t_buffer* crear_buffer();
 void destruir_buffer(t_buffer* un_buffer);
 void cargar_choclo_al_buffer(t_buffer* un_buffer, void* un_choclo, int size_choclo);
 void cargar_int_al_buffer(t_buffer* un_buffer, int int_value);
 void cargar_uint32_al_buffer(t_buffer* un_buffer, uint32_t un_valor);
+void cargar_uint8_al_buffer(t_buffer* un_buffer, uint32_t un_valor);
 void cargar_string_al_buffer(t_buffer* un_buffer, char* un_string);
 t_paquete* crear_super_paquete(op_code cod_op, t_buffer* un_buffer);
 void destruir_paquete(t_paquete* un_paquete);
+int contarLineas(char *nombreArchivo);
 
 #endif /* UTILS_H_ */
