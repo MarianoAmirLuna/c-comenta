@@ -91,6 +91,8 @@ void iniciar_cpu()
   a_enviar->size = 0;
   a_enviar->stream = NULL;
 
+  cargar_string_al_buffer(a_enviar, "iniciar_cpu");
+
   t_paquete *un_paquete = crear_super_paquete(INICIAR_CPU, a_enviar);
   enviar_paquete(un_paquete, fd_cpu_dispatch);
   destruir_paquete(un_paquete);

@@ -48,6 +48,9 @@ void atender_cpu_kernel_dispatch()
 			break;
 		case INICIAR_CPU:
 		    printf("iniciando el cpu...\n");
+			un_buffer = recibir_todo_el_buffer(fd_kernel_dispatch);
+			extraer_string_del_buffer(un_buffer);
+
 			sem_post(&arrancar_cpu);
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de KERNEL - Dispatch");

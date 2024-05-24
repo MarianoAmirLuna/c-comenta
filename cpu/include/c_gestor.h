@@ -28,5 +28,6 @@ extern sem_t arrancar_cpu;
 extern sem_t wait_instruccion;
 
 extern PCB pcb_ejecucion;
+extern char* instruccion_actual;
 
 #endif

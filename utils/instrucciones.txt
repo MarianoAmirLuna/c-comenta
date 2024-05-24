@@ -1,6 +1,7 @@
-boca el mas grande
-river puto
-pepe
-joaco
-vamos a recursar 
-carita triste
+SET AX 10
+SET BX 2
+SET PC 5
+SUM AX BX
+SUB AX BX
+SUM AX BX
+SUB AX BX

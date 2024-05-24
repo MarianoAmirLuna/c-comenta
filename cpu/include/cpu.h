@@ -29,4 +29,6 @@ PCB pcb_ejecucion;
 sem_t arrancar_cpu;
 sem_t wait_instruccion;
 
+char* instruccion_actual;
+
 #endif
