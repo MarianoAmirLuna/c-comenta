@@ -1,11 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <commons/config.h>
-#include <pthread.h>
-#include "utils/shared.h"
-#include <commons/log.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <commons/config.h>
+//#include <pthread.h>
+//#include "utils/shared.h"
+//#include <commons/log.h>
 #include "../include/funciones_kernel.h"
 #include "../include/servicios_kernel.h"
+
+
 
 PCB iniciar_PCB(){ //revisar si anda o hay que poner struct adelante
 
@@ -52,17 +54,7 @@ void iniciar_planificacion(){
   procesoEXEC=0;
 }
 
-void ciclo_planificacion(){
-  switch(tipoPlanificacion){
-    case FIFO:
-      ciclo_plani_FIFO();
-      break;
-    case RR:
-      ciclo_plani_RR();
-    default:
-      break;
-  }
-}
+
 
 void ciclo_plani_FIFO(){
   //wait(sem_planificacion);//CORREGIR
@@ -95,6 +87,18 @@ void ciclo_plani_RR(){
     pthread_mutex_unlock(&mutexExec);
   }
   
+}
+
+void ciclo_planificacion(){
+  switch(tipoPlanificacion){
+    case FIFO:
+      ciclo_plani_FIFO();
+      break;
+    case RR:
+      ciclo_plani_RR();
+    default:
+      break;
+  }
 }
 
 

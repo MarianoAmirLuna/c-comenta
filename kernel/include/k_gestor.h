@@ -46,19 +46,19 @@ extern int identificador_PID;
 extern int contador_pcbs;
 
 extern pthread_mutex_t mutex_pid;
-extern pthread_mutex_t mutexExec=0;
+extern pthread_mutex_t mutexExec;
 
-extern t_list procesosNEW;
-extern t_list procesosREADY;
+extern t_list *procesosNEW;
+extern t_list *procesosREADY;
 extern int procesoEXEC;
 
-extern int sem_planificacion=1;
+extern int sem_planificacion;
 
-extern int quantum=10;
+extern int quantum;
 
-extern int tiempoTranscurrido=0;
+extern int tiempoTranscurrido;
 
-t_planificacion tipoPlanificacion=FIFO;
+extern t_planificacion tipoPlanificacion;
 
 
 #endif
