@@ -27,6 +27,7 @@ int socket_cliente_IO;
 
 int id_lamba;
 t_list* list_path_id;
+int id_global;
 
 
 #endif

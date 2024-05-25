@@ -35,7 +35,7 @@ int main(void)
 	pthread_t hilo_io;
 	pthread_create(&hilo_io, NULL, (void*)atender_kernel_io, NULL);
 	pthread_detach(hilo_io);
-	
+
 	pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
 	pthread_detach(hilo_memoria);

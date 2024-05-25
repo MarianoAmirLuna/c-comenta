@@ -7,6 +7,6 @@ void inicializar_cpu();
 void iniciar_logs();
 void iniciar_config_cpu();
 void imprimir_config();
-
+void iniciar_semaforos();
 
 #endif

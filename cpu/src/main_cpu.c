@@ -31,6 +31,11 @@ int main(void) {
 	pthread_detach(hilo_kernel_interrupt);
 
     //atender los mensajes de la memoria
+
+	pthread_t hilo_procesamiento;
+	pthread_create(&hilo_procesamiento, NULL, (void*)procesamiento_cpu, NULL);
+	pthread_detach(hilo_procesamiento);
+
 	pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_cpu_memoria, NULL);
 	pthread_join(hilo_memoria, NULL);

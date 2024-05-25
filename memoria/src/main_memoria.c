@@ -6,10 +6,11 @@
 #include "utils/shared.h"
 #include <commons/log.h>
 #include <commons/collections/list.h>
+#include <commons/string.h>
 
 int main() {
 
-	inicializar_memoria();	
+	inicializar_memoria();
 	
 	fd_memoria = iniciar_servidor(PUERTO_ESCUCHA);
    
@@ -33,13 +34,11 @@ int main() {
 	pthread_t hilo_cpu;
 	pthread_create(&hilo_cpu, NULL, (void*)atender_memoria_cpu, NULL);
 	pthread_detach(hilo_cpu);
-	
 
 	//Atender los mensajes del IO
 	pthread_t hilo_io;
 	pthread_create(&hilo_io, NULL, (void*)atender_memoria_io, NULL);
-	pthread_join(hilo_io, NULL);
-	
+	pthread_join(hilo_io, NULL);	
 
 	return 0;
 }
