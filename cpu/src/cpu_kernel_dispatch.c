@@ -10,7 +10,7 @@ PCB inicializar_PCB(int pid, int program_counter, int quantum,char* path, uint8_
 	pcb.pid = pid;
 	pcb.program_counter = program_counter;
 	pcb.quantum = quantum;
-	pcb.pathTXT = path;
+	//pcb.pathTXT = path;
 	pcb.registros_cpu.AX = ax;
 	pcb.registros_cpu.BX = bx;
 	pcb.registros_cpu.CX = cx;

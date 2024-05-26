@@ -91,7 +91,7 @@ void solicitar_instruccion(int pid, int program_counter)
     destruir_paquete(un_paquete);
 }
 
-void procesamiento_cpu()
+/*void procesamiento_cpu()
 {
 
     printf("toy esperando\n");
@@ -121,4 +121,4 @@ void procesamiento_cpu()
 
         pcb_ejecucion.program_counter++;
     }
-}
+}*/

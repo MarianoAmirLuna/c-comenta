@@ -60,5 +60,8 @@ extern int tiempoTranscurrido;
 
 extern t_planificacion tipoPlanificacion;
 
+extern int seguirPlanificando;
+extern sem_t sem_cpu_libre;
+extern int ejecutandoProceso;
 
 #endif

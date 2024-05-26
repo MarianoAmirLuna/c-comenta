@@ -8,3 +8,6 @@ int procesoEXEC=0;
 pthread_mutex_t mutexExec = PTHREAD_MUTEX_INITIALIZER;
 int quantum = 10;
 int tiempoTranscurrido=0;
+int seguirPlanificando=1;
+int ejecutandoProceso=0;
+sem_t sem_cpu_libre;

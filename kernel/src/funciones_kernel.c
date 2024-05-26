@@ -8,7 +8,7 @@
 #include "../include/servicios_kernel.h"
 
 
-PCB iniciar_PCB(char* path)
+PCB iniciar_PCB()
 { // revisar si anda o hay que poner struct adelante
 
   t_config *config = iniciar_configuracion("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config");
@@ -18,7 +18,7 @@ PCB iniciar_PCB(char* path)
   pcb.pid = asignar_pid();
   pcb.program_counter = 1;
   pcb.quantum = config_get_int_value(config, "QUANTUM");
-  pcb.pathTXT = path;
+  //pcb.pathTXT = path;
   pcb.registros_cpu.AX = 0;
   pcb.registros_cpu.BX = 0;
   pcb.registros_cpu.CX = 0;
@@ -61,7 +61,6 @@ void enviar_pcb(PCB pcb, int socket_enviar)
   cargar_int_al_buffer(a_enviar, pcb.pid);
   cargar_int_al_buffer(a_enviar, pcb.program_counter);
   cargar_int_al_buffer(a_enviar, pcb.quantum);
-  cargar_string_al_buffer(a_enviar,pcb.pathTXT);
   cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.AX);
   cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.BX);
   cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.CX);
@@ -79,28 +78,45 @@ void enviar_pcb(PCB pcb, int socket_enviar)
 }
 
 
-
+void enviar_pid_a_cpu(int pid){
+  t_buffer *buffer_pid = crear_buffer();
+  buffer_pid->size = 0;
+  buffer_pid->stream = NULL;
+  cargar_int_al_buffer(buffer_pid, pid);
+  t_paquete *paquete_pid = crear_super_paquete(ENVIAR_PID, buffer_pid);
+  enviar_paquete(paquete_pid, fd_cpu_dispatch);
+  destruir_paquete(paquete_pid);
+}
 
 void iniciar_planificacion(){
   procesosNEW=list_create();
   procesosREADY=list_create();
   procesoEXEC=0;
+
+  while(seguirPlanificando){
+    sem_wait(&sem_cpu_libre);
+    ciclo_planificacion();
+    if(ejecutandoProceso){
+      enviar_pid_a_cpu(procesoEXEC);
+    }
+    else sem_post(&sem_cpu_libre);
+  }
 }
 
 
 
 void ciclo_plani_FIFO(){
-  //wait(sem_planificacion);//CORREGIR
   while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     list_add(procesosREADY, list_remove(procesosNEW, 0));
   } 
-  if (procesoEXEC==0) //si no hay ningun proceso en ejecucion, pone el primero de READY
+  if (procesoEXEC==0 && !list_is_empty(procesosREADY)) //si no hay ningun proceso en ejecucion, pone el primero de READY
   {
     pthread_mutex_lock(&mutexExec);
     procesoEXEC=list_remove(procesosREADY, 0); 
     pthread_mutex_unlock(&mutexExec); 
   }
-  //signal(sem_planificacion)//CORREGIR
+  if(procesoEXEC==0) ejecutandoProceso=0;
+  else ejecutandoProceso=1;
 }
 
 void ciclo_plani_RR(){
@@ -119,7 +135,8 @@ void ciclo_plani_RR(){
     procesoEXEC=list_remove(procesosREADY, 0);
     pthread_mutex_unlock(&mutexExec);
   }
-  
+  if(procesoEXEC==0) ejecutandoProceso=0;
+  else ejecutandoProceso=1;
 }
 
 void ciclo_planificacion(){

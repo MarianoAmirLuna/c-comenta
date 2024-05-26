@@ -25,6 +25,7 @@ typedef enum
 	//KERNEL-CPU------
 	CONSULTA_PLANIFICACION,
 	RECIBIR_PCB,
+	ENVIAR_PID,
 	SOLICITUD_INSTRUCCION,
 	RECIBIR_INSTRUCCION,
 	INICIAR_CPU,
@@ -62,7 +63,7 @@ typedef struct{
 	int pid;
 	int program_counter;
 	int quantum;
-	char* pathTXT;
+//	char* pathTXT;
 	registros registros_cpu;
 } PCB;
 

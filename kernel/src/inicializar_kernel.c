@@ -1,4 +1,5 @@
 #include "../include/inicializar_kernel.h"
+#include "../include/funciones_kernel.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,12 +8,9 @@
 #include <commons/config.h>
 
 
-void inicializar_kernel(){
-	inicializar_logs();
-	inicializar_configs();
-    imprimir_configs();
-	iniciar_planificacion();
-}
+
+
+
 
 void inicializar_logs(){
 	kernel_logger = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_INFO);
@@ -61,4 +59,16 @@ void imprimir_configs(){
 	log_warning(kernel_logger, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
 	log_debug(kernel_log_debug, "RECURSOS: %s", RECURSOS);
 	log_trace(kernel_log_debug, "QUANTUM: %d", QUANTUM);
+}
+
+void iniciar_semaforos(){
+	sem_init(&sem_cpu_libre, 1, 1);
+}
+
+void inicializar_kernel(){
+	inicializar_logs();
+	inicializar_configs();
+    imprimir_configs();
+	iniciar_planificacion();
+	iniciar_semaforos();
 }
