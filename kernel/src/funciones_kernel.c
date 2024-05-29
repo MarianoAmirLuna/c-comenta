@@ -88,11 +88,7 @@ void enviar_pid_a_cpu(int pid){
   destruir_paquete(paquete_pid);
 }
 
-void iniciar_planificacion(){
-  procesosNEW=list_create();
-  procesosREADY=list_create();
-  procesoEXEC=0;
-
+void planificacion(){
   while(seguirPlanificando){
     sem_wait(&sem_cpu_libre);
     ciclo_planificacion();
@@ -101,6 +97,16 @@ void iniciar_planificacion(){
     }
     else sem_post(&sem_cpu_libre);
   }
+}
+
+void iniciar_planificacion(){
+  procesosNEW=list_create();
+  procesosREADY=list_create();
+  procesoEXEC=0;
+
+  pthread_t hilo_ciclo_planificacion;
+  pthread_create(&hilo_ciclo_planificacion, NULL, (void*)planificacion, NULL);
+  pthread_detach(hilo_ciclo_planificacion);
 }
 
 

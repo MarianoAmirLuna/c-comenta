@@ -6,13 +6,13 @@
 #include "utils/shared.h"
 #include <commons/log.h>
 #include "../include/funciones_kernel.h"
+#include "../include/consola.h"
 
 int main(void)
 {
 	//recibe mensajes del interrupt / dispatch / io / memoria
-
+	
 	inicializar_kernel();
-
 	fd_kernel = iniciar_servidor(PUERTO_ESCUCHA);
 
     fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);
