@@ -12,6 +12,7 @@ void inicializar_kernel(){
 	inicializar_configs();
     imprimir_configs();
 	iniciar_planificacion();
+	inicializar_semaforos();
 }
 
 void inicializar_logs(){
@@ -61,4 +62,8 @@ void imprimir_configs(){
 	log_warning(kernel_logger, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
 	log_debug(kernel_log_debug, "RECURSOS: %s", RECURSOS);
 	log_trace(kernel_log_debug, "QUANTUM: %d", QUANTUM);
+}
+
+void inicializar_semaforos(){
+	sem_init(&esta_cpu_libre, 1, 1);
 }

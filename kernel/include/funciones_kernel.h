@@ -4,8 +4,8 @@
 #include "k_gestor.h"
 
 
-void iniciar_proceso(char* path);
-PCB iniciar_PCB(char*);
+void iniciar_proceso();
+PCB iniciar_PCB();
 void enviar_path_memoria(char*, int);
 void iniciar_proceso(char*);
 void iniciar_planificacion();

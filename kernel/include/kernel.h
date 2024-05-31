@@ -35,5 +35,6 @@ int identificador_PID = 1;
 int contador_pcbs = 1;
 
 pthread_mutex_t mutex_pid;
+sem_t esta_cpu_libre;
 
 #endif

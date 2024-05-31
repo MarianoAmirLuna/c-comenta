@@ -8,5 +8,6 @@ void iniciar_logs();
 void iniciar_config_cpu();
 void imprimir_config();
 void iniciar_semaforos();
+void iniciar_variables();
 
 #endif

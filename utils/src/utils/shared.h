@@ -27,7 +27,9 @@ typedef enum
 	RECIBIR_PCB,
 	SOLICITUD_INSTRUCCION,
 	RECIBIR_INSTRUCCION,
-	INICIAR_CPU,
+	EJECUTAR_INSTRUCCION,
+	SOLICITUD_PCB,
+	CPU_LISTA,
 
 }op_code;
 
@@ -62,7 +64,6 @@ typedef struct{
 	int pid;
 	int program_counter;
 	int quantum;
-	char* pathTXT;
 	registros registros_cpu;
 } PCB;
 

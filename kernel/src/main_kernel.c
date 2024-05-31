@@ -49,6 +49,13 @@ int main(void)
 	
 	log_debug(kernel_log_debug, "Advertencia de salida de Kernel");
 
+	printf("llegue al while");
+
+	while(1){
+		printf("estoy en el while\n");
+		sleep(20);
+	}
+
 	return 0;
 }
 

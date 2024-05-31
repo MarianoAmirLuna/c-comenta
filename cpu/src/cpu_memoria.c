@@ -1,6 +1,51 @@
 #include "../include/cpu_memoria.h"
 #include <utils/shared.h>
 
+PCB inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint8_t bx, uint8_t cx,
+					uint8_t dx, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t si, uint32_t di)
+{
+
+	PCB pcb;
+
+	pcb.pid = pid;
+	pcb.program_counter = program_counter;
+	pcb.quantum = quantum;
+	pcb.registros_cpu.AX = ax;
+	pcb.registros_cpu.BX = bx;
+	pcb.registros_cpu.CX = cx;
+	pcb.registros_cpu.DX = dx;
+	pcb.registros_cpu.EAX = eax;
+	pcb.registros_cpu.EBX = ebx;
+	pcb.registros_cpu.ECX = ecx;
+	pcb.registros_cpu.EDX = edx;
+	pcb.registros_cpu.SI = si;
+	pcb.registros_cpu.DI = di;
+
+	return pcb;
+
+} // recibe todos los registros por eso es tan largo
+
+PCB extraer_pcb(t_buffer* un_buffer){
+
+	int pid = extraer_int_del_buffer(un_buffer);
+	int program_counter = extraer_int_del_buffer(un_buffer);
+	int quantum = extraer_int_del_buffer(un_buffer);
+	uint8_t ax = extraer_uint8_del_buffer(un_buffer);
+	uint8_t bx = extraer_uint8_del_buffer(un_buffer);
+	uint8_t cx = extraer_uint8_del_buffer(un_buffer);
+	uint8_t dx = extraer_uint8_del_buffer(un_buffer);
+	uint32_t eax = extraer_uint32_del_buffer(un_buffer);
+	uint32_t ebx = extraer_uint32_del_buffer(un_buffer);
+	uint32_t ecx = extraer_uint32_del_buffer(un_buffer);
+	uint32_t edx = extraer_uint32_del_buffer(un_buffer);
+	uint32_t si = extraer_uint32_del_buffer(un_buffer);
+	uint32_t di = extraer_uint32_del_buffer(un_buffer);
+
+	PCB pcb = inicializar_PCB(pid, program_counter, quantum, ax, bx, cx, dx, eax, ebx, ecx, edx, si, di);
+
+	return pcb;
+}
+
 void atender_cpu_memoria()
 {
 	bool control_key = 1;
@@ -27,6 +72,13 @@ void atender_cpu_memoria()
 			sem_post(&wait_instruccion);
 			
 			break;
+		case RECIBIR_PCB:
+		    printf("llego el pcb a cpu\n");
+			un_buffer = recibir_todo_el_buffer(fd_memoria);
+
+			pcb_ejecucion = extraer_pcb(un_buffer);
+
+			sem_post(&pcb_actualizado);
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;
@@ -37,4 +89,6 @@ void atender_cpu_memoria()
 		}
 	}
 }
+
+
 

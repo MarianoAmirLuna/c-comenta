@@ -8,6 +8,8 @@
 #include <commons/collections/list.h>
 #include <commons/string.h>
 
+
+
 int main() {
 
 	inicializar_memoria();
@@ -38,9 +40,17 @@ int main() {
 	//Atender los mensajes del IO
 	pthread_t hilo_io;
 	pthread_create(&hilo_io, NULL, (void*)atender_memoria_io, NULL);
-	pthread_join(hilo_io, NULL);	
+	pthread_join(hilo_io, NULL);
+
+	printf("llegue al while");
+
+	while(1){
+		printf("estoy en el while\n");
+		sleep(20);
+	}
 
 	return 0;
+
 }
 
 /*

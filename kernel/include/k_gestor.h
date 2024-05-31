@@ -59,6 +59,6 @@ extern int quantum;
 extern int tiempoTranscurrido;
 
 extern t_planificacion tipoPlanificacion;
-
+extern sem_t esta_cpu_libre;
 
 #endif

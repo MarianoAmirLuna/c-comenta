@@ -78,6 +78,58 @@ void devolver_instruccion(t_buffer *un_buffer)
 	destruir_paquete(un_paquete);
 }
 
+//---------------------------------------------------------------------------------------------
+
+void enviar_pcb(PCB* pcb, int socket_enviar)
+{
+  t_buffer *a_enviar = crear_buffer();
+
+  a_enviar->size = 0;
+  a_enviar->stream = NULL;
+
+  cargar_int_al_buffer(a_enviar, pcb->pid);
+  cargar_int_al_buffer(a_enviar, pcb->program_counter);
+  cargar_int_al_buffer(a_enviar, pcb->quantum);
+  cargar_uint8_al_buffer(a_enviar, pcb->registros_cpu.AX);
+  cargar_uint8_al_buffer(a_enviar, pcb->registros_cpu.BX);
+  cargar_uint8_al_buffer(a_enviar, pcb->registros_cpu.CX);
+  cargar_uint8_al_buffer(a_enviar, pcb->registros_cpu.DX);
+  cargar_uint32_al_buffer(a_enviar, pcb->registros_cpu.EAX);
+  cargar_uint32_al_buffer(a_enviar, pcb->registros_cpu.EBX);
+  cargar_uint32_al_buffer(a_enviar, pcb->registros_cpu.ECX);
+  cargar_uint32_al_buffer(a_enviar, pcb->registros_cpu.EDX);
+  cargar_uint32_al_buffer(a_enviar, pcb->registros_cpu.SI);
+  cargar_uint32_al_buffer(a_enviar, pcb->registros_cpu.DI);
+
+  t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, a_enviar);
+  enviar_paquete(un_paquete, socket_enviar);
+  destruir_paquete(un_paquete);
+}
+
+bool condition_id_igual_pcb(void *elemento)
+{
+	PCB *dato = (PCB *)elemento;
+	return (dato->pid == id_global_pcb);
+}
+
+PCB* obtener_pcb_lista(int pid){
+	id_global_pcb = pid;
+
+	PCB* pcb = list_find(list_pcb, condition_id_igual_pcb);
+
+    return pcb;
+}
+
+void devolver_pcb(t_buffer * un_buffer){
+
+	int pid = extraer_int_del_buffer(un_buffer);
+
+	printf("el pid en devolver_pcb %d\n",pid);
+
+	//PCB* pcb = obtener_pcb_lista(pid);
+
+	//enviar_pcb(pcb,fd_cpu);
+}
 
 void atender_memoria_cpu()
 {
@@ -98,8 +150,14 @@ void atender_memoria_cpu()
 			printf("se solicito instruccion a memoria\n");
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			devolver_instruccion(un_buffer);
-
 			break;
+
+		case SOLICITUD_PCB:
+		    printf("se solicito un pcb");
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
+            devolver_pcb(un_buffer);
+			break;
+
 		case -1:
 			log_trace(memoria_log_debug,"Desconexion de CPU - MEMORIA");
 			control_key = 0;

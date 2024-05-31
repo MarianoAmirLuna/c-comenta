@@ -28,7 +28,10 @@ char* PUERTO_ESCUCHA_INTERRUPT;
 PCB pcb_ejecucion;
 sem_t arrancar_cpu;
 sem_t wait_instruccion;
+sem_t pcb_actualizado;
 
 char* instruccion_actual;
+bool cambioContexto;
+bool hayPcbEjecucion;
 
 #endif
