@@ -72,6 +72,8 @@ void devolver_instruccion(t_buffer *un_buffer)
 	//printf("la instruccion es: %s\n",instruccion);
 
 	cargar_string_al_buffer(a_enviar, instruccion);
+	
+	printf("la instruccion es: %s\n",instruccion);
 
 	t_paquete *un_paquete = crear_super_paquete(RECIBIR_INSTRUCCION, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
@@ -117,6 +119,10 @@ PCB* obtener_pcb_lista(int pid){
 
 	PCB* pcb = list_find(list_pcb, condition_id_igual_pcb);
 
+	printf("obtener_pcb_lista\n");
+
+	printf("el pid recien salido de la lista: %d\n",pcb->pid);
+
     return pcb;
 }
 
@@ -124,11 +130,11 @@ void devolver_pcb(t_buffer * un_buffer){
 
 	int pid = extraer_int_del_buffer(un_buffer);
 
-	printf("el pid en devolver_pcb %d\n",pid);
+	printf("el pid de devolver_pcb es: %d\n", pid);
 
-	//PCB* pcb = obtener_pcb_lista(pid);
+	PCB* pcb = obtener_pcb_lista(pid);
 
-	//enviar_pcb(pcb,fd_cpu);
+	enviar_pcb(pcb,fd_cpu);
 }
 
 void atender_memoria_cpu()
@@ -153,7 +159,7 @@ void atender_memoria_cpu()
 			break;
 
 		case SOLICITUD_PCB:
-		    printf("se solicito un pcb");
+		    printf("se solicito un pcb\n");
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
             devolver_pcb(un_buffer);
 			break;

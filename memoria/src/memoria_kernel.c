@@ -1,25 +1,25 @@
 #include "../include/memoria_kernel.h"
 #include <pthread.h>
 
-PCB inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint8_t bx, uint8_t cx,
+PCB* inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint8_t bx, uint8_t cx,
 					uint8_t dx, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t si, uint32_t di)
 {
 
-	PCB pcb;
+	PCB* pcb = malloc(sizeof(PCB));
 
-	pcb.pid = pid;
-	pcb.program_counter = program_counter;
-	pcb.quantum = quantum;
-	pcb.registros_cpu.AX = ax;
-	pcb.registros_cpu.BX = bx;
-	pcb.registros_cpu.CX = cx;
-	pcb.registros_cpu.DX = dx;
-	pcb.registros_cpu.EAX = eax;
-	pcb.registros_cpu.EBX = ebx;
-	pcb.registros_cpu.ECX = ecx;
-	pcb.registros_cpu.EDX = edx;
-	pcb.registros_cpu.SI = si;
-	pcb.registros_cpu.DI = di;
+	pcb->pid = pid;
+	pcb->program_counter = program_counter;
+	pcb->quantum = quantum;
+	pcb->registros_cpu.AX = ax;
+	pcb->registros_cpu.BX = bx;
+	pcb->registros_cpu.CX = cx;
+	pcb->registros_cpu.DX = dx;
+	pcb->registros_cpu.EAX = eax;
+	pcb->registros_cpu.EBX = ebx;
+	pcb->registros_cpu.ECX = ecx;
+	pcb->registros_cpu.EDX = edx;
+	pcb->registros_cpu.SI = si;
+	pcb->registros_cpu.DI = di;
 
 	return pcb;
 
@@ -60,14 +60,17 @@ void atender_recibir_pcb(t_buffer *un_buffer)
 	uint32_t si = extraer_uint32_del_buffer(un_buffer);
 	uint32_t di = extraer_uint32_del_buffer(un_buffer);
 
-	PCB pcb = inicializar_PCB(pid, program_counter, quantum, ax, bx, cx, dx, eax, ebx, ecx, edx, si, di);
+	PCB* pcb = inicializar_PCB(pid, program_counter, quantum, ax, bx, cx, dx, eax, ebx, ecx, edx, si, di);
 
-	printf("pid: %d\n", pcb.pid);
+	printf("pid: %d\n", pcb->pid);
 
-	list_add(list_pcb, &pcb);
+	list_add(list_pcb, pcb);
 
-	PCB *pcbxd = list_get(list_pcb, pid - 1);
-	printf("el pid ya en la lista %d\n", pcbxd->pid);
+	//printf("agregar a la lista\n");
+
+	//PCB* pcbxd = list_get(list_pcb,0);
+
+	//printf("el pid ya en la lista %d\n", pcbxd->pid);
 }
 
 void atender_memoria_kernel()

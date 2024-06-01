@@ -24,6 +24,7 @@ void atender_cpu_kernel_dispatch()
 			int pid = extraer_int_del_buffer(un_buffer);
 
 		    procesar_instruccion(pid);
+			break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de KERNEL - Dispatch");
 			control_key = 0;

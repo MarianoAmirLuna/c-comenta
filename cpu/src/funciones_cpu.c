@@ -83,6 +83,9 @@ void solicitar_instruccion(int pid, int program_counter)
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
+    printf("el pid en solicitar_instruccion es: %d\n",pid);
+    printf("el program counter en solicitar instrucciones: %d\n",program_counter);
+
     cargar_int_al_buffer(a_enviar, pid);
     cargar_int_al_buffer(a_enviar, program_counter);
 
@@ -116,6 +119,10 @@ void termino_ejecutar(){
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
+    printf("envie el mensaje de CPU LISTA\n");
+
+    cargar_string_al_buffer(a_enviar,"mariano es fachero");
+
     t_paquete *un_paquete = crear_super_paquete(CPU_LISTA, a_enviar);
     enviar_paquete(un_paquete, fd_kernel_dispatch);
     destruir_paquete(un_paquete);
@@ -128,12 +135,16 @@ void procesar_instruccion(int pidAEjecutar)
     if (cambioContexto || pcb_ejecucion.pid == -1)
     {
         actualizarPCB(pidAEjecutar);
+        printf("se actualizo el pcb\n");
     }
 
-    solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
+    //hasta aca anda
+    printf("se solicito la instruccion\n");
+    solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter); 
 
     sem_wait(&wait_instruccion);
 
+    printf("se ejecuto la instruccion\n");
     ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
 
     printf("Estado de los registros:\n");
@@ -143,6 +154,8 @@ void procesar_instruccion(int pidAEjecutar)
     printf("--------------------------------\n\n");
 
     pcb_ejecucion.program_counter++;
+
+    //error: Desconexion de CPU - MEMORIA
 
     termino_ejecutar();
 

@@ -53,6 +53,7 @@ void atender_cpu_memoria()
 	while (control_key)
 	{
 		int cod_op = recibir_operacion(fd_memoria);
+		printf("codigo de operacion: %d\n",cod_op);
 		switch (cod_op)
 		{
 		case MENSAJE:
@@ -79,6 +80,7 @@ void atender_cpu_memoria()
 			pcb_ejecucion = extraer_pcb(un_buffer);
 
 			sem_post(&pcb_actualizado);
+			break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

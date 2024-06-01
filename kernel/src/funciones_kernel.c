@@ -157,8 +157,11 @@ void iniciar_cpu()
 {
   sem_wait(&esta_cpu_libre);
   enviar_pid_cpu(1);
+  printf("se solicito el pid 1\n");
   sem_wait(&esta_cpu_libre);
   enviar_pid_cpu(3);
+  printf("se solicito el pid 3\n");
   sem_wait(&esta_cpu_libre);
   enviar_pid_cpu(2);
+  printf("se solicito el pid 2\n");
 }
