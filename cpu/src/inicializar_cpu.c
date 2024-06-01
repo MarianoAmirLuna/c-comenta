@@ -6,6 +6,7 @@ void inicializar_cpu(){
     iniciar_config_cpu();
     imprimir_config();
 	iniciar_semaforos();
+	iniciar_variables();
 }
 
 void iniciar_logs(){
@@ -49,5 +50,10 @@ void imprimir_config(){
 void iniciar_semaforos(){
 	sem_init(&arrancar_cpu, 1, 0);
 	sem_init(&wait_instruccion, 1, 0);
+	sem_init(&pcb_actualizado,1,0);
 }
 
+void iniciar_variables(){
+	hayPcbEjecucion = false;
+	pcb_ejecucion.pid = -1; //el -1 significa que aun no llego ni una instruccion a cpu
+}

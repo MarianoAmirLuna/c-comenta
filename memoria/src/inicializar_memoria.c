@@ -28,6 +28,7 @@ void iniciar_logs(){
 
 void iniciar_listas(){
 	list_path_id = list_create();
+	list_pcb = list_create();
 }
 
 void iniciar_config(){

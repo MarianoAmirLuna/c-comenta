@@ -3,8 +3,10 @@
 
 void atender_kernel_dispatch(){
     bool control_key = 1;
+	t_buffer *un_buffer;
 	while (control_key) {
 		int cod_op = recibir_operacion(fd_cpu_dispatch); 
+		printf("codigo de operacion: %d\n",cod_op);
 		switch (cod_op) {
 		case MENSAJE:
 			//
@@ -18,6 +20,13 @@ void atender_kernel_dispatch(){
 			agregar_a_paquete(paquete_pid, procesoEXEC, sizeof(int));
 			enviar_paquete(paquete_pid, fd_cpu_dispatch);
 			destruir_paquete(paquete_pid);
+			break;
+        case CPU_LISTA:
+		    un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			char* mariano = extraer_string_del_buffer(un_buffer);
+			
+			printf("se hizo el post");
+			sem_post(&esta_cpu_libre);
 			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");

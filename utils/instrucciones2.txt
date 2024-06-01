@@ -1,0 +1,4 @@
+SET AX 5
+SET BX 6
+SET AX 7
+SET BX 8

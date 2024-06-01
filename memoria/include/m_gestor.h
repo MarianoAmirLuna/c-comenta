@@ -28,7 +28,9 @@ extern int socket_cliente_IO;
 
 extern int id_lamba;
 extern t_list* list_path_id;
+extern t_list* list_pcb;
 extern int id_global;
+extern int id_global_pcb;
 
 
 #endif

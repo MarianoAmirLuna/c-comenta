@@ -39,6 +39,13 @@ int main(void) {
 	pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_cpu_memoria, NULL);
 	pthread_join(hilo_memoria, NULL);
+	
+	printf("llegue al while");
+
+	while(1){
+		printf("estoy en el while\n");
+		sleep(20);
+	}
 
 	return 0;
 }

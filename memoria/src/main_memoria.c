@@ -8,7 +8,49 @@
 #include <commons/collections/list.h>
 #include <commons/string.h>
 
+/*
+PCB iniciar_PCBxd()
+{ // revisar si anda o hay que poner struct adelante
+
+
+  PCB pcb;
+
+  pcb.pid = 5;
+  pcb.program_counter = 1;
+  pcb.quantum = 3;
+  pcb.registros_cpu.AX = 0;
+  pcb.registros_cpu.BX = 0;
+  pcb.registros_cpu.CX = 0;
+  pcb.registros_cpu.DX = 0;
+  pcb.registros_cpu.EAX = 0;
+  pcb.registros_cpu.EBX = 0;
+  pcb.registros_cpu.ECX = 0;
+  pcb.registros_cpu.EDX = 0;
+  pcb.registros_cpu.SI = 0;
+  pcb.registros_cpu.DI = 0;
+
+  return pcb;
+}
+
+bool condition_id_igualxd(void *elemento)
+{
+	PCB *dato = (PCB *)elemento;
+	return (dato->pid == 5);
+} */
+
 int main() {
+
+	/*
+    PCB pcbxd = iniciar_PCBxd();
+
+	t_list* listaxd = list_create();
+
+	list_add(listaxd,&pcbxd);
+
+    PCB* pcb = list_find(listaxd, condition_id_igualxd);
+
+    printf("el pid recien salido de la lista: %d\n",pcb->pid);
+	*/
 
 	inicializar_memoria();
 	
@@ -38,9 +80,17 @@ int main() {
 	//Atender los mensajes del IO
 	pthread_t hilo_io;
 	pthread_create(&hilo_io, NULL, (void*)atender_memoria_io, NULL);
-	pthread_join(hilo_io, NULL);	
+	pthread_join(hilo_io, NULL);
+
+	printf("llegue al while");
+
+	while(1){
+		printf("estoy en el while\n");
+		sleep(20);
+	}
 
 	return 0;
+
 }
 
 /*
