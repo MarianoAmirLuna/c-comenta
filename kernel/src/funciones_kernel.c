@@ -126,9 +126,9 @@ void iniciar_planificacion(){
   procesosREADY=list_create();
   procesoEXEC=0;
   int uno=1, dos=2, tres=3;
-  list_add(procesosNEW, &uno);
-  list_add(procesosNEW, &dos);
-  printf("entran 1 y 2 a new en ese orden------------------------------------\n");
+  //list_add(procesosNEW, &uno);
+  //list_add(procesosNEW, &dos);
+  //printf("entran 1 y 2 a new en ese orden------------------------------------\n");
   
   //sleep(1);
   /*ciclo_planificacion();
@@ -146,7 +146,31 @@ void iniciar_planificacion(){
   procesoEXEC=0;
   ciclo_planificacion();
   estadoPlani();*/
-  
+  list_add(procesosNEW, &uno);
+  list_add(procesosNEW, &dos);
+  list_add(procesosNEW, &tres);
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+
+
   /*
   pthread_t hilo_ciclo_planificacion;
   pthread_create(&hilo_ciclo_planificacion, NULL, (void*)planificacion, NULL);
@@ -172,10 +196,13 @@ void ciclo_plani_FIFO(){
 }
 
 void ciclo_plani_RR(){
-  quantum++;
+  //quantum++;
   if(tiempoTranscurrido>=quantum){
-    int procesoDesalojado = procesoEXEC;
-    list_add(procesosREADY, &procesoDesalojado);
+    printf("FIN DE QUANTUM\n");
+    tiempoTranscurrido=0;
+    int *procesoDesalojado = malloc(sizeof(int)); 
+    *procesoDesalojado = procesoEXEC;
+    list_add(procesosREADY, procesoDesalojado);
     pthread_mutex_lock(&mutexExec);
     procesoEXEC=0;
     pthread_mutex_unlock(&mutexExec);
@@ -191,6 +218,7 @@ void ciclo_plani_RR(){
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
   else ejecutandoProceso=1;
+  tiempoTranscurrido++;
 }
 
 void ciclo_planificacion(){
