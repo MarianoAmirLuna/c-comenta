@@ -1,6 +1,6 @@
 #include "../include/k_gestor.h"
 
-t_planificacion tipoPlanificacion=FIFO;
+t_planificacion tipoPlanificacion=RR;
 
 t_list *procesosNEW=NULL;
 t_list *procesosREADY=NULL;

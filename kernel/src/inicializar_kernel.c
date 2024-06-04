@@ -7,13 +7,7 @@
 #include <commons/log.h>
 #include <commons/config.h>
 
-void inicializar_kernel(){
-	inicializar_logs();
-	inicializar_configs();
-    imprimir_configs();
-	iniciar_planificacion();
-	iniciar_semaforos();
-}
+void inicializar_kernel();
 
 
 
@@ -71,3 +65,9 @@ void iniciar_semaforos(){
 	sem_init(&sem_cpu_libre, 1, 1);
 }
 
+void inicializar_kernel(){
+	inicializar_logs();
+	inicializar_configs();
+    imprimir_configs();
+	iniciar_semaforos();
+}

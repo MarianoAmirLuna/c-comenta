@@ -99,14 +99,58 @@ void planificacion(){
   }
 }
 
+void imprimirLista(t_list* l){
+  int i=0;
+  for(int i=0;i<list_size(l);i++){
+    int *elem = list_get(l, i);
+    printf("%d, ", *elem);
+  }
+}
+
+void estadoPlani(){
+  //int *new0=list_get(procesosREADY, 0);
+  //void *ready0=list_get(procesosREADY, 1);
+  //printf("New: %d, Ready:%d, exec:%d", new0, ready0, procesoEXEC);
+  //printf("ready: %d, exec:%d\n",*new0, procesoEXEC);
+  printf("ready: ");
+  imprimirLista(procesosREADY);
+  printf(" exec: %d \n", procesoEXEC);
+
+}
+
 void iniciar_planificacion(){
+  //sleep(2);
+  //printf("llega adentro de iniciarPlani\n");
   procesosNEW=list_create();
+  //printf("entrando a ciclo plani\n");
   procesosREADY=list_create();
   procesoEXEC=0;
+  int uno=1, dos=2, tres=3;
+  list_add(procesosNEW, &uno);
+  list_add(procesosNEW, &dos);
+  printf("entran 1 y 2 a new en ese orden------------------------------------\n");
+  
+  //sleep(1);
+  /*ciclo_planificacion();
+  estadoPlani();
+  list_add(procesosNEW, &tres);
+  printf("entra 3 a new-----------------------------------------\n");
+  ciclo_planificacion();
+  estadoPlani();
 
+  procesoEXEC=0;
+  printf("termina el proceso 1--------------------------------------\n");
+  ciclo_planificacion();
+  estadoPlani();
+  printf("termina el proceso 2------------------------------\n");
+  procesoEXEC=0;
+  ciclo_planificacion();
+  estadoPlani();*/
+  
+  /*
   pthread_t hilo_ciclo_planificacion;
   pthread_create(&hilo_ciclo_planificacion, NULL, (void*)planificacion, NULL);
-  pthread_detach(hilo_ciclo_planificacion);
+  pthread_detach(hilo_ciclo_planificacion);*/
 }
 
 
@@ -115,10 +159,12 @@ void ciclo_plani_FIFO(){
   while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     list_add(procesosREADY, list_remove(procesosNEW, 0));
   } 
+  //printf("limpiada lista de new\n");
   if (procesoEXEC==0 && !list_is_empty(procesosREADY)) //si no hay ningun proceso en ejecucion, pone el primero de READY
   {
     pthread_mutex_lock(&mutexExec);
-    procesoEXEC=list_remove(procesosREADY, 0); 
+    int* exec = list_remove(procesosREADY,0);
+    procesoEXEC= *exec; 
     pthread_mutex_unlock(&mutexExec); 
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
@@ -129,6 +175,7 @@ void ciclo_plani_RR(){
   quantum++;
   if(tiempoTranscurrido>=quantum){
     int procesoDesalojado = procesoEXEC;
+    list_add(procesosREADY, &procesoDesalojado);
     pthread_mutex_lock(&mutexExec);
     procesoEXEC=0;
     pthread_mutex_unlock(&mutexExec);
@@ -138,7 +185,8 @@ void ciclo_plani_RR(){
   } 
   if(procesoEXEC==0){
     pthread_mutex_lock(&mutexExec);
-    procesoEXEC=list_remove(procesosREADY, 0);
+    int* exec = list_remove(procesosREADY,0);
+    procesoEXEC= *exec; 
     pthread_mutex_unlock(&mutexExec);
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
@@ -148,6 +196,7 @@ void ciclo_plani_RR(){
 void ciclo_planificacion(){
   switch(tipoPlanificacion){
     case FIFO:
+    printf("CICLO FIFO\n");
       ciclo_plani_FIFO();
       break;
     case RR:

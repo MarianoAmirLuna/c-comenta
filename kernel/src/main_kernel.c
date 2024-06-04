@@ -18,10 +18,15 @@ int main(void)
     fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);
 
 	fd_cpu_interrupt = iniciar_conexion(PUERTO_CPU_INTERRUPT, "CPU-INTERRUPT",kernel_log_debug);
-
 	fd_cpu_dispatch = iniciar_conexion(PUERTO_CPU_DISPATCH, "CPU-DISPATCH",kernel_log_debug);
 
-    log_trace(kernel_logger, "listo para escuchar al IO");
+	pthread_t hilo_planificacion;
+	//printf("llega aca\n");
+	pthread_create(&hilo_planificacion, NULL, (void*)iniciar_planificacion, NULL);
+	pthread_join(hilo_planificacion, NULL);
+
+    //log_trace(kernel_logger, "listo para escuchar al IO");
+	log_trace(kernel_log_debug, "listo para escuchar al IO");
 	fd_io = esperar_cliente(fd_kernel);
 
 	pthread_t hilo_cpu_interrupt;
@@ -40,9 +45,7 @@ int main(void)
 	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
 	pthread_detach(hilo_memoria);
 
-	/*pthread_t hilo_planificacion;
-	pthread_create(&hilo_planificacion, NULL, (void*)ciclo_planificacion, NULL);
-	pthread_detach(hilo_planificacion);*/
+	
 
 	//Iniciar la consola interactiva
 	iniciar_consola_interactiva();
