@@ -155,8 +155,15 @@ void iniciar_planificacion(){
   estadoPlani();
   ciclo_planificacion();
   estadoPlani();
+
   ciclo_planificacion();
   estadoPlani();
+
+  pthread_mutex_lock(&mutexExec);
+  procesoEXEC=0;
+  printf("termino el proceso\n");
+  pthread_mutex_unlock(&mutexExec);
+
   ciclo_planificacion();
   estadoPlani();
   ciclo_planificacion();
@@ -197,7 +204,7 @@ void ciclo_plani_FIFO(){
 
 void ciclo_plani_RR(){
   //quantum++;
-  if(tiempoTranscurrido>=quantum){
+  if(tiempoTranscurrido>=quantum && procesoEXEC!=0){
     printf("FIN DE QUANTUM\n");
     tiempoTranscurrido=0;
     int *procesoDesalojado = malloc(sizeof(int)); 
@@ -214,6 +221,7 @@ void ciclo_plani_RR(){
     pthread_mutex_lock(&mutexExec);
     int* exec = list_remove(procesosREADY,0);
     procesoEXEC= *exec; 
+    tiempoTranscurrido=0;
     pthread_mutex_unlock(&mutexExec);
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
