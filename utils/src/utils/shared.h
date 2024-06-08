@@ -13,6 +13,7 @@
 #include<commons/collections/list.h>
 #include<assert.h>
 #include<semaphore.h>
+#include<math.h>
 typedef enum
 {
 	MENSAJE,
@@ -25,9 +26,12 @@ typedef enum
 	//KERNEL-CPU------
 	CONSULTA_PLANIFICACION,
 	RECIBIR_PCB,
-	ENVIAR_PID,
 	SOLICITUD_INSTRUCCION,
 	RECIBIR_INSTRUCCION,
+	EJECUTAR_INSTRUCCION,
+	SOLICITUD_PCB,
+	CPU_LISTA,
+	ENVIAR_PID,
 	INICIAR_CPU,
 
 }op_code;
@@ -63,7 +67,6 @@ typedef struct{
 	int pid;
 	int program_counter;
 	int quantum;
-//	char* pathTXT;
 	registros registros_cpu;
 } PCB;
 

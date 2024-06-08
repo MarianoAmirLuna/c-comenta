@@ -21,13 +21,6 @@ void atender_kernel_dispatch(){
 			enviar_paquete(paquete_pid, fd_cpu_dispatch);
 			destruir_paquete(paquete_pid);
 			break;
-        case CPU_LISTA:
-		    un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
-			char* mariano = extraer_string_del_buffer(un_buffer);
-			
-			printf("se hizo el post");
-			sem_post(&esta_cpu_libre);
-			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			control_key = 0;

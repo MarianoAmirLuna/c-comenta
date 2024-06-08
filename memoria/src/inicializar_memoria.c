@@ -41,16 +41,16 @@ void iniciar_config(){
 	}
 
 	PUERTO_ESCUCHA = config_get_string_value(memoria_config,"PUERTO_ESCUCHA");
-    TAM_MEMORIA = config_get_string_value(memoria_config,"TAM_MEMORIA");
-    TAM_PAGINA = config_get_string_value(memoria_config,"TAM_PAGINA");
+    TAM_MEMORIA = config_get_int_value(memoria_config,"TAM_MEMORIA");
+    TAM_PAGINA = config_get_int_value(memoria_config,"TAM_PAGINA");
     PATH_INSTRUCCIONES = config_get_string_value(memoria_config,"PATH_INSTRUCCIONES");
     RETARDO_RESPUESTA = config_get_int_value(memoria_config,"RETARDO_RESPUESTA");
 }
 
 void imprimir_config(){    	
 	log_info(memoria_logger, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
-	log_warning(memoria_log_debug, "TAM_MEMORIA: %s", TAM_MEMORIA);
-	log_debug(memoria_log_debug, "TAM_PAGINA: %s", TAM_PAGINA);
+	log_warning(memoria_log_debug, "TAM_MEMORIA: %d", TAM_MEMORIA);
+	log_debug(memoria_log_debug, "TAM_PAGINA: %d", TAM_PAGINA);
 	log_trace(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
 }
 
