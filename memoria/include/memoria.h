@@ -17,8 +17,8 @@ int fd_io;
 int fd_cpu;
 
 char* PUERTO_ESCUCHA;
-int* TAM_MEMORIA;
-int* TAM_PAGINA;
+int TAM_MEMORIA;
+int TAM_PAGINA;
 char* PATH_INSTRUCCIONES;
 int RETARDO_RESPUESTA;
 int socket_cliente_CPU;
@@ -28,13 +28,12 @@ int socket_cliente_IO;
 int id_lamba;
 t_list* list_path_id;
 t_list* list_pcb;
+t_list* listaPaginas;
 t_list* listaTablaPaginas;
 int id_global;
 int id_global_pcb;
-char* memoriaPrincipal;
+void* memoriaPrincipal;
 int cant_frames_ppal;
-char* data;
-char* data2;
 t_bitarray* frames_ocupados_ppal;
 
 

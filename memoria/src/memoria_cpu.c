@@ -82,6 +82,39 @@ void devolver_instruccion(t_buffer *un_buffer)
 
 //---------------------------------------------------------------------------------------------
 
+
+void atender_memoria_cpu()
+{
+	bool control_key = 1;
+	t_buffer *un_buffer;
+	while (control_key)
+	{
+		int cod_op = recibir_operacion(fd_cpu);
+		switch (cod_op)
+		{
+		case MENSAJE:
+
+			break;
+		case PAQUETE:
+
+			break;
+		case SOLICITUD_INSTRUCCION:
+			printf("se solicito instruccion a memoria\n");
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
+			devolver_instruccion(un_buffer);
+			break;
+		case -1:
+			log_trace(memoria_log_debug,"Desconexion de CPU - MEMORIA");
+			control_key = 0;
+			break;
+		default:
+			//log_warning(logger, "Operacion desconocida de CPU - MEMORIA");
+			break;
+		}
+	}
+}
+
+/*
 void enviar_pcb(PCB* pcb, int socket_enviar)
 {
   t_buffer *a_enviar = crear_buffer();
@@ -107,72 +140,6 @@ void enviar_pcb(PCB* pcb, int socket_enviar)
   enviar_paquete(un_paquete, socket_enviar);
   destruir_paquete(un_paquete);
 }
-
-bool condition_id_igual_pcb(void *elemento)
-{
-	PCB *dato = (PCB *)elemento;
-	return (dato->pid == id_global_pcb);
-}
-
-PCB* obtener_pcb_lista(int pid){
-	id_global_pcb = pid;
-
-	PCB* pcb = list_find(list_pcb, condition_id_igual_pcb);
-
-	printf("obtener_pcb_lista\n");
-
-	printf("el pid recien salido de la lista: %d\n",pcb->pid);
-
-    return pcb;
-}
-
-void devolver_pcb(t_buffer * un_buffer){
-
-	int pid = extraer_int_del_buffer(un_buffer);
-
-	printf("el pid de devolver_pcb es: %d\n", pid);
-
-	PCB* pcb = obtener_pcb_lista(pid);
-
-	enviar_pcb(pcb,fd_cpu);
-}
-
-void atender_memoria_cpu()
-{
-	bool control_key = 1;
-	t_buffer *un_buffer;
-	while (control_key)
-	{
-		int cod_op = recibir_operacion(fd_cpu);
-		switch (cod_op)
-		{
-		case MENSAJE:
-
-			break;
-		case PAQUETE:
-
-			break;
-		case SOLICITUD_INSTRUCCION:
-			printf("se solicito instruccion a memoria\n");
-			un_buffer = recibir_todo_el_buffer(fd_cpu);
-			devolver_instruccion(un_buffer);
-			break;
-
-		case SOLICITUD_PCB:
-		    printf("se solicito un pcb\n");
-			un_buffer = recibir_todo_el_buffer(fd_cpu);
-            devolver_pcb(un_buffer);
-			break;
-
-		case -1:
-			log_trace(memoria_log_debug,"Desconexion de CPU - MEMORIA");
-			control_key = 0;
-			break;
-		default:
-			//log_warning(logger, "Operacion desconocida de CPU - MEMORIA");
-			break;
-		}
-	}
-}
+*/
 
 

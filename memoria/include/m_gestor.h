@@ -17,8 +17,8 @@ extern int fd_io;
 extern int fd_cpu;
 
 extern char* PUERTO_ESCUCHA;
-extern int* TAM_MEMORIA;
-extern int* TAM_PAGINA;
+extern int TAM_MEMORIA;
+extern int TAM_PAGINA;
 extern char* PATH_INSTRUCCIONES;
 extern int RETARDO_RESPUESTA;
 
@@ -29,13 +29,13 @@ extern int socket_cliente_IO;
 extern int id_lamba;
 extern t_list* list_path_id;
 extern t_list* list_pcb;
+extern t_list* listaPaginas;
 extern t_list* listaTablaPaginas;
 extern int id_global;
 extern int id_global_pcb;
 
-extern char* memoriaPrincipal;
+extern void* memoriaPrincipal;
 extern int cant_frames_ppal;
-extern char* data;
 extern char* data2;
 extern t_bitarray* frames_ocupados_ppal;
 

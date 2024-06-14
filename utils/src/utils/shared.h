@@ -50,6 +50,10 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
+typedef struct {
+    void* data;    
+} t_page;
+
 typedef struct{
 	uint8_t  AX;
 	uint8_t  BX;
@@ -74,6 +78,15 @@ typedef struct{
 	int id;
 	char* path;
 } path_conID;
+
+typedef struct{
+	int marco;
+	int bitValidez;
+} marcoBit;
+typedef struct{
+	int pid;
+	marcoBit array[50];
+} tablaPaginas;
 
 extern t_log* logger;
 

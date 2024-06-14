@@ -9,5 +9,6 @@ void iniciar_logs();
 void iniciar_config();
 void imprimir_config();
 void iniciar_listas();
+void iniciarPaginacion();
 
 #endif

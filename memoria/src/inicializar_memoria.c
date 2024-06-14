@@ -1,11 +1,12 @@
 #include "../include/inicializar_memoria.h"
 
-void inicializar_memoria(){
-    iniciar_logs();
-    iniciar_config();
-    imprimir_config();
-	iniciar_listas();
+void iniciar_listas(){
+	list_path_id = list_create();
+	list_pcb = list_create();
+	listaTablaPaginas = list_create();
+	listaPaginas = list_create();
 }
+
 void iniciar_logs(){
     
 	memoria_logger = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_INFO);
@@ -24,11 +25,6 @@ void iniciar_logs(){
 		exit(EXIT_FAILURE);
 	}
 
-}
-
-void iniciar_listas(){
-	list_path_id = list_create();
-	list_pcb = list_create();
 }
 
 void iniciar_config(){
@@ -54,3 +50,10 @@ void imprimir_config(){
 	log_trace(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
 }
 
+void inicializar_memoria(){
+	iniciar_listas();
+    iniciar_logs();
+    iniciar_config();
+    imprimir_config();
+	iniciarPaginacion();
+}
