@@ -3,33 +3,6 @@
 
 #define MAX_LEN 100
 
-char* obtenerInstruccion(char* path, int programCounter) { //devuelve la instrucción que está en la fila que indica el program counter
-    FILE* archivo = fopen(path, "r");
-    if (archivo == NULL) {
-        perror("Error al abrir el archivo");
-        exit(EXIT_FAILURE);
-    }
-
-    char linea[MAX_LEN];
-    int contador = 0;
-
-    while (fgets(linea, sizeof(linea), archivo) != NULL) {
-        contador++;
-        if (contador == programCounter) {
-            // Elimina el salto de línea al final de la línea
-            char* nuevaLinea = strchr(linea, '\n');
-            if (nuevaLinea != NULL) {
-                *nuevaLinea = '\0';
-            }
-            fclose(archivo);
-            return strdup(linea); // Devuelve una copia de la línea encontrada
-        }
-    }
-
-    fclose(archivo);
-    return NULL; // No se encontró la instrucción para el Program Counter dado
-}
-
 bool condition_id_igual_n(void *elemento)
 {
 	path_conID *dato = (path_conID *)elemento;

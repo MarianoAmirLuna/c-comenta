@@ -1,5 +1,6 @@
 #ifndef FUNCIONES_MEMORIA_H_
 #define FUNCIONES_MEMORIA_H_
+#define MAX_LEN 100
 
 #include "m_gestor.h"
 #include <utils/shared.h>
