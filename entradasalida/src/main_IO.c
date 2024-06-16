@@ -6,6 +6,22 @@
 #include <commons/log.h>
 #include <../include/IO.h>
 #include <../include/inicializar_io.h>
+#include <readline/readline.h>
+#include <string.h>
+
+t_config*  crearConfig(char* direccion){
+
+	t_config* configDevolver = config_create(direccion); //esto te pide la ruta del config
+
+	if ( configDevolver == NULL)	
+	{
+		perror("Hay un error al iniciar el config.");
+		exit(EXIT_FAILURE);
+	}
+
+	return configDevolver;
+}
+
 
 void ejecutarInterfazGenerica(char* nombre,t_config* config_interface){
 	log_info(io_logger,"Iniciando interfaz Generica"); 
@@ -20,10 +36,38 @@ void ejecutarInterfazGenerica(char* nombre,t_config* config_interface){
 
 
 }
+/*
+void ejecutarInterfazSTDIN(char* nombre,t_config* config_interface){
+	log_info(io_logger,"Iniciando interfaz STDIN");
 
-void iniciarInterfaz(char* nombre_Interface,t_config* config_interface){
+		char*  textoAEscribir="dawd";
+		log_info(io_logger,"Escriba lo que desea guardar");
+
+	log_info(io_logger,"El texto a escribir es %s",textoAEscribir);
+	
+	//free(textoAEscribir);
+}
+
+
+void ejecutarInterfazSTDOUT(char* nombre,t_config* config_interface){
+
+	log_info(io_logger,"Iniciando interfaz STDOUT");
+
+	char* textoLeido;
+	
+
+}
+
+*/
+
+void iniciarInterfaz(char* nombre_Interface,char* direccion_Config){
+
 	log_info(io_logger,"Incializando interfaz"); 
+
+	t_config* config_interface = crearConfig(direccion_Config);
+
 	char* TIPO_INTERFAZZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
+
 	if (strcmp(TIPO_INTERFAZZ, "GENERICA")==0) {
 		log_info(io_logger,"La interfaz a iniciar es del tipo Generica"); 
 		ejecutarInterfazGenerica(nombre_Interface, config_interface);
@@ -45,6 +89,10 @@ void iniciarInterfaz(char* nombre_Interface,t_config* config_interface){
 
 
 int main(){
+	printf("hasta aca ejecuto");
+	log_info(io_logger,"Inicializando Entrada/Salida");
+
+	printf("hasta aca ejecuto");
 
 	inicializar_io();
 
@@ -63,12 +111,46 @@ int main(){
 	pthread_join(hilo_memoria, NULL);
 	
 
-	log_info(io_logger,"Eligiendo interfaz a iniciar");
 
-	char* nombreInterACrear = "int1";
+	char* nombreInterACrear;
 
-	iniciarInterfaz(nombreInterACrear, io_config);
+	do{
 
+
+		log_info(io_logger,"Escriba el nombre de la interfaz");
+		nombreInterACrear = readline(">");
+
+		if(string_is_empty(nombreInterACrear)){
+			log_warning(io_log_debug,"Una interfaz no puede tener el nombre vacio");
+		}
+	}while(string_is_empty(nombreInterACrear));
+	
+	log_info(io_logger,"El nombre elegido es %s",nombreInterACrear);
+
+
+	char* direccionConfigInterCrear;
+
+	do{
+
+		log_info(io_logger,"Escriba la direccion del archivo de configuracion");
+		direccionConfigInterCrear = readline(">");
+
+		if(string_is_empty(direccionConfigInterCrear)){
+			log_warning(io_log_debug,"Una direccion no puede ser vacia");
+		}
+
+	}while(string_is_empty(direccionConfigInterCrear));
+
+	log_info(io_logger,"La direccion elegida es %s",nombreInterACrear); //TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
+	
+	free(direccionConfigInterCrear);
+
+	direccionConfigInterCrear="/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"; //TODO: borrar este hardcodeo de la direccion del config
+	
+	iniciarInterfaz(direccionConfigInterCrear, direccionConfigInterCrear);
+	
+	//free(direccionConfigInterCrear);
+	free(nombreInterACrear);
 
 
 	log_info(io_logger,"Fin de Entrada/Salida");
