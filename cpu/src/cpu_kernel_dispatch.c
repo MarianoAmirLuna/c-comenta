@@ -18,12 +18,10 @@ void atender_cpu_kernel_dispatch()
 		case PAQUETE:
 
 			break;
-		case EJECUTAR_INSTRUCCION:
-		    printf("procesando instruccion...\n");
-			un_buffer = recibir_todo_el_buffer(fd_kernel_dispatch);
+		case ENVIAR_PID:
+		    un_buffer = recibir_todo_el_buffer(fd_kernel_dispatch);
 			int pid = extraer_int_del_buffer(un_buffer);
-
-		    procesar_instruccion(pid);
+			procesar_instruccion(pid);
 			break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de KERNEL - Dispatch");

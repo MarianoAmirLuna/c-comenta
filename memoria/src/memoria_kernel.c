@@ -1,11 +1,25 @@
 #include "../include/memoria_kernel.h"
 #include <pthread.h>
 
+path_conID *iniciar_path_id(int id, char *path)
+{
+	path_conID *estructura = malloc(sizeof(path_conID));
+	estructura->id = id;
+	estructura->path = path;
+
+	return estructura;
+}
 
 void atender_crear_proceso(t_buffer *un_buffer)
 {
 	int pid = extraer_int_del_buffer(un_buffer);
 	char *path = extraer_string_del_buffer(un_buffer);
+
+	path_conID *path_con_id = iniciar_path_id(pid, path);
+	tablaPaginas tabla = inicializarTablaPaginas(pid);
+
+	list_add(list_path_id, path_con_id);
+	list_add(listaTablaPaginas, &tabla);
 }
 
 void atender_memoria_kernel()

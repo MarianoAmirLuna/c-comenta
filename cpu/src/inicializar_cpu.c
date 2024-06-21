@@ -53,7 +53,30 @@ void iniciar_semaforos(){
 	sem_init(&pcb_actualizado,1,0);
 }
 
+PCB iniciar_PCB()
+{ 
+  PCB pcb;
+
+  pcb.pid = 0;
+  pcb.program_counter = 1;
+  pcb.quantum = 3;
+  pcb.registros_cpu.AX = 0;
+  pcb.registros_cpu.BX = 0;
+  pcb.registros_cpu.CX = 0;
+  pcb.registros_cpu.DX = 0;
+  pcb.registros_cpu.EAX = 0;
+  pcb.registros_cpu.EBX = 0;
+  pcb.registros_cpu.ECX = 0;
+  pcb.registros_cpu.EDX = 0;
+  pcb.registros_cpu.SI = 0;
+  pcb.registros_cpu.DI = 0;
+
+  return pcb;
+}
+
+
 void iniciar_variables(){
 	hayPcbEjecucion = false;
 	pcb_ejecucion.pid = -1; //el -1 significa que aun no llego ni una instruccion a cpu
+	pcb_ejecucion = iniciar_PCB();
 }

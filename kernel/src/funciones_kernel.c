@@ -155,7 +155,7 @@ void ciclo_planificacion(){
 void iniciar_proceso(char *path)
 {
   PCB pcb = iniciar_PCB(path);
-  enviar_path_memoria(path, pcb.pid);
-  enviar_pcb(pcb, fd_cpu_dispatch);
-  list_add(procesosNEW, &(pcb.pid));
+  enviar_path_memoria(path, 0);
+  enviar_pid_a_cpu(0);
+  //list_add(procesosNEW, &(pcb.pid));
 }

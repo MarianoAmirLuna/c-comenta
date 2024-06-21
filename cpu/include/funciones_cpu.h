@@ -8,5 +8,16 @@ void ejecutar_instruccion(char* instruccion, PCB* pcb);
 bool huboCambioContexto(int pidAEjecutar);
 void procesar_instruccion(int pidAEjecutar);
 void actualizarPCB();
+nombre_instruccion str_to_instruction(const char* instr) ;
+bool es4bytes(char* instruccion);
+void _set(char* registro,char* valor);
+void _mov_in(char* registroDatos,char* registroDireccion);
+void _mov_out(char* registroDireccion, char* registroDatos);
+void _sum(char* registroDestino, char* registroOrigen);
+void _sub(char* registroDestino,char* registroOrigen);
+void _jnz(char* registro,char* instruccion);
+void _resize(char* tamanio);
+void _copy_string(char* tamanio);
+uint32_t *get_registry(char *registro);
 
 #endif

@@ -33,10 +33,36 @@ typedef enum
 	CPU_LISTA,
 	ENVIAR_PID,
 	INICIAR_CPU,
+	//////////////////
+	EJECUTAR_RESIZE,
+	EJECUTAR_MOV_IN,
+	EJECUTAR_MOV_OUT,
 
 }op_code;
 
-//semaforos
+typedef enum
+{
+    SET,                // 0
+    MOV_IN,             // 1
+    MOV_OUT,            // 2
+    SUM,                // 3
+    SUB,                // 4
+    JNZ,                // 5
+    RESIZE,             // 6
+    COPY_STRING,        // 7
+    WAIT,               // 8
+    SIGNAL,             // 9
+    IO_GEN_SLEEP,       // 10
+    IO_STDIN_READ,      // 11
+    IO_STDOUT_WRITE,    // 12
+    IO_FS_CREATE,       // 13
+    IO_FS_DELETE,       // 14
+    IO_FS_TRUNCATE,     // 15
+    IO_FS_WRITE,        // 16
+    IO_FS_READ,         // 17
+    EXIT,               // 18
+    INVALID_INSTRUCTION // Para manejar instrucciones no válidas
+} nombre_instruccion;
 
 typedef struct
 {
@@ -81,11 +107,12 @@ typedef struct{
 
 typedef struct{
 	int marco;
-	int bitValidez;
+	bool bitValidez;
 } marcoBit;
 typedef struct{
 	int pid;
-	marcoBit array[50];
+	int cantMarcos;
+	marcoBit array[40];
 } tablaPaginas;
 
 extern t_log* logger;

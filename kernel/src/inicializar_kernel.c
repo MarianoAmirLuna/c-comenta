@@ -69,6 +69,6 @@ void inicializar_kernel(){
 	inicializar_logs();
 	inicializar_configs();
     imprimir_configs();
-	iniciar_planificacion();
+	//iniciar_planificacion();
 	iniciar_semaforos();
 }

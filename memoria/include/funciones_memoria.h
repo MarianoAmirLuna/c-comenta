@@ -11,9 +11,17 @@ void iniciarPaginacion();
 t_list *buscarFramesSinOcupar();
 char* asignarMemoriaBits(int bits);
 int bitsToBytes(int bits);
-t_list *reservarFrames(tablaPaginas tablaPags, int cantidadPaginasNecesarias);
+t_list* reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias);
 tablaPaginas inicializarTablaPaginas(int pid);
 int calcularPaginasNecesarias(int tamanio);
+bool puedeCargarloCompleto(int tamanioAcumulado, int tamanioQuiereCargar);
+int contarInstrucciones(char *path);
+char* obtenerInstruccion(char* path, int programCounter);
+char* dividirStringIzquierda( char* instruccion, int tamanio);
+char* dividirStringDerecha(char *instruccion, int tamanio);
+void cargarRegistro(int frame,int tamanioAcumulado,char* instruccion);
+int contarBitValidez(tablaPaginas *tabla);
+void liberarFrames(tablaPaginas* tablaPags, int cantidadPaginasBorrar);
 
 
 #endif
