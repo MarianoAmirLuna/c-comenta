@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include "../include/cpu.h"
 
+
 int main(void) {
 
 	inicializar_cpu();

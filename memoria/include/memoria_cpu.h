@@ -7,6 +7,8 @@
 
 void atender_memoria_cpu();
 void devolver_instruccion(t_buffer *un_buffer);
+void devolverTamanioPagina(t_buffer *un_buffer);
+void buscarMarco(t_buffer* un_buffer);
 char *obtener_instruccion_lista(int pid, int program_counter);
 bool condition_id_igual_n(void *elemento);
 char* obtenerInstruccion(char* path, int programCounter);

@@ -73,14 +73,28 @@ void atender_cpu_memoria()
 			sem_post(&wait_instruccion);
 			
 			break;
-		case RECIBIR_PCB:
-		    printf("llego el pcb a cpu\n");
+		case RECIBIR_TAMANIO:
+
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
 
-			pcb_ejecucion = extraer_pcb(un_buffer);
+			tamanio_pagina = extraer_int_del_buffer(un_buffer);
 
-			sem_post(&pcb_actualizado);
+		    printf("llego el tamanio a cpu %d\n", tamanio_pagina);
+
+			sem_post(&esperarTamanioDePagina);
+			
 			break;
+		case RECIBIR_MARCO:
+
+			un_buffer = recibir_todo_el_buffer(fd_memoria);
+
+			marco = extraer_int_del_buffer(un_buffer);
+
+		    printf("llego marquitos a cpu %d\n", marco);
+
+			sem_post(&esperarMarco);
+			
+			break;					
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

@@ -18,6 +18,7 @@ void _sub(char* registroDestino,char* registroOrigen);
 void _jnz(char* registro,char* instruccion);
 void _resize(char* tamanio);
 void _copy_string(char* tamanio);
+int traducir_dl(int direccionLogica);
 uint32_t *get_registry(char *registro);
 
 #endif

@@ -244,6 +244,23 @@ void solicitar_instruccion(int pid, int program_counter)
     destruir_paquete(un_paquete);
 }
 
+void solicitarTamanioPagina()
+{
+    t_buffer *a_enviar = crear_buffer();
+
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_int_al_buffer(a_enviar, 1);
+
+    t_paquete *un_paquete = crear_super_paquete(DEVOLVER_TAMANIO_PAGINA, a_enviar);
+    enviar_paquete(un_paquete, fd_memoria);
+    destruir_paquete(un_paquete);
+    
+    sem_wait (&esperarTamanioDePagina);
+
+}
+
 bool huboCambioContexto(int pidAEjecutar)
 {
     return pcb_ejecucion.pid != pidAEjecutar;
@@ -279,6 +296,48 @@ void termino_ejecutar()
     destruir_paquete(un_paquete);
 }
 
+void enviar_pedido_marco(int num_pag, int pid){
+    
+    t_buffer *a_enviar = crear_buffer();
+
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_int_al_buffer(a_enviar, num_pag);
+    cargar_int_al_buffer(a_enviar, pid);
+
+    t_paquete *un_paquete = crear_super_paquete(DEVOLVER_MARCO, a_enviar);
+    enviar_paquete(un_paquete, fd_memoria);
+    destruir_paquete(un_paquete);
+    
+    printf("Antes del semanforo\n");
+
+    sem_wait (&esperarMarco);
+
+    printf("Pase el semanforo\n");
+
+}
+
+int traducir_dl(int direccionLogica)
+{
+    if(primeraVezMmu){
+        solicitarTamanioPagina();
+        primeraVezMmu = false;
+    }
+
+    int num_pag = direccionLogica / tamanio_pagina;
+
+    int desplazamiento = direccionLogica - num_pag * tamanio_pagina;
+
+    enviar_pedido_marco(num_pag, pcb_ejecucion.pid);
+
+    printf("llega el marco, falta calcular\n");
+
+
+    int direccionFisica = marco * tamanio_pagina + desplazamiento;
+    return direccionFisica;
+}
+
 void procesar_instruccion(int pidAEjecutar)
 {
     // cambioContexto = huboCambioContexto(pidAEjecutar);
@@ -293,7 +352,7 @@ void procesar_instruccion(int pidAEjecutar)
     // printf("se solicito la instruccion\n");
     sleep(1);
 
-    for (int i = 0; i < 3; i++) // temporal para las pruebas nada mas
+    for (int i = 0; i < 1; i++) // temporal para las pruebas nada mas
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
@@ -308,6 +367,14 @@ void procesar_instruccion(int pidAEjecutar)
         printf("PC: %d\n\n", pcb_ejecucion.program_counter);
         printf("--------------------------------\n\n");
 
+        sleep(5);
+        printf("pase el sleep de 5\n");
+        int mariano = traducir_dl(50);
+        printf("la direc fisica es: %d", mariano);
+
+        printf("pase la traduccion\n");
+
+
         pcb_ejecucion.program_counter++;
     }
 
@@ -315,3 +382,4 @@ void procesar_instruccion(int pidAEjecutar)
 
     // termino_ejecutar();
 }
+

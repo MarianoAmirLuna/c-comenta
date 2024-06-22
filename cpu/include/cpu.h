@@ -29,9 +29,14 @@ PCB pcb_ejecucion;
 sem_t arrancar_cpu;
 sem_t wait_instruccion;
 sem_t pcb_actualizado;
+sem_t esperarTamanioDePagina;
+sem_t esperarMarco;
 
 char* instruccion_actual;
 bool cambioContexto;
 bool hayPcbEjecucion;
+bool primeraVezMmu;
+int tamanio_pagina;
+int marco;
 
 #endif

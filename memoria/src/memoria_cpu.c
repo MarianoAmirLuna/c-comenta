@@ -85,6 +85,24 @@ void devolver_instruccion(t_buffer *un_buffer)
 	destruir_paquete(un_paquete);
 }
 
+void devolverTamanioPagina(t_buffer *un_buffer){
+
+	int numero = extraer_int_del_buffer(un_buffer);
+
+	t_buffer *a_enviar = crear_buffer();
+
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
+	cargar_int_al_buffer(a_enviar, TAM_PAGINA);
+
+	t_paquete *un_paquete = crear_super_paquete(RECIBIR_TAMANIO, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);
+}
+
+
+
 bool condition_tabla_pagina(void *elemento)
 {
 	tablaPaginas *dato = (tablaPaginas *)elemento;
@@ -167,6 +185,27 @@ void resize(t_buffer *un_buffer)
 	printf("-------------------------------");
 }
 
+void buscarMarco(t_buffer* un_buffer){
+
+	int num_pag = extraer_int_del_buffer(un_buffer);
+	int pid = extraer_int_del_buffer(un_buffer);
+	t_buffer *a_enviar = crear_buffer();
+	
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
+	tablaPaginas* tablaDePaginas = obtener_tabla_pagina(pid);
+	int marco = tablaDePaginas->array[num_pag].marco;
+// Si estan pasando cosas raras con el marco que va a recibir el cpu. Puede ser que no se haya inicializado bien el array.
+
+	cargar_int_al_buffer(a_enviar, marco);
+
+	t_paquete *un_paquete = crear_super_paquete(RECIBIR_MARCO, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);
+
+}
+
 //---------------------------------------------------------------------------------------------
 
 void atender_memoria_cpu()
@@ -193,6 +232,14 @@ void atender_memoria_cpu()
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			resize(un_buffer);
 			break;
+		case DEVOLVER_TAMANIO_PAGINA:
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
+			devolverTamanioPagina(un_buffer);
+			break;			
+		case DEVOLVER_MARCO:
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
+			buscarMarco(un_buffer);
+			break;			
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

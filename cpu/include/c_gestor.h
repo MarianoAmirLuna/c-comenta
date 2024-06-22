@@ -27,10 +27,16 @@ extern char* PUERTO_ESCUCHA_INTERRUPT;
 extern sem_t arrancar_cpu;
 extern sem_t wait_instruccion;
 extern sem_t pcb_actualizado;
+extern sem_t esperarTamanioDePagina;
+extern sem_t esperarMarco;
 
 extern PCB pcb_ejecucion;
 extern char* instruccion_actual;
 extern bool cambioContexto;
 extern bool hayPcbEjecucion;
+extern bool primeraVezMmu;
+extern int tamanio_pagina;
+extern int marco;
+
 
 #endif
