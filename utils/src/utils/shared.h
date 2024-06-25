@@ -14,6 +14,7 @@
 #include<assert.h>
 #include<semaphore.h>
 #include<math.h>
+#include<stdint.h>
 typedef enum
 {
 	MENSAJE,
@@ -37,13 +38,15 @@ typedef enum
 	RECIBIR_TAMANIO,
 	DEVOLVER_MARCO,
 	RECIBIR_MARCO,
-	
+	MANDAR_DATO_A_ESCRIBIR,
 	
 	//////////////////
 	EJECUTAR_RESIZE,
 	EJECUTAR_MOV_IN,
 	EJECUTAR_MOV_OUT,
 	DEVOLVER_TAMANIO_PAGINA,
+	ESCRITURA_HECHA,
+	
 
 }op_code;
 
@@ -155,11 +158,13 @@ t_buffer* recibir_todo_el_buffer(int conexion);
 void* extraer_choclo_del_buffer(t_buffer* un_buffer);
 int extraer_int_del_buffer(t_buffer* un_buffer);
 char *extraer_string_del_buffer(t_buffer* un_buffer);
+uintptr_t extraer_uintptr_t_del_buffer(t_buffer* un_buffer);
 uint32_t extraer_uint32_del_buffer(t_buffer *un_buffer);
 uint8_t extraer_uint8_del_buffer(t_buffer *un_buffer);
 t_buffer* crear_buffer();
 void destruir_buffer(t_buffer* un_buffer);
 void cargar_choclo_al_buffer(t_buffer* un_buffer, void* un_choclo, int size_choclo);
+void cargar_uintptr_t_al_buffer(t_buffer* un_buffer, uintptr_t uintptr_t_value);
 void cargar_int_al_buffer(t_buffer* un_buffer, int int_value);
 void cargar_uint32_al_buffer(t_buffer* un_buffer, uint32_t un_valor);
 void cargar_uint8_al_buffer(t_buffer* un_buffer, uint32_t un_valor);

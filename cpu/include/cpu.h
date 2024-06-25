@@ -31,11 +31,12 @@ sem_t wait_instruccion;
 sem_t pcb_actualizado;
 sem_t esperarTamanioDePagina;
 sem_t esperarMarco;
+sem_t esperarEscrituraDeMemoria;
 
 char* instruccion_actual;
 bool cambioContexto;
 bool hayPcbEjecucion;
-bool primeraVezMmu;
+bool primeraSolicitudTamanioDePagina;
 int tamanio_pagina;
 int marco;
 

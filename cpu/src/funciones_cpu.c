@@ -63,9 +63,78 @@ void _mov_in(char *registroDatos, char *registroDireccion)
 {
 }
 
+void mandarDatoAEscribir(int direccion_fisica, uintptr_t queEscribir, int bytes_a_escribir)
+{
+    t_buffer *a_enviar = crear_buffer();
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_int_al_buffer(a_enviar, direccion_fisica);
+    cargar_uintptr_t_al_buffer(a_enviar, queEscribir);
+    cargar_int_al_buffer(a_enviar, bytes_a_escribir);
+
+    t_paquete *un_paquete = crear_super_paquete(MANDAR_DATO_A_ESCRIBIR, a_enviar);
+    enviar_paquete(un_paquete, fd_memoria);
+    destruir_paquete(un_paquete);
+    
+    sem_wait (&esperarEscrituraDeMemoria);
+
+}
+
+void hacerMovOut(int direccionLogica, void* dato, int tamanio_dato) {
+    //No tengo el tam_pag
+    if(primeraSolicitudTamanioDePagina){
+    solicitarTamanioPagina();
+    primeraSolicitudTamanioDePagina = false;
+    }
+
+    int desplazamiento_en_pagina = direccionLogica % tamanio_pagina; //offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; //cuanto queda en la pagina
+	
+    //uint8_t* bytes_dato = (uint8_t*)dato; //casteo lo que quiero escribir a uint8 que equivale a 1 byte
+    /*
+    void* vptr = arr; // Puntero void* apuntando al inicio del array 'arr'
+    vptr = (char*)vptr + 5; // Avanzar el puntero void* en 5 bytes
+    */
+    int bytes_escritos = 0;
+
+    while (tamanio_dato > 0) {
+        int direccion_fisica = traducir_dl(direccionLogica); //obtengo la direccion fisica
+        int tamanioAEscribir = (tamanio_dato <= bytes_restantes_en_pagina) ? tamanio_dato : bytes_restantes_en_pagina;
+        uintptr_t queEscribir = (uintptr_t)((char*)dato + bytes_escritos);
+        
+        mandarDatoAEscribir(direccion_fisica, queEscribir,tamanioAEscribir);
+
+        //Preparar datos para la siguiente escritura
+        direccionLogica += tamanioAEscribir;
+        bytes_escritos += tamanioAEscribir;
+        tamanio_dato -= tamanioAEscribir;
+        bytes_restantes_en_pagina = tamanio_pagina;
+		//se hace ya que cuando agarre otra pagina lo que le sobra es todo el tamaño y
+		// en caso de que se escriba todo lo que queres ya no haria falta volver a iterar el while
+    }
+}
+
+
+int conocerTamanioDeLosRegistros (char * registro){
+    if(registro == "AX" || registro == "BX" || registro == "CX" || registro == "DX" ){
+        return 1;
+    } else { return 4;}
+}
+
 void _mov_out(char *registroDireccion, char *registroDatos)
 {
+
+    //obtengo el valor de los registros y se los paso a hacerMovOut
+    uint32_t *direccionLogica = get_registry(registroDireccion);
+    uint32_t *dato = get_registry(registroDatos);
+    
+    int tamanioDato = conocerTamanioDeLosRegistros(registroDatos);
+
+    hacerMovOut((int)*direccionLogica, (void*)dato, tamanioDato);
 }
+
+
 
 void _sum(char *registroDestino, char *registroOrigen)
 {
@@ -107,6 +176,8 @@ void _resize(char *tamanio)
 void _copy_string(char *tamanio)
 {
 }
+
+
 
 // faltan las demas
 
@@ -320,9 +391,9 @@ void enviar_pedido_marco(int num_pag, int pid){
 
 int traducir_dl(int direccionLogica)
 {
-    if(primeraVezMmu){
+    if(primeraSolicitudTamanioDePagina){
         solicitarTamanioPagina();
-        primeraVezMmu = false;
+        primeraSolicitudTamanioDePagina = false;
     }
 
     int num_pag = direccionLogica / tamanio_pagina;
@@ -338,6 +409,8 @@ int traducir_dl(int direccionLogica)
     return direccionFisica;
 }
 
+
+
 void procesar_instruccion(int pidAEjecutar)
 {
     // cambioContexto = huboCambioContexto(pidAEjecutar);
@@ -352,7 +425,7 @@ void procesar_instruccion(int pidAEjecutar)
     // printf("se solicito la instruccion\n");
     sleep(1);
 
-    for (int i = 0; i < 1; i++) // temporal para las pruebas nada mas
+    for (int i = 0; i < 6; i++) // temporal para las pruebas nada mas
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
@@ -366,13 +439,6 @@ void procesar_instruccion(int pidAEjecutar)
         printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
         printf("PC: %d\n\n", pcb_ejecucion.program_counter);
         printf("--------------------------------\n\n");
-
-        sleep(5);
-        printf("pase el sleep de 5\n");
-        int mariano = traducir_dl(50);
-        printf("la direc fisica es: %d", mariano);
-
-        printf("pase la traduccion\n");
 
 
         pcb_ejecucion.program_counter++;

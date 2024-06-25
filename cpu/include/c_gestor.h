@@ -29,12 +29,13 @@ extern sem_t wait_instruccion;
 extern sem_t pcb_actualizado;
 extern sem_t esperarTamanioDePagina;
 extern sem_t esperarMarco;
+extern sem_t esperarEscrituraDeMemoria;
 
 extern PCB pcb_ejecucion;
 extern char* instruccion_actual;
 extern bool cambioContexto;
 extern bool hayPcbEjecucion;
-extern bool primeraVezMmu;
+extern bool primeraSolicitudTamanioDePagina;
 extern int tamanio_pagina;
 extern int marco;
 

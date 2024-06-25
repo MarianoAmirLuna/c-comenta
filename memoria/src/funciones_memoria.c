@@ -225,6 +225,7 @@ void iniciarPaginacion()
 
 	frames_ocupados_ppal = bitarray_create_with_mode(data, cant_frames_ppal / 8, MSB_FIRST);
 
+	/*
 	for (int i = 0; i < cant_frames_ppal; i++)
 	{
 		// Reservar memoria para la estructura de la página
@@ -240,7 +241,7 @@ void iniciarPaginacion()
 		// Añadir la página a la lista
 		list_add(listaPaginas, page);
 	}
-
+	*/
 	// Utilizar la lista de páginas (por ejemplo, imprimir las direcciones)
 	// for (int i = 0; i < list_size(listaPaginas); i++)
 	//{
@@ -258,7 +259,7 @@ void iniciarPaginacion()
 
 	// printf("el tamanio de la listaxd es: %d\n",tamanioListaxd);
 
-	free(memoriaPrincipal);
+	//free(memoriaPrincipal);
 
 	// list_destroy_and_destroy_elements(listaPaginas, free); esto se tiene que liberar desp de que se termine el programa
 }

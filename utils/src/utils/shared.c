@@ -421,6 +421,13 @@ void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 	return choclo;
 }
 
+uintptr_t extraer_uintptr_t_del_buffer(t_buffer* un_buffer)
+{
+	uintptr_t *un_uintptr_t = extraer_choclo_del_buffer(un_buffer);
+	uintptr_t valor_retorno = *un_uintptr_t;
+	free(un_uintptr_t);
+	return valor_retorno;
+}
 
 int extraer_int_del_buffer(t_buffer* un_buffer)
 {
@@ -477,6 +484,10 @@ void cargar_choclo_al_buffer(t_buffer* un_buffer, void* un_choclo, int size_choc
 	}
 	un_buffer->size += sizeof(int);
 	un_buffer->size += size_choclo;
+}
+
+void cargar_uintptr_t_al_buffer(t_buffer* un_buffer, uintptr_t uintptr_t_value){
+	cargar_choclo_al_buffer(un_buffer, &uintptr_t_value, sizeof(uintptr_t));
 }
 
 void cargar_int_al_buffer(t_buffer* un_buffer, int int_value){

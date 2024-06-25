@@ -53,6 +53,7 @@ void iniciar_semaforos(){
 	sem_init(&pcb_actualizado,1,0);
 	sem_init(&esperarTamanioDePagina,1,0);
 	sem_init(&esperarMarco,1,0);
+	sem_init(&esperarEscrituraDeMemoria,1,0);
 }
 
 PCB iniciar_PCB()
@@ -81,5 +82,5 @@ void iniciar_variables(){
 	hayPcbEjecucion = false;
 	pcb_ejecucion.pid = -1; //el -1 significa que aun no llego ni una instruccion a cpu
 	pcb_ejecucion = iniciar_PCB();
-	primeraVezMmu = true;
+	primeraSolicitudTamanioDePagina = true;
 }

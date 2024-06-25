@@ -84,6 +84,17 @@ void atender_cpu_memoria()
 			sem_post(&esperarTamanioDePagina);
 			
 			break;
+		case ESCRITURA_HECHA:
+
+			un_buffer = recibir_todo_el_buffer(fd_memoria);
+
+			int basura = extraer_int_del_buffer(un_buffer);
+
+		    printf("A memoria le llegó lo que tenía que escribir.\n");
+
+			sem_post(&esperarEscrituraDeMemoria);
+			
+			break;			
 		case RECIBIR_MARCO:
 
 			un_buffer = recibir_todo_el_buffer(fd_memoria);

@@ -101,6 +101,35 @@ void devolverTamanioPagina(t_buffer *un_buffer){
 	destruir_paquete(un_paquete);
 }
 
+void escribirDato(t_buffer *un_buffer){
+	//Recibimos los datos para poder hacer el memcopy
+	int direccion_fisica = extraer_int_del_buffer(un_buffer);
+	uintptr_t queEscribir = extraer_uintptr_t_del_buffer(un_buffer);
+	int tamanioAEscribir = extraer_int_del_buffer(un_buffer);
+	void* escribir = (void *)queEscribir;
+
+
+	memcpy((memoriaPrincipal + direccion_fisica), escribir , tamanioAEscribir);
+	
+	//
+	uint8_t* ptr = (uint8_t*)escribir; // Convertir void* a uint8_t*
+
+    // Imprimir el valor apuntado por ptr
+    printf("Valor: %u\n", *ptr);
+	printf("Valor: %d\n", tamanioAEscribir);
+	//
+
+	//Mandamos basura, para hacer el sem_post
+	t_buffer *a_enviar = crear_buffer();
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
+	cargar_int_al_buffer(a_enviar, 1);
+
+	t_paquete *un_paquete = crear_super_paquete(ESCRITURA_HECHA, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);
+}
 
 
 bool condition_tabla_pagina(void *elemento)
@@ -235,6 +264,10 @@ void atender_memoria_cpu()
 		case DEVOLVER_TAMANIO_PAGINA:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			devolverTamanioPagina(un_buffer);
+			break;
+		case MANDAR_DATO_A_ESCRIBIR:
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
+			escribirDato(un_buffer);
 			break;			
 		case DEVOLVER_MARCO:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
