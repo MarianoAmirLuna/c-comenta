@@ -35,6 +35,10 @@ int id_global_pcb;
 void* memoriaPrincipal;
 int cant_frames_ppal;
 t_bitarray* frames_ocupados_ppal;
+sem_t esperar_df;
+int dir_fisica_global;
+void* dataParte2Global;
+int cuantoFaltabaEscribir;
 
 
 #endif

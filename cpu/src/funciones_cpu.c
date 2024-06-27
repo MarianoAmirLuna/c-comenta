@@ -23,7 +23,7 @@ bool es4bytes(char *registro)
     return false;
 }
 
-uint32_t *get_registry(char *registro)
+uint32_t *get_registry(char *registro) 
 {
 
     if (strcmp(registro, "AX") == 0)
@@ -93,6 +93,17 @@ void mandarDatoAEscribir(int direccion_logica,int direccion_fisica, void *queEsc
     sem_wait(&esperarEscrituraDeMemoria);
 }
 
+void mandarSegundaDireccion(int direccion_fisica){
+    t_buffer *a_enviar = crear_buffer();
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_int_al_buffer(a_enviar, direccion_fisica);
+    t_paquete *un_paquete = crear_super_paquete(SEGUNDA_DIRECCION, a_enviar);
+    enviar_paquete(un_paquete, fd_memoria);
+    destruir_paquete(un_paquete);
+}
+
 void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
 {
     // No tengo el tam_pag
@@ -115,6 +126,11 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
        
        if(bytes_restantes_en_pagina < 4){ //se tiene que escribir en 2 paginas diferentes
            mandarDatoAEscribir(direccionLogica,direccion_fisica,dato,4,1,bytes_restantes_en_pagina);
+           //mando la segunda direccion fisica tmb a memoria cuando ya se haya escrito la primera
+           sem_wait(&mandarSegundaDF);
+           direccionLogica = direccionLogica + bytes_restantes_en_pagina;
+           direccion_fisica = traducir_dl(direccionLogica);
+           mandarSegundaDireccion(direccion_fisica);
 
        }
        else{ //no se tiene que escribir en 2 paginas diferentes

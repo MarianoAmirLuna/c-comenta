@@ -224,7 +224,6 @@ void iniciarPaginacion()
 	memset(data, 0, cant_frames_ppal / 8);
 
 	frames_ocupados_ppal = bitarray_create_with_mode(data, cant_frames_ppal / 8, MSB_FIRST);
-
 	/*
 	for (int i = 0; i < cant_frames_ppal; i++)
 	{

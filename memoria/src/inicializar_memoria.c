@@ -50,10 +50,17 @@ void imprimir_config(){
 	log_trace(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
 }
 
+void iniciar_semaforos(){
+    sem_init(&esperar_df,1,0);
+}
+
+
 void inicializar_memoria(){
 	iniciar_listas();
     iniciar_logs();
     iniciar_config();
     imprimir_config();
 	iniciarPaginacion();
+	iniciar_semaforos();
 }
+

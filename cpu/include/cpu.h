@@ -32,6 +32,7 @@ sem_t pcb_actualizado;
 sem_t esperarTamanioDePagina;
 sem_t esperarMarco;
 sem_t esperarEscrituraDeMemoria;
+sem_t mandarSegundaDF;
 
 char* instruccion_actual;
 bool cambioContexto;

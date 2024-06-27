@@ -6,6 +6,7 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include<commons/bitarray.h>
+#include<semaphore.h>
 
 extern t_log* memoria_logger;
 extern t_log* memoria_log_debug;
@@ -38,5 +39,9 @@ extern void* memoriaPrincipal;
 extern int cant_frames_ppal;
 extern char* data2;
 extern t_bitarray* frames_ocupados_ppal;
+extern sem_t esperar_df;
+extern int dir_fisica_global;
+extern void* dataParte2Global;
+extern int cuantoFaltabaEscribir;
 
 #endif

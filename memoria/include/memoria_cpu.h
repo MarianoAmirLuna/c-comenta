@@ -17,7 +17,5 @@ bool condition_tabla_pagina(void *elemento);
 tablaPaginas* obtener_tabla_pagina(int pid);
 int contarBitsValidez(tablaPaginas* tabla);
 void imprimirBitsValidez(tablaPaginas p);
-void puntero_a_cadena(char *destino, size_t tam_destino, void *puntero);
-void *cadena_a_puntero(const char *cadena);
 
 #endif

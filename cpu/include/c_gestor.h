@@ -30,6 +30,7 @@ extern sem_t pcb_actualizado;
 extern sem_t esperarTamanioDePagina;
 extern sem_t esperarMarco;
 extern sem_t esperarEscrituraDeMemoria;
+extern sem_t mandarSegundaDF;
 
 extern PCB pcb_ejecucion;
 extern char* instruccion_actual;

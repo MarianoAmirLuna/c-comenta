@@ -54,6 +54,7 @@ void iniciar_semaforos(){
 	sem_init(&esperarTamanioDePagina,1,0);
 	sem_init(&esperarMarco,1,0);
 	sem_init(&esperarEscrituraDeMemoria,1,0);
+	sem_init(&mandarSegundaDF,1,0);
 }
 
 PCB iniciar_PCB()
