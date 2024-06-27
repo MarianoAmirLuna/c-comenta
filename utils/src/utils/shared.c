@@ -423,7 +423,7 @@ void* extraer_choclo_del_buffer(t_buffer* un_buffer)
 
 uintptr_t extraer_uintptr_t_del_buffer(t_buffer* un_buffer)
 {
-	uintptr_t *un_uintptr_t = extraer_choclo_del_buffer(un_buffer);
+	uintptr_t *un_uintptr_t = extraer_choclo_del_buffer(un_buffer); 
 	uintptr_t valor_retorno = *un_uintptr_t;
 	free(un_uintptr_t);
 	return valor_retorno;

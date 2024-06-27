@@ -20,5 +20,6 @@ void _resize(char* tamanio);
 void _copy_string(char* tamanio);
 int traducir_dl(int direccionLogica);
 uint32_t *get_registry(char *registro);
+void mandarDatoAEscribir(int direccion_logica,int direccion_fisica, void *queEscribir, int bytes_a_escribir,int seEscribe2paginas, int tamanioRestantePagina);
 
 #endif

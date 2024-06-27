@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include "../include/funciones_cpu.h"
 #include <semaphore.h>
+#include <inttypes.h>
 
 bool es4bytes(char *registro)
 {
@@ -63,78 +64,101 @@ void _mov_in(char *registroDatos, char *registroDireccion)
 {
 }
 
-void mandarDatoAEscribir(int direccion_fisica, uintptr_t queEscribir, int bytes_a_escribir)
+void mandarDatoAEscribir(int direccion_logica,int direccion_fisica, void *queEscribir, int bytes_a_escribir,int seEscribe2paginas, int tamanioRestantePagina)
 {
     t_buffer *a_enviar = crear_buffer();
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
+    cargar_int_al_buffer(a_enviar, direccion_logica);
     cargar_int_al_buffer(a_enviar, direccion_fisica);
-    cargar_uintptr_t_al_buffer(a_enviar, queEscribir);
     cargar_int_al_buffer(a_enviar, bytes_a_escribir);
+    
+    if(bytes_a_escribir == 1){
+        uint8_t* dato = (uint8_t*)queEscribir;
+        cargar_uint8_al_buffer(a_enviar,*dato);
+    }
+    else{
+        uint32_t* dato = (uint32_t*)queEscribir;
+        cargar_uint32_al_buffer(a_enviar,*dato);
+    }
+
+    cargar_int_al_buffer(a_enviar, seEscribe2paginas);
+    cargar_int_al_buffer(a_enviar, tamanioRestantePagina);
 
     t_paquete *un_paquete = crear_super_paquete(MANDAR_DATO_A_ESCRIBIR, a_enviar);
     enviar_paquete(un_paquete, fd_memoria);
     destruir_paquete(un_paquete);
-    
-    sem_wait (&esperarEscrituraDeMemoria);
 
+    sem_wait(&esperarEscrituraDeMemoria);
 }
 
-void hacerMovOut(int direccionLogica, void* dato, int tamanio_dato) {
-    //No tengo el tam_pag
-    if(primeraSolicitudTamanioDePagina){
-    solicitarTamanioPagina();
-    primeraSolicitudTamanioDePagina = false;
+void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
+{
+    // No tengo el tam_pag
+    if (primeraSolicitudTamanioDePagina)
+    {
+        solicitarTamanioPagina();
+        primeraSolicitudTamanioDePagina = false;
     }
 
-    int desplazamiento_en_pagina = direccionLogica % tamanio_pagina; //offset
-    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; //cuanto queda en la pagina
-	
-    //uint8_t* bytes_dato = (uint8_t*)dato; //casteo lo que quiero escribir a uint8 que equivale a 1 byte
-    /*
-    void* vptr = arr; // Puntero void* apuntando al inicio del array 'arr'
-    vptr = (char*)vptr + 5; // Avanzar el puntero void* en 5 bytes
-    */
-    int bytes_escritos = 0;
+    int desplazamiento_en_pagina = direccionLogica % tamanio_pagina;           // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
+    int direccion_fisica = traducir_dl(direccionLogica);
 
-    while (tamanio_dato > 0) {
-        int direccion_fisica = traducir_dl(direccionLogica); //obtengo la direccion fisica
-        int tamanioAEscribir = (tamanio_dato <= bytes_restantes_en_pagina) ? tamanio_dato : bytes_restantes_en_pagina;
-        uintptr_t queEscribir = (uintptr_t)((char*)dato + bytes_escritos);
+    if(tamanio_dato == 1){ //si es un u8
+       
+       mandarDatoAEscribir(direccionLogica,direccion_fisica,dato,1,0,bytes_restantes_en_pagina);
         
-        mandarDatoAEscribir(direccion_fisica, queEscribir,tamanioAEscribir);
+    }
+    else{ //si es un u32
+       
+       if(bytes_restantes_en_pagina < 4){ //se tiene que escribir en 2 paginas diferentes
+           mandarDatoAEscribir(direccionLogica,direccion_fisica,dato,4,1,bytes_restantes_en_pagina);
 
-        //Preparar datos para la siguiente escritura
-        direccionLogica += tamanioAEscribir;
-        bytes_escritos += tamanioAEscribir;
-        tamanio_dato -= tamanioAEscribir;
-        bytes_restantes_en_pagina = tamanio_pagina;
-		//se hace ya que cuando agarre otra pagina lo que le sobra es todo el tamaño y
-		// en caso de que se escriba todo lo que queres ya no haria falta volver a iterar el while
+       }
+       else{ //no se tiene que escribir en 2 paginas diferentes
+           mandarDatoAEscribir(direccionLogica,direccion_fisica,dato,4,0,bytes_restantes_en_pagina);
+       }
+
     }
 }
 
+int conocerTamanioDeLosRegistros(char *registro)
+{
 
-int conocerTamanioDeLosRegistros (char * registro){
-    if(registro == "AX" || registro == "BX" || registro == "CX" || registro == "DX" ){
+    if (strcmp(registro, "AX") == 0 || strcmp(registro, "BX") == 0 || strcmp(registro, "CX") == 0 || strcmp(registro, "DX") == 0)
+    {
         return 1;
-    } else { return 4;}
+    }
+    else
+    {
+        return 4;
+    }
 }
 
 void _mov_out(char *registroDireccion, char *registroDatos)
 {
 
-    //obtengo el valor de los registros y se los paso a hacerMovOut
-    uint32_t *direccionLogica = get_registry(registroDireccion);
-    uint32_t *dato = get_registry(registroDatos);
-    
+    // obtengo el valor de los registros y se los paso a hacerMovOut
+    void *direccionLogica = (void *)get_registry(registroDireccion);
+    void *dato = (void *)get_registry(registroDatos);
+
+    uint8_t *ptr_dato = (uint8_t *)dato;
+    printf("el valor de 'dato' es: %" PRIu8 "\n", *ptr_dato);
+
+    // Suponiendo que 'direccionLogica' apunta a un uint32_t
+    uint32_t *ptr_direccionLogica = (uint32_t *)direccionLogica;
+    printf("el valor de 'direccionLogica' es: %" PRIu32 "\n", *ptr_direccionLogica);
+
     int tamanioDato = conocerTamanioDeLosRegistros(registroDatos);
 
-    hacerMovOut((int)*direccionLogica, (void*)dato, tamanioDato);
+    printf("el tamanio del dato: %d\n", tamanioDato);
+
+    int *dirLogic = (int *)direccionLogica;
+
+    hacerMovOut(*dirLogic, dato, tamanioDato);
 }
-
-
 
 void _sum(char *registroDestino, char *registroOrigen)
 {
@@ -160,24 +184,21 @@ void _resize(char *tamanio)
 {
     int tamanio2 = atoi(tamanio);
 
-   t_buffer *buffer = crear_buffer();
-   buffer->size = 0;
-   buffer->stream = NULL;
+    t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
 
-   cargar_int_al_buffer(buffer, pcb_ejecucion.pid);
-   cargar_int_al_buffer(buffer, tamanio2);
+    cargar_int_al_buffer(buffer, pcb_ejecucion.pid);
+    cargar_int_al_buffer(buffer, tamanio2);
 
-   t_paquete *paquete = crear_super_paquete(EJECUTAR_RESIZE,buffer);
-   enviar_paquete(paquete, fd_memoria);
-   destruir_paquete(paquete);
-
+    t_paquete *paquete = crear_super_paquete(EJECUTAR_RESIZE, buffer);
+    enviar_paquete(paquete, fd_memoria);
+    destruir_paquete(paquete);
 }
 
 void _copy_string(char *tamanio)
 {
 }
-
-
 
 // faltan las demas
 
@@ -327,9 +348,8 @@ void solicitarTamanioPagina()
     t_paquete *un_paquete = crear_super_paquete(DEVOLVER_TAMANIO_PAGINA, a_enviar);
     enviar_paquete(un_paquete, fd_memoria);
     destruir_paquete(un_paquete);
-    
-    sem_wait (&esperarTamanioDePagina);
 
+    sem_wait(&esperarTamanioDePagina);
 }
 
 bool huboCambioContexto(int pidAEjecutar)
@@ -367,8 +387,9 @@ void termino_ejecutar()
     destruir_paquete(un_paquete);
 }
 
-void enviar_pedido_marco(int num_pag, int pid){
-    
+void enviar_pedido_marco(int num_pag, int pid)
+{
+
     t_buffer *a_enviar = crear_buffer();
 
     a_enviar->size = 0;
@@ -380,18 +401,18 @@ void enviar_pedido_marco(int num_pag, int pid){
     t_paquete *un_paquete = crear_super_paquete(DEVOLVER_MARCO, a_enviar);
     enviar_paquete(un_paquete, fd_memoria);
     destruir_paquete(un_paquete);
-    
+
     printf("Antes del semanforo\n");
 
-    sem_wait (&esperarMarco);
+    sem_wait(&esperarMarco);
 
     printf("Pase el semanforo\n");
-
 }
 
 int traducir_dl(int direccionLogica)
 {
-    if(primeraSolicitudTamanioDePagina){
+    if (primeraSolicitudTamanioDePagina)
+    {
         solicitarTamanioPagina();
         primeraSolicitudTamanioDePagina = false;
     }
@@ -404,12 +425,9 @@ int traducir_dl(int direccionLogica)
 
     printf("llega el marco, falta calcular\n");
 
-
     int direccionFisica = marco * tamanio_pagina + desplazamiento;
     return direccionFisica;
 }
-
-
 
 void procesar_instruccion(int pidAEjecutar)
 {
@@ -440,7 +458,6 @@ void procesar_instruccion(int pidAEjecutar)
         printf("PC: %d\n\n", pcb_ejecucion.program_counter);
         printf("--------------------------------\n\n");
 
-
         pcb_ejecucion.program_counter++;
     }
 
@@ -448,4 +465,3 @@ void procesar_instruccion(int pidAEjecutar)
 
     // termino_ejecutar();
 }
-

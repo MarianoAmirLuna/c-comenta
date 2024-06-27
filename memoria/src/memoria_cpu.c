@@ -1,5 +1,7 @@
 #include "../include/memoria_cpu.h"
 #include <utils/shared.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #define MAX_LEN 100
 
@@ -101,24 +103,57 @@ void devolverTamanioPagina(t_buffer *un_buffer){
 	destruir_paquete(un_paquete);
 }
 
+void puntero_a_cadena(char *destino, size_t tam_destino, void *puntero)
+{
+    snprintf(destino, tam_destino, "%p", puntero);
+}
+
+void *cadena_a_puntero(const char *cadena)
+{
+    void *puntero = NULL;
+    sscanf(cadena, "%p", &puntero);
+    return puntero;
+}
+
 void escribirDato(t_buffer *un_buffer){
 	//Recibimos los datos para poder hacer el memcopy
+	u_int8_t data8;
+	uint32_t data32;
+
+	int direccion_logica = extraer_int_del_buffer(un_buffer);
 	int direccion_fisica = extraer_int_del_buffer(un_buffer);
-	uintptr_t queEscribir = extraer_uintptr_t_del_buffer(un_buffer);
-	int tamanioAEscribir = extraer_int_del_buffer(un_buffer);
-	void* escribir = (void *)queEscribir;
+	int tamanio_a_escribir = extraer_int_del_buffer(un_buffer);
 
-
-	memcpy((memoriaPrincipal + direccion_fisica), escribir , tamanioAEscribir);
+	if(tamanio_a_escribir  == 1){
+		data8 = extraer_uint8_del_buffer(un_buffer);
+	}
+	else{
+		data32 = extraer_uint32_del_buffer(un_buffer);
+	}
 	
-	//
-	uint8_t* ptr = (uint8_t*)escribir; // Convertir void* a uint8_t*
+	int seEscribe2paginas = extraer_int_del_buffer(un_buffer);
+    int tamanioRestantePagina = extraer_int_del_buffer(un_buffer);
 
-    // Imprimir el valor apuntado por ptr
-    printf("Valor: %u\n", *ptr);
-	printf("Valor: %d\n", tamanioAEscribir);
-	//
+	printf("la direccion fisica: %d\n",direccion_fisica);
+	printf("el tamanio a escribir: %d\n",tamanio_a_escribir);
+	printf("El valor de uint8_t es: %u\n", data8);
+	printf("El valor de uint32_t es: %u\n", data32);
 
+    if(tamanio_a_escribir == 1){
+		memcpy((memoriaPrincipal + direccion_fisica),&data8,tamanio_a_escribir);
+	}
+	else{
+		if(seEscribe2paginas == 1){
+
+			
+		}
+		else{
+			memcpy((memoriaPrincipal + direccion_fisica),&data32,tamanio_a_escribir);
+		}
+	}
+
+	//memcpy((memoriaPrincipal + direccion_fisica),escribir,tamanioAEscribir);
+	
 	//Mandamos basura, para hacer el sem_post
 	t_buffer *a_enviar = crear_buffer();
 	a_enviar->size = 0;
