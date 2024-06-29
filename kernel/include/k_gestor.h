@@ -50,7 +50,22 @@ extern pthread_mutex_t mutexExec;
 
 extern t_list *procesosNEW;
 extern t_list *procesosREADY;
+extern t_list *procesosReadyConQ;
+extern t_list *procesosSuspendidos;
+
+typedef struct{
+    int pid;
+    int qPrima;
+} pidConQ;
+
 extern int procesoEXEC;
+//extern pidConQ pidQEXEC;
+//extern pidConQ PidQREADY;
+
+extern t_dictionary *dictQPrimas; //una verga, el troubleshooting me va a tomar 2 años
+
+extern t_list *listQPrimas;
+extern int pidGlobal; //la unica implementacion que se me ocurre a las 2:08 AM
 
 extern int sem_planificacion;
 
