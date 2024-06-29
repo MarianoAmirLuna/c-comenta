@@ -127,6 +127,7 @@ void leerDato(t_buffer *un_buffer){
 	uint32_t data32;
 
 	int dirFisicaDelDato = extraer_int_del_buffer(un_buffer);
+	int segundaDF = extraer_int_del_buffer(un_buffer);
 	int tamanioALeer = extraer_int_del_buffer(un_buffer);
 	int seEscribe2paginas = extraer_int_del_buffer(un_buffer);
 	int tamanioRestantePagina = extraer_int_del_buffer(un_buffer);
@@ -147,18 +148,16 @@ void leerDato(t_buffer *un_buffer){
 		if (seEscribe2paginas == 1)
 		{ // caso turbio que hay que leer en 2 paginas diferentes
 		    uint32_t datoLeido32; 
-			uint32_t primeraParte;
 			//ahora leo solo la parte 1 - escribo en el registro la 1ra parte del marco
-			printf("leo la primera parte\n");
-			memcpy(&primeraParte, (memoriaPrincipal + dirFisicaDelDato), tamanioRestantePagina);
 
-			//Necesito la direccion fisica del 2 marco
-		    //le avisa a la cpu que ya puede leer la segunda parte;
+			printf("direcion fisica dato: %d\n",dirFisicaDelDato);
+			printf("segunda fd: %d\n",segundaDF);
 
-			sem_wait(&leyoTodo);
-
-			memcpy(&datoLeido32,&primeraParte,tamanioRestantePagina);
-			memcpy(&data32,&segundaParte + tamanioRestantePagina, 4 - tamanioRestantePagina);
+			printf("leyo el caso turbio\n");
+			//memcpy(&datoLeido32, memoriaPrincipal + dirFisicaDelDato, tamanioRestantePagina);
+			//memcpy(&datoLeido32 + tamanioRestantePagina, memoriaPrincipal + segundaDF, 4 - tamanioRestantePagina);
+			memcpy(&datoLeido32, memoriaPrincipal + dirFisicaDelDato, tamanioRestantePagina);
+            memcpy((uint8_t*)&datoLeido32 + tamanioRestantePagina, memoriaPrincipal + segundaDF, 4 - tamanioRestantePagina);
 
 			printf("############## EL DATO A LEER ES EN EL CASO TRUBIO:%" PRIu32 "\n", datoLeido32);
 			
@@ -195,6 +194,7 @@ void escribirDato(t_buffer *un_buffer)
 
 	int direccion_logica = extraer_int_del_buffer(un_buffer);
 	int direccion_fisica = extraer_int_del_buffer(un_buffer);
+	int segundaDF = extraer_int_del_buffer(un_buffer);
 	int tamanio_a_escribir = extraer_int_del_buffer(un_buffer);
 
 	if (tamanio_a_escribir == 1)
@@ -246,11 +246,12 @@ void escribirDato(t_buffer *un_buffer)
 			printf("El valor de ECX despues de reconstruirlo: %d \n", data32_reconstruido);
 
 			//ahora escribo posta en la memoria solo la parte 1 
-			printf("escribi la primera parte de la instruccion\n");
+			printf("escribie en el caso trubio\n");
+			printf("primer df %d\n",direccion_fisica);
+            printf("segunda df %d\n",segundaDF);
+
 			memcpy(memoriaPrincipal + direccion_fisica, data32_parte_1, tamanioRestantePagina);
-			//memcpy(memoriaPrincipal + dir_fisica_global, data32_parte_2, 4 - tamanioRestantePagina);
-			dataParte2Global = data32_parte_2; 
-			cuantoFaltabaEscribir = 4 - tamanioRestantePagina;
+			memcpy(memoriaPrincipal + segundaDF, data32_parte_2, 4 - tamanioRestantePagina);
 
 			free(data32_parte_1);
 			free(data32_parte_2);
@@ -428,23 +429,6 @@ void atender_memoria_cpu()
 			buscarMarco(un_buffer);
 
 			break;
-
-		case SEGUNDA_DIRECCION:
-		    un_buffer = recibir_todo_el_buffer(fd_cpu);
-			dir_fisica_global = extraer_int_del_buffer(un_buffer);
-			printf("ya escribi la segunda parte de la instruccion\n");
-			printf("me faltaba escribir: %d\n",cuantoFaltabaEscribir);
-			memcpy(memoriaPrincipal + dir_fisica_global, dataParte2Global, cuantoFaltabaEscribir);
-			break;
-		case SEGUNDA_DIRECCION_A_LEER:
-		    un_buffer = recibir_todo_el_buffer(fd_cpu);
-			int dirFisicaDel2MarcoALeer = extraer_int_del_buffer(un_buffer);
-			int tamanioPagina = extraer_int_del_buffer(un_buffer);
-			printf("Ya lei la segunda parte.\n");
-			printf("me faltaba escribir: %d\n",cuantoFaltaLeer);
-			memcpy(segundaParte, memoriaPrincipal + dirFisicaDel2MarcoALeer, 4 - tamanioPagina);
-			sem_post(&leyoTodo);
-			break;			
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;
