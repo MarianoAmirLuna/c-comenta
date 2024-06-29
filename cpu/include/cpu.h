@@ -32,8 +32,6 @@ sem_t pcb_actualizado;
 sem_t esperarTamanioDePagina;
 sem_t esperarMarco;
 sem_t esperarEscrituraDeMemoria;
-sem_t mandarSegundaDF;
-sem_t mandarSegundaDFALeer;
 sem_t esperarLecturaDeMemoria;
 
 char* instruccion_actual;

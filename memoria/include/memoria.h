@@ -7,6 +7,9 @@
 #include "memoria_io.h"
 #include "memoria_cpu.h"
 
+uint32_t* segundaParte;
+sem_t leyoTodo;
+
 t_log* memoria_logger;
 t_log* memoria_log_debug;
 t_config* memoria_config;

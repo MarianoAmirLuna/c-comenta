@@ -7,6 +7,10 @@
 #include <commons/config.h>
 #include<commons/bitarray.h>
 #include<semaphore.h>
+#include <stdint.h>
+
+extern uint32_t* segundaParte;
+extern sem_t leyoTodo;
 
 extern t_log* memoria_logger;
 extern t_log* memoria_log_debug;

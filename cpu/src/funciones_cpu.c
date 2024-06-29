@@ -91,12 +91,13 @@ void mandarDatoALeer(int dirFisicaDelDato, int bytesALeer,int seEscribe2paginas,
     sem_wait(&esperarLecturaDeMemoria);
 }
 
-void mandarSegundaDireccionALeer(int direccion_fisica){
+void mandarSegundaDireccionALeer(int direccion_fisica,int bytes_restantes_en_pagina){
     t_buffer *a_enviar = crear_buffer();
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
     cargar_int_al_buffer(a_enviar, direccion_fisica);
+    cargar_int_al_buffer(a_enviar,bytes_restantes_en_pagina);
     t_paquete *un_paquete = crear_super_paquete(SEGUNDA_DIRECCION_A_LEER, a_enviar);
     enviar_paquete(un_paquete, fd_memoria);
     destruir_paquete(un_paquete);
@@ -125,10 +126,10 @@ void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer){
        if(bytes_restantes_en_pagina < 4){ //se tiene que leer en 2 paginas diferentes
            mandarDatoALeer(dirFisicaDelDato,4,1,bytes_restantes_en_pagina);
            //mando la segunda direccion fisica tmb a memoria cuando ya se haya leido la primera
-           sem_wait(&mandarSegundaDFALeer); //cambiar esto
+
            dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
            dirFisicaDelDato = traducir_dl(dirLogicaDelDato);
-           mandarSegundaDireccionALeer(dirFisicaDelDato); //cambiar esto
+           mandarSegundaDireccionALeer(dirFisicaDelDato,bytes_restantes_en_pagina); //cambiar esto
 
        }
        else{ // Entra entero, osea que no se tiene que escribir en 2 paginas diferentes
@@ -136,8 +137,6 @@ void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer){
        }
 
     }
-
-
 }
 
 void _mov_in(char *registroDatos, char *registroDireccion)
@@ -146,7 +145,7 @@ void _mov_in(char *registroDatos, char *registroDireccion)
     void *dLDondeAlmacenar = (void *)get_registry(registroDatos);
     void *direccionLogicaDelDato = (void *)get_registry(registroDireccion);
     
-    int tamanioDatoALeer = conocerTamanioDeLosRegistros(registroDireccion); //para saber el tamaño de lo que voy a leer
+    int tamanioDatoALeer = conocerTamanioDeLosRegistros(registroDatos); //para saber el tamaño de lo que voy a leer
     printf("el tamanio del dato: %d\n", tamanioDatoALeer);
 
     int *dirLogicaDelDato = (int *)direccionLogicaDelDato;
@@ -218,7 +217,6 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
             printf("Entro al if turbio\n"); 
            mandarDatoAEscribir(direccionLogica,direccion_fisica,dato,4,1,bytes_restantes_en_pagina);
            //mando la segunda direccion fisica tmb a memoria cuando ya se haya escrito la primera
-           sem_wait(&mandarSegundaDF);
            direccionLogica = direccionLogica + bytes_restantes_en_pagina;
            direccion_fisica = traducir_dl(direccionLogica);
            mandarSegundaDireccion(direccion_fisica);
@@ -548,7 +546,7 @@ void procesar_instruccion(int pidAEjecutar)
     // printf("se solicito la instruccion\n");
     sleep(1);
 
-    for (int i = 0; i < 8; i++) // temporal para las pruebas nada mas
+    for (int i = 0; i < 9; i++) // temporal para las pruebas nada mas
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 

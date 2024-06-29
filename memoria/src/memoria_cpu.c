@@ -121,19 +121,6 @@ void solicitarDireccion(int direccion_logica){
 	printf("pase el semaforo\n");
 }
 
-void leyoPrimeraParte(){
-	t_buffer *a_enviar = crear_buffer();
-    a_enviar->size = 0;
-    a_enviar->stream = NULL;
-
-    cargar_int_al_buffer(a_enviar, 1);
-
-    t_paquete *un_paquete = crear_super_paquete(LEYO_PRIMERA_PARTE, a_enviar);
-    enviar_paquete(un_paquete, fd_cpu);
-    destruir_paquete(un_paquete);
-}
-
-
 void leerDato(t_buffer *un_buffer){
 	// Recibimos los datos para poder hacer el memcopy
 	uint8_t data8;
@@ -153,29 +140,36 @@ void leerDato(t_buffer *un_buffer){
 	{
 		uint8_t datoLeido8; 
 		memcpy( &datoLeido8, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
-		tamanioRestantePagina = tamanioRestantePagina - 1;
 		printf("############## EL DATO A LEER ES:%" PRIu8 "\n", datoLeido8);
 	}
 	else
 	{
 		if (seEscribe2paginas == 1)
 		{ // caso turbio que hay que leer en 2 paginas diferentes
-
+		    uint32_t datoLeido32; 
+			uint32_t primeraParte;
 			//ahora leo solo la parte 1 - escribo en el registro la 1ra parte del marco
 			printf("leo la primera parte\n");
-			memcpy((memoriaPrincipal), (memoriaPrincipal + dirFisicaDelDato), tamanioRestantePagina);
+			memcpy(&primeraParte, (memoriaPrincipal + dirFisicaDelDato), tamanioRestantePagina);
 
-			// Necesito la direccion fisica del 2 marco
-			leyoPrimeraParte(); //le avisa a la cpu que ya puede leer la segunda parte;
+			//Necesito la direccion fisica del 2 marco
+		    //le avisa a la cpu que ya puede leer la segunda parte;
 
-			cuantoFaltaLeer = 4 - tamanioRestantePagina;
+			sem_wait(&leyoTodo);
+
+			memcpy(&datoLeido32,&primeraParte,tamanioRestantePagina);
+			memcpy(&data32,&segundaParte + tamanioRestantePagina, 4 - tamanioRestantePagina);
+
+			printf("############## EL DATO A LEER ES EN EL CASO TRUBIO:%" PRIu32 "\n", datoLeido32);
+			
 		}
 		else //caso donde tenemos que leer algo de 4 bytes, pero está todo en 1 solo marco
 		{
-			memcpy((memoriaPrincipal), (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
+			uint32_t datoLeido32; 
+		    memcpy(&datoLeido32, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
+		    printf("############## EL DATO A LEER ES:%" PRIu32 "\n", datoLeido32);
 		}
 
-		tamanioRestantePagina = tamanioRestantePagina - 4;
 	}
 
 	//sacamos todo lo del bitarray también, ya que acá no hay que modificarlo
@@ -191,18 +185,6 @@ void leerDato(t_buffer *un_buffer){
 	enviar_paquete(un_paquete, fd_cpu);
 	destruir_paquete(un_paquete);
 
-}
-
-void escribioPrimeraParte(){
-	t_buffer *a_enviar = crear_buffer();
-    a_enviar->size = 0;
-    a_enviar->stream = NULL;
-
-    cargar_int_al_buffer(a_enviar, 1);
-
-    t_paquete *un_paquete = crear_super_paquete(ESCRIBIO_PRIMERA_PARTE, a_enviar);
-    enviar_paquete(un_paquete, fd_cpu);
-    destruir_paquete(un_paquete);
 }
 
 void escribirDato(t_buffer *un_buffer)
@@ -266,7 +248,6 @@ void escribirDato(t_buffer *un_buffer)
 			//ahora escribo posta en la memoria solo la parte 1 
 			printf("escribi la primera parte de la instruccion\n");
 			memcpy(memoriaPrincipal + direccion_fisica, data32_parte_1, tamanioRestantePagina);
-			escribioPrimeraParte(); //le avisa a la cpu que ya puede escribir la segunda parte;
 			//memcpy(memoriaPrincipal + dir_fisica_global, data32_parte_2, 4 - tamanioRestantePagina);
 			dataParte2Global = data32_parte_2; 
 			cuantoFaltabaEscribir = 4 - tamanioRestantePagina;
@@ -458,9 +439,11 @@ void atender_memoria_cpu()
 		case SEGUNDA_DIRECCION_A_LEER:
 		    un_buffer = recibir_todo_el_buffer(fd_cpu);
 			int dirFisicaDel2MarcoALeer = extraer_int_del_buffer(un_buffer);
+			int tamanioPagina = extraer_int_del_buffer(un_buffer);
 			printf("Ya lei la segunda parte.\n");
 			printf("me faltaba escribir: %d\n",cuantoFaltaLeer);
-			memcpy(dirFisicaDondeHayQueAlmacenarGlobal, memoriaPrincipal + dirFisicaDel2MarcoALeer, cuantoFaltaLeer);
+			memcpy(segundaParte, memoriaPrincipal + dirFisicaDel2MarcoALeer, 4 - tamanioPagina);
+			sem_post(&leyoTodo);
 			break;			
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");

@@ -72,26 +72,6 @@ void atender_cpu_memoria()
 
 			sem_post(&esperarMarco);
 
-			break;
-		case ESCRIBIO_PRIMERA_PARTE:
-		    un_buffer = recibir_todo_el_buffer(fd_memoria);
-
-			int pepe = extraer_int_del_buffer(un_buffer);
-
-			printf("se libero el semaforo que habilita escribir la segunda parte\n");
-
-			sem_post(&mandarSegundaDF);
-
-			break;
-		case LEYO_PRIMERA_PARTE:
-		    un_buffer = recibir_todo_el_buffer(fd_memoria);
-
-			int marianete = extraer_int_del_buffer(un_buffer);
-
-			printf("se libero el semaforo que habilita leer la segunda parte\n");
-
-			sem_post(&mandarSegundaDFALeer);
-
 			break;							
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
