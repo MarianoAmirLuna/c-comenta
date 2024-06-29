@@ -50,7 +50,18 @@ void atender_cpu_memoria()
 
 			sem_post(&esperarEscrituraDeMemoria);
 			
-			break;			
+			break;
+		case LECTURA_HECHA:
+
+			un_buffer = recibir_todo_el_buffer(fd_memoria);
+
+			int marianos = extraer_int_del_buffer(un_buffer);
+
+		    printf("Ya leyo.\n");
+
+			sem_post(&esperarLecturaDeMemoria);
+			
+			break;						
 		case RECIBIR_MARCO:
 
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
@@ -71,7 +82,17 @@ void atender_cpu_memoria()
 
 			sem_post(&mandarSegundaDF);
 
-			break;					
+			break;
+		case LEYO_PRIMERA_PARTE:
+		    un_buffer = recibir_todo_el_buffer(fd_memoria);
+
+			int marianete = extraer_int_del_buffer(un_buffer);
+
+			printf("se libero el semaforo que habilita leer la segunda parte\n");
+
+			sem_post(&mandarSegundaDFALeer);
+
+			break;							
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

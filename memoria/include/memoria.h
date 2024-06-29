@@ -39,6 +39,8 @@ sem_t esperar_df;
 int dir_fisica_global;
 void* dataParte2Global;
 int cuantoFaltabaEscribir;
+int dirFisicaDondeHayQueAlmacenarGlobal;
+int cuantoFaltaLeer;
 
 
 #endif

@@ -43,5 +43,7 @@ extern sem_t esperar_df;
 extern int dir_fisica_global;
 extern void* dataParte2Global;
 extern int cuantoFaltabaEscribir;
+extern int dirFisicaDondeHayQueAlmacenarGlobal;
+extern int cuantoFaltaLeer;
 
 #endif
