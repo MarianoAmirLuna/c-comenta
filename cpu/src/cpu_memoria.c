@@ -55,9 +55,21 @@ void atender_cpu_memoria()
 
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
 
-			int marianos = extraer_int_del_buffer(un_buffer);
+			char* registroDatos = extraer_string_del_buffer(un_buffer);
+			void *direccionRegistroDatos = (void *)get_registry(registroDatos);
 
-		    printf("Ya leyo.\n");
+			int tamanio = extraer_int_del_buffer(un_buffer);
+
+			if(tamanio == 1){
+				uint8_t dato8 = extraer_uint32_del_buffer(un_buffer);
+				memcpy(direccionRegistroDatos,&dato8,1);
+			}
+			else{
+                uint32_t dato32 = extraer_uint32_del_buffer(un_buffer);
+				memcpy(direccionRegistroDatos,&dato32,4);
+			}
+
+		    printf("Ya leyo el MOV_IN.\n");
 
 			sem_post(&esperarLecturaDeMemoria);
 			

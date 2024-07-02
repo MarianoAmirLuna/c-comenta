@@ -41,4 +41,6 @@ bool primeraSolicitudTamanioDePagina;
 int tamanio_pagina;
 int marco;
 
+
+
 #endif

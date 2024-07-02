@@ -73,7 +73,7 @@ int conocerTamanioDeLosRegistros(char *registro)
 }
 
 
-void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEscribe2paginas,int tamanioRestantePagina)
+void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEscribe2paginas,int tamanioRestantePagina,char* registroDatos)
 {
     t_buffer *a_enviar = crear_buffer();
     a_enviar->size = 0;
@@ -84,6 +84,7 @@ void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEs
     cargar_int_al_buffer(a_enviar, bytesALeer);
     cargar_int_al_buffer(a_enviar, seEscribe2paginas);
     cargar_int_al_buffer(a_enviar, tamanioRestantePagina);
+    cargar_string_al_buffer(a_enviar, registroDatos);
 
     t_paquete *un_paquete = crear_super_paquete(MANDAR_DATO_A_LEER, a_enviar);
     enviar_paquete(un_paquete, fd_memoria);
@@ -92,7 +93,7 @@ void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEs
     sem_wait(&esperarLecturaDeMemoria);
 }
 
-void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer){
+void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer,char* registroDatos){
     // No tengo el tam_pag
     if (primeraSolicitudTamanioDePagina)
     {
@@ -106,7 +107,7 @@ void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer){
 
     if(tamanioDatoALeer == 1){ //si es un u8
        
-       mandarDatoALeer(dirFisicaDelDato,0,1,0,bytes_restantes_en_pagina);
+       mandarDatoALeer(dirFisicaDelDato,0,1,0,bytes_restantes_en_pagina,registroDatos);
         
     }
     else{ //si es un u32
@@ -115,19 +116,18 @@ void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer){
 
            dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
            int segundaDF = traducir_dl(dirLogicaDelDato);
-           mandarDatoALeer(dirFisicaDelDato,segundaDF,4,1,bytes_restantes_en_pagina);
+           mandarDatoALeer(dirFisicaDelDato,segundaDF,4,1,bytes_restantes_en_pagina,registroDatos);
        }
        else{ // Entra entero, osea que no se tiene que escribir en 2 paginas diferentes
-           mandarDatoALeer(dirFisicaDelDato,0,4,0,bytes_restantes_en_pagina);
+           mandarDatoALeer(dirFisicaDelDato,0,4,0,bytes_restantes_en_pagina,registroDatos);
        }
 
-    }
+    }    
 }
 
 void _mov_in(char *registroDatos, char *registroDireccion)
 {
     // obtengo el valor de los registros y se los paso
-    void *dLDondeAlmacenar = (void *)get_registry(registroDatos);
     void *direccionLogicaDelDato = (void *)get_registry(registroDireccion);
     
     int tamanioDatoALeer = conocerTamanioDeLosRegistros(registroDatos); //para saber el tamaño de lo que voy a leer
@@ -135,7 +135,7 @@ void _mov_in(char *registroDatos, char *registroDireccion)
 
     int *dirLogicaDelDato = (int *)direccionLogicaDelDato;
 
-    hacerMovIn(*dirLogicaDelDato, tamanioDatoALeer);
+    hacerMovIn(*dirLogicaDelDato, tamanioDatoALeer,registroDatos);
 }
 
 void mandarDatoAEscribir(int direccion_logica,int direccion_fisica,int segundaDF ,void *queEscribir, int bytes_a_escribir,int seEscribe2paginas, int tamanioRestantePagina)
@@ -336,71 +336,71 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     {
     case SET:
         _set(param1, param2);
-        //sem_post(&wait_instruccion);
+       
         break;
     case MOV_IN:
         _mov_in(param1, param2);
-        //sem_post(&wait_instruccion);        
+              
         break;
     case MOV_OUT:
         _mov_out(param1, param2);
-       // sem_post(&wait_instruccion);
+     
         break;
     case SUM:
         _sum(param1, param2);
-        //sem_post(&wait_instruccion);        
+              
         break;
     case SUB:
         _sub(param1, param2);
-        sem_post(&wait_instruccion);        
+         
         break;
     case JNZ:
         _jnz(param1, param2);
-        sem_post(&wait_instruccion);        
+         
         break;
     case RESIZE:
         _resize(param1);
-       //  sem_post(&wait_instruccion);        
+         
         break;
     case COPY_STRING:
         _copy_string(param1);
-        //sem_post(&wait_instruccion);        
+           
         break;
     case WAIT:
-        sem_post(&wait_instruccion);
+        
         break;
     case SIGNAL:
-        sem_post(&wait_instruccion);
+      
         break;
     case IO_GEN_SLEEP:
-        sem_post(&wait_instruccion);
+      
         break;
     case IO_STDIN_READ:
-        sem_post(&wait_instruccion);
+        
         break;
     case IO_STDOUT_WRITE:
-        sem_post(&wait_instruccion);
+        
         break;
     case IO_FS_CREATE:
-        sem_post(&wait_instruccion);
+        
         break;
     case IO_FS_DELETE:
-        sem_post(&wait_instruccion);
+     
         break;
     case IO_FS_TRUNCATE:
-        sem_post(&wait_instruccion);
+   
         break;
     case IO_FS_WRITE:
-        sem_post(&wait_instruccion);
+ 
         break;
     case IO_FS_READ:
-        sem_post(&wait_instruccion);
+
         break;
     case EXIT:
-        sem_post(&wait_instruccion);
+
         break;
     case INVALID_INSTRUCTION:
-        sem_post(&wait_instruccion);
+
         break;
     }
 }
@@ -530,7 +530,7 @@ void procesar_instruccion(int pidAEjecutar)
     // printf("se solicito la instruccion\n");
     sleep(1);
 
-    for (int i = 0; i < 9; i++) // temporal para las pruebas nada mas
+    for (int i = 0; i < 11; i++) // temporal para las pruebas nada mas
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 

@@ -41,4 +41,5 @@ extern int tamanio_pagina;
 extern int marco;
 
 
+
 #endif

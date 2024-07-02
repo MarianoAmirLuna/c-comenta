@@ -90,7 +90,6 @@ void devolver_instruccion(t_buffer *un_buffer)
 
 void devolverTamanioPagina(t_buffer *un_buffer)
 {
-
 	int numero = extraer_int_del_buffer(un_buffer);
 
 	t_buffer *a_enviar = crear_buffer();
@@ -125,12 +124,15 @@ void leerDato(t_buffer *un_buffer){
 	// Recibimos los datos para poder hacer el memcopy
 	uint8_t data8;
 	uint32_t data32;
+	uint32_t datoLeido32;
+	uint32_t datoLeido8;
 
 	int dirFisicaDelDato = extraer_int_del_buffer(un_buffer);
 	int segundaDF = extraer_int_del_buffer(un_buffer);
 	int tamanioALeer = extraer_int_del_buffer(un_buffer);
 	int seEscribe2paginas = extraer_int_del_buffer(un_buffer);
 	int tamanioRestantePagina = extraer_int_del_buffer(un_buffer);
+	char* registroDatos = extraer_string_del_buffer(un_buffer);
 
 	printf("Llegaron los datos a leer.\n");
 	printf("la direccion fisica donde hay que leer es: %d\n", dirFisicaDelDato);
@@ -139,23 +141,20 @@ void leerDato(t_buffer *un_buffer){
 
 	if (tamanioALeer == 1) // Caso donde tenemos que leer algo de 1 byte
 	{
-		uint8_t datoLeido8; 
 		memcpy( &datoLeido8, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
 		printf("############## EL DATO A LEER ES:%" PRIu8 "\n", datoLeido8);
 	}
 	else
 	{
 		if (seEscribe2paginas == 1)
-		{ // caso turbio que hay que leer en 2 paginas diferentes
-		    uint32_t datoLeido32; 
+		{ // caso turbio que hay que leer en 2 paginas diferentes 
 			//ahora leo solo la parte 1 - escribo en el registro la 1ra parte del marco
 
 			printf("direcion fisica dato: %d\n",dirFisicaDelDato);
 			printf("segunda fd: %d\n",segundaDF);
 
 			printf("leyo el caso turbio\n");
-			//memcpy(&datoLeido32, memoriaPrincipal + dirFisicaDelDato, tamanioRestantePagina);
-			//memcpy(&datoLeido32 + tamanioRestantePagina, memoriaPrincipal + segundaDF, 4 - tamanioRestantePagina);
+
 			memcpy(&datoLeido32, memoriaPrincipal + dirFisicaDelDato, tamanioRestantePagina);
             memcpy((uint8_t*)&datoLeido32 + tamanioRestantePagina, memoriaPrincipal + segundaDF, 4 - tamanioRestantePagina);
 
@@ -163,22 +162,26 @@ void leerDato(t_buffer *un_buffer){
 			
 		}
 		else //caso donde tenemos que leer algo de 4 bytes, pero está todo en 1 solo marco
-		{
-			uint32_t datoLeido32; 
+		{ 
 		    memcpy(&datoLeido32, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
 		    printf("############## EL DATO A LEER ES:%" PRIu32 "\n", datoLeido32);
 		}
 
 	}
 
-	//sacamos todo lo del bitarray también, ya que acá no hay que modificarlo
-
-	// Mandamos basura, para hacer el sem_post
 	t_buffer *a_enviar = crear_buffer();
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;
 
-	cargar_int_al_buffer(a_enviar, 1);
+	cargar_string_al_buffer(a_enviar,registroDatos);
+	cargar_int_al_buffer(a_enviar, tamanioALeer);
+
+	if(tamanioALeer == 1){
+		cargar_uint8_al_buffer(a_enviar,datoLeido8);
+	}
+	else{
+		cargar_uint32_al_buffer(a_enviar,datoLeido32);
+	}
 
 	t_paquete *un_paquete = crear_super_paquete(LECTURA_HECHA, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
