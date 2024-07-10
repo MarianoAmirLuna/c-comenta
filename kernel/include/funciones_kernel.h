@@ -13,6 +13,7 @@ void ciclo_plani_FIFO();
 void ciclo_plani_RR();
 void ciclo_planificacion();
 void iniciar_cpu();
+pidConQ *nuevoPidConQ(int);
 
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;

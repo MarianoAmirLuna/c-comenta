@@ -7,7 +7,7 @@
 #include <commons/log.h>
 #include <commons/config.h>
 
-
+void inicializar_kernel();
 
 
 

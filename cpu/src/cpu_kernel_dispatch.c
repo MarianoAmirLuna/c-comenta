@@ -3,6 +3,30 @@
 #include "../include/funciones_cpu.h"
 
 
+/*void atender_recibir_pcb(t_buffer *un_buffer)
+{
+	int pid = extraer_int_del_buffer(un_buffer);
+	int program_counter = extraer_int_del_buffer(un_buffer);
+	int quantum = extraer_int_del_buffer(un_buffer);
+	char* path = extraer_string_del_buffer(un_buffer);
+	uint8_t ax = extraer_uint8_del_buffer(un_buffer);
+	uint8_t bx = extraer_uint8_del_buffer(un_buffer);
+	uint8_t cx = extraer_uint8_del_buffer(un_buffer);
+	uint8_t dx = extraer_uint8_del_buffer(un_buffer);
+	uint32_t eax = extraer_uint32_del_buffer(un_buffer);
+	uint32_t ebx = extraer_uint32_del_buffer(un_buffer);
+	uint32_t ecx = extraer_uint32_del_buffer(un_buffer);
+	uint32_t edx = extraer_uint32_del_buffer(un_buffer);
+	uint32_t si = extraer_uint32_del_buffer(un_buffer);
+	uint32_t di = extraer_uint32_del_buffer(un_buffer);
+
+	pcb_ejecucion = inicializar_PCB(pid, program_counter, quantum, path, ax, bx, cx, dx, eax, ebx, ecx, edx, si, di);
+
+	//printf("el pid es: %d\n", pid);
+	printf("el pid del pcb_ejecucion: %d\n",pcb_ejecucion.pid);
+}*/
+
+
 void atender_cpu_kernel_dispatch()
 {
 	bool control_key = 1;
@@ -33,5 +57,3 @@ void atender_cpu_kernel_dispatch()
 		}
 	}
 }
-
-
