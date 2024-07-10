@@ -79,4 +79,8 @@ extern int seguirPlanificando;
 extern sem_t sem_cpu_libre;
 extern int ejecutandoProceso;
 
+extern t_list *listaPCBs;
+
+extern int flagCambioProceso;
+
 #endif

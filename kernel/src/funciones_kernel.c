@@ -2,33 +2,34 @@
 //#include <stdio.h>
 //#include <commons/config.h>
 //#include <pthread.h>
-//#include "utils/shared.h"
+#include "utils/shared.h"
 //#include <commons/log.h>
 #include "../include/funciones_kernel.h"
 #include "../include/servicios_kernel.h"
 
 
-PCB iniciar_PCB()
+PCB *iniciar_PCB()
 { // revisar si anda o hay que poner struct adelante
 
   t_config *config = iniciar_configuracion("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config");
 
-  PCB pcb;
+  PCB *pcb = malloc(sizeof(PCB));
 
-  pcb.pid = asignar_pid();
-  pcb.program_counter = 1;
-  pcb.quantum = config_get_int_value(config, "QUANTUM");
-  //pcb.pathTXT = path;
-  pcb.registros_cpu.AX = 0;
-  pcb.registros_cpu.BX = 0;
-  pcb.registros_cpu.CX = 0;
-  pcb.registros_cpu.DX = 0;
-  pcb.registros_cpu.EAX = 0;
-  pcb.registros_cpu.EBX = 0;
-  pcb.registros_cpu.ECX = 0;
-  pcb.registros_cpu.EDX = 0;
-  pcb.registros_cpu.SI = 0;
-  pcb.registros_cpu.DI = 0;
+  pcb->pid = asignar_pid();
+  pcb->program_counter = 1;
+  pcb->quantum = config_get_int_value(config, "QUANTUM");
+  //p->b.pathTXT = path;
+  pcb->registros_cpu.AX = 0;
+  pcb->registros_cpu.BX = 0;
+  pcb->registros_cpu.CX = 0;
+  pcb->registros_cpu.DX = 0;
+  pcb->registros_cpu.EAX = 0;
+  pcb->registros_cpu.EBX = 0;
+  pcb->registros_cpu.ECX = 0;
+  pcb->registros_cpu.EDX = 0;
+  pcb->registros_cpu.SI = 0;
+  pcb->registros_cpu.DI = 0;
+
 
   //printf("El numero del pcb es: ");
   //printf("%d\n", pcb.pid);
@@ -73,6 +74,32 @@ void enviar_pcb(PCB pcb, int socket_enviar)
   cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.DI);
 
   t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, a_enviar);
+  enviar_paquete(un_paquete, socket_enviar);
+  destruir_paquete(un_paquete);
+}
+
+void enviar_pcb_con_codop(PCB pcb, op_code codop , int socket_enviar)
+{
+  t_buffer *a_enviar = crear_buffer();
+
+  a_enviar->size = 0;
+  a_enviar->stream = NULL;
+
+  cargar_int_al_buffer(a_enviar, pcb.pid);
+  cargar_int_al_buffer(a_enviar, pcb.program_counter);
+  cargar_int_al_buffer(a_enviar, pcb.quantum);
+  cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.AX);
+  cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.BX);
+  cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.CX);
+  cargar_uint8_al_buffer(a_enviar, pcb.registros_cpu.DX);
+  cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.EAX);
+  cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.EBX);
+  cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.ECX);
+  cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.EDX);
+  cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.SI);
+  cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.DI);
+
+  t_paquete *un_paquete = crear_super_paquete(codop, a_enviar);
   enviar_paquete(un_paquete, socket_enviar);
   destruir_paquete(un_paquete);
 }
@@ -211,7 +238,9 @@ void estadoPlani(){
 }
 
 void iniciar_planificacion(){
-  int pidGlobal=0;
+  t_list *listaPCBs = list_create();
+  int flagCambioProceso=0;
+
   //sleep(2);
   //printf("llega adentro de iniciarPlani\n");
   procesosNEW=list_create();
@@ -220,7 +249,59 @@ void iniciar_planificacion(){
   listQPrimas=list_create();
   procesosSuspendidos=list_create();
   //dictQPrimas=dictionary_create();
+
+
   procesoEXEC=0;
+  int uno=1, dos=2, tres=3;
+
+
+  list_add(procesosNEW, &uno);
+  list_add(procesosNEW, &dos);
+  list_add(procesosNEW, &tres);
+  //printf("llega aca\n");
+
+  ciclo_planificacion();
+  estadoPlani();
+  suspenderProceso();
+  ciclo_planificacion();
+  estadoPlani();
+  sacarDeSuspension();
+  ciclo_planificacion();
+  estadoPlani();
+  for(int i=0;i<8;i++)
+  {
+    ciclo_planificacion();
+    estadoPlani();
+  }
+  printf("segunda suspension-------------------------\n");
+  suspenderProceso();
+  ciclo_planificacion();
+  estadoPlani();
+  sacarDeSuspension();
+  tipoPlanificacion=FIFO;
+  for(int i=0;i<13;i++)
+  {
+    ciclo_planificacion();
+    estadoPlani();
+  }
+  suspenderProceso();
+  ciclo_planificacion();
+  estadoPlani();
+  ciclo_planificacion();
+  estadoPlani();
+
+  /*pidConQ *qPrimaUno = nuevoPidConQ(uno);
+  list_add(listQPrimas, qPrimaUno);
+  //printf("Q prima del uno: %d\n", ((pidConQ*)list_get(listQPrimas, 0))->qPrima);
+  printf("Q prima del uno: %d\n",buscarQPrima(1));
+  procesoEXEC=1;
+  suspenderProceso();
+  sacarDeSuspension();
+  imprimirLista(procesosREADY);
+  modificarQPrima(1, 9);
+  printf("Q prima del uno: %d\n",buscarQPrima(1));*/
+
+
 }
 
 
@@ -239,6 +320,7 @@ void ciclo_plani_FIFO(){
     pthread_mutex_lock(&mutexExec);
     int* exec = list_remove(procesosREADY,0);
     procesoEXEC= *exec; 
+    flagCambioProceso=1;
     pthread_mutex_unlock(&mutexExec); 
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
@@ -269,6 +351,7 @@ void ciclo_plani_RR(){
     int* exec = list_remove(procesosREADY,0);
     procesoEXEC= *exec; 
     tiempoTranscurrido=0;
+    flagCambioProceso=1;
     pthread_mutex_unlock(&mutexExec);
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
@@ -283,22 +366,6 @@ void bloquearProceso(){
 }
 
 void ciclo_plani_VRR(){
-  /*if(tiempoTranscurrido>=quantum && procesoEXEC!=0){
-    printf("FIN DE QUANTUM\n");
-    tiempoTranscurrido=0;
-    int *procesoDesalojado = malloc(sizeof(int)); 
-    *procesoDesalojado = procesoEXEC;
-    list_add(procesosREADY, procesoDesalojado);
-    pthread_mutex_lock(&mutexExec);
-    procesoEXEC=0;
-    pthread_mutex_unlock(&mutexExec);
-  }
-
-  while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
-    int *pidTrasladado = list_remove(procesosNEW, 0);
-    list_add(procesosREADY, pidTrasladado);
-    agregarADict(dictQPrimas, pidTrasladado);
-  } */
 
   if(procesoEXEC!=0 && tiempoTranscurrido >=buscarQPrima(procesoEXEC) ){
     printf("FIN DE QPRIMA\n");
@@ -322,6 +389,7 @@ void ciclo_plani_VRR(){
     int* exec = list_remove(procesosREADY,0);
     procesoEXEC= *exec; 
     tiempoTranscurrido=0;
+    flagCambioProceso=1;
     pthread_mutex_unlock(&mutexExec);
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
@@ -330,10 +398,27 @@ void ciclo_plani_VRR(){
 
 }
 
+void mandarNuevoPCB()
+{
+  PCB *pcb_a_enviar = buscarPCB(procesoEXEC);
+  enviar_pcb_con_codop(pcb_a_enviar, )
+}
+
+void avisarDesalojo()
+{
+  t_buffer *buffer = crear_buffer();
+  buffer->size = 0;
+  buffer->stream = NULL;
+  cargar_int_al_buffer(buffer, 0);
+  t_paquete *paquete_pid = crear_super_paquete(AVISO_DESALOJO, buffer);
+  enviar_paquete(paquete_pid, fd_cpu_interrupt);
+  destruir_paquete(paquete_pid);
+}
+
 void ciclo_planificacion(){
   switch(tipoPlanificacion){
     case FIFO:
-    printf("CICLO FIFO\n");
+    //printf("CICLO FIFO\n");
       ciclo_plani_FIFO();
       break;
     case RR:
@@ -344,13 +429,34 @@ void ciclo_planificacion(){
     default:
       break;
   }
+  if(flagCambioProceso)
+  {
+    mandarNuevoPCB();
+    flagCambioProceso=0;
+  }
 }
 
 
+
+bool condition_id_igual_n(void *elemento)
+  {
+	  PCB *dato = (PCB *)elemento;
+	  return (dato->id == pidGlobal);
+  }
+
+
+PCB *buscarPCB(int pid)
+{
+  pidGlobal=pid;
+  pidConQ *PCBEncontrado = list_find(listaPCBs, condition_id_igual_n);
+  return PCBEncontrado;
+}
+
 void iniciar_proceso(char *path)
 {
-  PCB pcb = iniciar_PCB(path);
+  PCB *pcb = iniciar_PCB(path);
+  list_add(listaPCBs, pcb);
   enviar_path_memoria(path, 0);
   enviar_pid_a_cpu(0);
-  //list_add(procesosNEW, &(pcb.pid));
+  list_add(procesosNEW, &(pcb->pid));
 }

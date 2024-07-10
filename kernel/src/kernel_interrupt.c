@@ -2,6 +2,7 @@
 #include <utils/shared.h>
 
 void atender_kernel_interrupt(){
+	t_buffer *un_buffer;
     bool control_key = 1;
 	while (control_key) {
 		int cod_op = recibir_operacion(fd_cpu_interrupt); 
@@ -11,6 +12,11 @@ void atender_kernel_interrupt(){
 			break;
 		case PAQUETE:
             //
+			break;
+		case RECIBIR_PCB:
+			un_buffer = recibir_todo_el_buffer(fd_cpu_interrupt);
+			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
+			list_add(listaPCBs, pcb_devuelto);
 			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Interrupt");

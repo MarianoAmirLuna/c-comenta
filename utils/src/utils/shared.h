@@ -33,8 +33,8 @@ typedef enum
 	SOLICITUD_PCB,
 	CPU_LISTA,
 	ENVIAR_PID,
+	AVISO_DESALOJO,
 	INICIAR_CPU,
-	//Memoria-Cpu
 	RECIBIR_TAMANIO,
 	DEVOLVER_MARCO,
 	RECIBIR_MARCO,
@@ -180,5 +180,10 @@ void cargar_string_al_buffer(t_buffer* un_buffer, char* un_string);
 t_paquete* crear_super_paquete(op_code cod_op, t_buffer* un_buffer);
 void destruir_paquete(t_paquete* un_paquete);
 int contarLineas(char *nombreArchivo);
+
+PCB* inicializar_PCB(int, int, int, uint8_t, uint8_t, uint8_t,
+					uint8_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+
+void atender_recibir_pcb(t_buffer *);
 
 #endif /* UTILS_H_ */
