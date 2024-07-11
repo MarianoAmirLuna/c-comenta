@@ -1,6 +1,6 @@
 #include "../include/k_gestor.h"
 
-t_planificacion tipoPlanificacion=VRR;
+t_planificacion tipoPlanificacion=FIFO;//PREGUNTAR LUCA
 
 t_list *procesosNEW=NULL;
 t_list *procesosREADY=NULL;
@@ -15,3 +15,7 @@ int seguirPlanificando=1;
 int ejecutandoProceso=0;
 sem_t sem_cpu_libre;
 t_dictionary *dictQPrimas;
+t_list* listaPCBs=NULL;
+int flagCambioProceso;
+bool primeraVezEjecuta=true;
+

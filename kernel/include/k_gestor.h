@@ -82,5 +82,6 @@ extern int ejecutandoProceso;
 extern t_list *listaPCBs;
 
 extern int flagCambioProceso;
+extern bool primeraVezEjecuta;
 
 #endif

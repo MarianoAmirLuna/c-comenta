@@ -55,6 +55,7 @@ void iniciar_semaforos(){
 	sem_init(&esperarMarco,1,0);
 	sem_init(&esperarEscrituraDeMemoria,1,0);
 	sem_init(&esperarLecturaDeMemoria,1,0);
+	//sem_init(&esperarCantInstrucciones,1,0);
 }
 
 PCB iniciar_PCB()
@@ -84,4 +85,5 @@ void iniciar_variables(){
 	pcb_ejecucion.pid = -1; //el -1 significa que aun no llego ni una instruccion a cpu
 	pcb_ejecucion = iniciar_PCB();
 	primeraSolicitudTamanioDePagina = true;
+	cambioContexto = false;
 }

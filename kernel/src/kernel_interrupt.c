@@ -13,11 +13,6 @@ void atender_kernel_interrupt(){
 		case PAQUETE:
             //
 			break;
-		case RECIBIR_PCB:
-			un_buffer = recibir_todo_el_buffer(fd_cpu_interrupt);
-			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
-			list_add(listaPCBs, pcb_devuelto);
-			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Interrupt");
 			control_key = 0;

@@ -6,7 +6,7 @@
 void procesamiento_cpu();
 void ejecutar_instruccion(char* instruccion, PCB* pcb);
 bool huboCambioContexto(int pidAEjecutar);
-void procesar_instruccion(int pidAEjecutar);
+void procesar_instruccion();
 void actualizarPCB();
 nombre_instruccion str_to_instruction(const char* instr) ;
 bool es4bytes(char* instruccion);
@@ -26,5 +26,6 @@ void mandarDatoAEscribir(int direccion_logica,int direccion_fisica,int segundaDF
 void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEscribe2paginas,int tamanioRestantePagina,char* registroDatos);
 void mandarSegundaDireccionALeer(int direccion_fisica,int bytes_restantes_en_pagina);
 int conocerTamanioDeLosRegistros(char *registro);
+void devolverPCBKernel();
 
 #endif

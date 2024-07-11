@@ -23,7 +23,7 @@ bool es4bytes(char *registro)
     return false;
 }
 
-uint32_t *get_registry(char *registro) 
+uint32_t *get_registry(char *registro)
 {
 
     if (strcmp(registro, "AX") == 0)
@@ -72,8 +72,7 @@ int conocerTamanioDeLosRegistros(char *registro)
     }
 }
 
-
-void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEscribe2paginas,int tamanioRestantePagina,char* registroDatos)
+void mandarDatoALeer(int dirFisicaDelDato, int segundaDF, int bytesALeer, int seEscribe2paginas, int tamanioRestantePagina, char *registroDatos)
 {
     t_buffer *a_enviar = crear_buffer();
     a_enviar->size = 0;
@@ -93,7 +92,8 @@ void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEs
     sem_wait(&esperarLecturaDeMemoria);
 }
 
-void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer,char* registroDatos){
+void hacerMovIn(int dirLogicaDelDato, int tamanioDatoALeer, char *registroDatos)
+{
     // No tengo el tam_pag
     if (primeraSolicitudTamanioDePagina)
     {
@@ -101,44 +101,46 @@ void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer,char* registroDatos)
         primeraSolicitudTamanioDePagina = false;
     }
 
-    int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;           // offset
+    int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
     int dirFisicaDelDato = traducir_dl(dirLogicaDelDato);
 
-    if(tamanioDatoALeer == 1){ //si es un u8
-       
-       mandarDatoALeer(dirFisicaDelDato,0,1,0,bytes_restantes_en_pagina,registroDatos);
-        
+    if (tamanioDatoALeer == 1)
+    { // si es un u8
+
+        mandarDatoALeer(dirFisicaDelDato, 0, 1, 0, bytes_restantes_en_pagina, registroDatos);
     }
-    else{ //si es un u32
-       
-       if(bytes_restantes_en_pagina < 4){ //se tiene que leer en 2 paginas diferentes
+    else
+    { // si es un u32
 
-           dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
-           int segundaDF = traducir_dl(dirLogicaDelDato);
-           mandarDatoALeer(dirFisicaDelDato,segundaDF,4,1,bytes_restantes_en_pagina,registroDatos);
-       }
-       else{ // Entra entero, osea que no se tiene que escribir en 2 paginas diferentes
-           mandarDatoALeer(dirFisicaDelDato,0,4,0,bytes_restantes_en_pagina,registroDatos);
-       }
+        if (bytes_restantes_en_pagina < 4)
+        { // se tiene que leer en 2 paginas diferentes
 
-    }    
+            dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
+            int segundaDF = traducir_dl(dirLogicaDelDato);
+            mandarDatoALeer(dirFisicaDelDato, segundaDF, 4, 1, bytes_restantes_en_pagina, registroDatos);
+        }
+        else
+        { // Entra entero, osea que no se tiene que escribir en 2 paginas diferentes
+            mandarDatoALeer(dirFisicaDelDato, 0, 4, 0, bytes_restantes_en_pagina, registroDatos);
+        }
+    }
 }
 
 void _mov_in(char *registroDatos, char *registroDireccion)
 {
     // obtengo el valor de los registros y se los paso
     void *direccionLogicaDelDato = (void *)get_registry(registroDireccion);
-    
-    int tamanioDatoALeer = conocerTamanioDeLosRegistros(registroDatos); //para saber el tamaño de lo que voy a leer
+
+    int tamanioDatoALeer = conocerTamanioDeLosRegistros(registroDatos); // para saber el tamaño de lo que voy a leer
     printf("el tamanio del dato: %d\n", tamanioDatoALeer);
 
     int *dirLogicaDelDato = (int *)direccionLogicaDelDato;
 
-    hacerMovIn(*dirLogicaDelDato, tamanioDatoALeer,registroDatos);
+    hacerMovIn(*dirLogicaDelDato, tamanioDatoALeer, registroDatos);
 }
 
-void mandarDatoAEscribir(int direccion_logica,int direccion_fisica,int segundaDF ,void *queEscribir, int bytes_a_escribir,int seEscribe2paginas, int tamanioRestantePagina)
+void mandarDatoAEscribir(int direccion_logica, int direccion_fisica, int segundaDF, void *queEscribir, int bytes_a_escribir, int seEscribe2paginas, int tamanioRestantePagina)
 {
     t_buffer *a_enviar = crear_buffer();
     a_enviar->size = 0;
@@ -146,16 +148,18 @@ void mandarDatoAEscribir(int direccion_logica,int direccion_fisica,int segundaDF
 
     cargar_int_al_buffer(a_enviar, direccion_logica);
     cargar_int_al_buffer(a_enviar, direccion_fisica);
-    cargar_int_al_buffer(a_enviar,segundaDF);
+    cargar_int_al_buffer(a_enviar, segundaDF);
     cargar_int_al_buffer(a_enviar, bytes_a_escribir);
-    
-    if(bytes_a_escribir == 1){
-        uint8_t* dato = (uint8_t*)queEscribir;
-        cargar_uint8_al_buffer(a_enviar,*dato);
+
+    if (bytes_a_escribir == 1)
+    {
+        uint8_t *dato = (uint8_t *)queEscribir;
+        cargar_uint8_al_buffer(a_enviar, *dato);
     }
-    else{
-        uint32_t* dato = (uint32_t*)queEscribir;
-        cargar_uint32_al_buffer(a_enviar,*dato);
+    else
+    {
+        uint32_t *dato = (uint32_t *)queEscribir;
+        cargar_uint32_al_buffer(a_enviar, *dato);
     }
 
     cargar_int_al_buffer(a_enviar, seEscribe2paginas);
@@ -168,7 +172,8 @@ void mandarDatoAEscribir(int direccion_logica,int direccion_fisica,int segundaDF
     sem_wait(&esperarEscrituraDeMemoria);
 }
 
-void mandarSegundaDireccion(int direccion_fisica){
+void mandarSegundaDireccion(int direccion_fisica)
+{
     t_buffer *a_enviar = crear_buffer();
     a_enviar->size = 0;
     a_enviar->stream = NULL;
@@ -192,28 +197,29 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
     int direccion_fisica = traducir_dl(direccionLogica);
 
-    if(tamanio_dato == 1){ //si es un u8
-       
-       mandarDatoAEscribir(direccionLogica,direccion_fisica,0,dato,1,0,bytes_restantes_en_pagina);
-        
+    if (tamanio_dato == 1)
+    { // si es un u8
+
+        mandarDatoAEscribir(direccionLogica, direccion_fisica, 0, dato, 1, 0, bytes_restantes_en_pagina);
     }
-    else{ //si es un u32
-       printf("los bytes_restantes_en_pagina son: %d\n", bytes_restantes_en_pagina);
-       if(bytes_restantes_en_pagina < 4){ //se tiene que escribir en 2 paginas diferentes
+    else
+    { // si es un u32
+        printf("los bytes_restantes_en_pagina son: %d\n", bytes_restantes_en_pagina);
+        if (bytes_restantes_en_pagina < 4)
+        { // se tiene que escribir en 2 paginas diferentes
 
-           printf("Entro al if turbio\n"); 
-           direccionLogica = direccionLogica + bytes_restantes_en_pagina;
-           int segundaDF = traducir_dl(direccionLogica);
-           mandarDatoAEscribir(direccionLogica,direccion_fisica,segundaDF,dato,4,1,bytes_restantes_en_pagina);
-       }
-       else{ //no se tiene que escribir en 2 paginas diferentes
-            printf("Entro al else turbio\n");  
-           mandarDatoAEscribir(direccionLogica,direccion_fisica,0,dato,4,0,bytes_restantes_en_pagina);
-       }
-
+            printf("Entro al if turbio\n");
+            direccionLogica = direccionLogica + bytes_restantes_en_pagina;
+            int segundaDF = traducir_dl(direccionLogica);
+            mandarDatoAEscribir(direccionLogica, direccion_fisica, segundaDF, dato, 4, 1, bytes_restantes_en_pagina);
+        }
+        else
+        { // no se tiene que escribir en 2 paginas diferentes
+            printf("Entro al else turbio\n");
+            mandarDatoAEscribir(direccionLogica, direccion_fisica, 0, dato, 4, 0, bytes_restantes_en_pagina);
+        }
     }
 }
-
 
 //
 void _mov_out(char *registroDireccion, char *registroDatos)
@@ -336,62 +342,62 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     {
     case SET:
         _set(param1, param2);
-       
+
         break;
     case MOV_IN:
         _mov_in(param1, param2);
-              
+
         break;
     case MOV_OUT:
         _mov_out(param1, param2);
-     
+
         break;
     case SUM:
         _sum(param1, param2);
-              
+
         break;
     case SUB:
         _sub(param1, param2);
-         
+
         break;
     case JNZ:
         _jnz(param1, param2);
-         
+
         break;
     case RESIZE:
         _resize(param1);
-         
+
         break;
     case COPY_STRING:
         _copy_string(param1);
-           
+
         break;
     case WAIT:
-        
+
         break;
     case SIGNAL:
-      
+
         break;
     case IO_GEN_SLEEP:
-      
+
         break;
     case IO_STDIN_READ:
-        
+
         break;
     case IO_STDOUT_WRITE:
-        
+
         break;
     case IO_FS_CREATE:
-        
+
         break;
     case IO_FS_DELETE:
-     
+
         break;
     case IO_FS_TRUNCATE:
-   
+
         break;
     case IO_FS_WRITE:
- 
+
         break;
     case IO_FS_READ:
 
@@ -516,21 +522,62 @@ int traducir_dl(int direccionLogica)
     return direccionFisica;
 }
 
-void procesar_instruccion(int pidAEjecutar)
+int obtener_cantidad_instrucciones(int pid)
 {
-    // cambioContexto = huboCambioContexto(pidAEjecutar);
+    t_buffer *a_enviar = crear_buffer();
 
-    // if (cambioContexto || pcb_ejecucion.pid == -1)
-    //{
-    //    actualizarPCB(pidAEjecutar);
-    //    printf("se actualizo el pcb\n");
-    //}
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
 
-    // hasta aca anda
-    // printf("se solicito la instruccion\n");
-    sleep(1);
+    cargar_int_al_buffer(a_enviar, pid);
 
-    for (int i = 0; i < 11; i++) // temporal para las pruebas nada mas
+    t_paquete *un_paquete = crear_super_paquete(CANT_INTRUCCIONES, a_enviar);
+    enviar_paquete(un_paquete, fd_memoria);
+    destruir_paquete(un_paquete);
+
+    sem_wait(&wait_instruccion);
+}
+
+void devolverPCBKernel(){
+    t_buffer *a_enviar = crear_buffer();
+
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_int_al_buffer(a_enviar, pcb_ejecucion.pid);
+    cargar_int_al_buffer(a_enviar, pcb_ejecucion.program_counter);
+    cargar_int_al_buffer(a_enviar, pcb_ejecucion.quantum);
+    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.AX);
+    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.BX);
+    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.CX);
+    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.DX);
+    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.EAX);
+    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.EBX);
+    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.ECX);
+    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.EDX);
+    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.SI);
+    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.DI);
+
+    if (cambioContexto)
+    {
+        cargar_int_al_buffer(a_enviar, 1); //si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
+    }
+    else{
+        cargar_int_al_buffer(a_enviar, 2); //si se queda sin instrucciones va un 2
+    }
+
+    t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, a_enviar);
+    enviar_paquete(un_paquete, fd_kernel_dispatch);
+    destruir_paquete(un_paquete);
+}
+
+void procesar_instruccion()
+{
+    obtener_cantidad_instrucciones(pcb_ejecucion.pid);
+
+    printf("la cantidad de instrucciones son: %d\n", cantInstucciones);
+
+    while (cantInstucciones >= pcb_ejecucion.program_counter && !cambioContexto)
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
@@ -538,8 +585,6 @@ void procesar_instruccion(int pidAEjecutar)
 
         printf("se ejecuto la instruccion\n");
         ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
-
-        //sem_wait(&wait_instruccion);
 
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
@@ -550,7 +595,8 @@ void procesar_instruccion(int pidAEjecutar)
         pcb_ejecucion.program_counter++;
     }
 
-    // error: Desconexion de CPU - MEMORIA
-
-    // termino_ejecutar();
+    // sale del while o porque se queda sin instrucciones o porque es desalojado
+    devolverPCBKernel();
+    
+    cambioContexto = false;
 }

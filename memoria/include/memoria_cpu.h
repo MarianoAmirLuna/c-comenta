@@ -19,5 +19,6 @@ int contarBitsValidez(tablaPaginas* tabla);
 void imprimirBitsValidez(tablaPaginas p);
 void escribirDato(t_buffer *un_buffer);
 void leerDato(t_buffer *un_buffer);
+void obtenerCantInstrucciones(int pid);
 
 #endif

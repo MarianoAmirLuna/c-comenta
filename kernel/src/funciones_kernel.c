@@ -115,8 +115,6 @@ void enviar_pid_a_cpu(int pid){
   destruir_paquete(paquete_pid);
 }
 
-
-
 void planificacion(){
   while(seguirPlanificando){
     sem_wait(&sem_cpu_libre);
@@ -238,7 +236,7 @@ void estadoPlani(){
 }
 
 void iniciar_planificacion(){
-  t_list *listaPCBs = list_create();
+  listaPCBs = list_create();
   int flagCambioProceso=0;
 
   //sleep(2);
@@ -248,9 +246,10 @@ void iniciar_planificacion(){
   procesosREADY=list_create();
   listQPrimas=list_create();
   procesosSuspendidos=list_create();
+
   //dictQPrimas=dictionary_create();
 
-
+  /*
   procesoEXEC=0;
   int uno=1, dos=2, tres=3;
 
@@ -300,7 +299,6 @@ void iniciar_planificacion(){
   imprimirLista(procesosREADY);
   modificarQPrima(1, 9);
   printf("Q prima del uno: %d\n",buscarQPrima(1));*/
-
 
 }
 
@@ -398,12 +396,6 @@ void ciclo_plani_VRR(){
 
 }
 
-void mandarNuevoPCB()
-{
-  PCB *pcb_a_enviar = buscarPCB(procesoEXEC);
-  enviar_pcb_con_codop(pcb_a_enviar, )
-}
-
 void avisarDesalojo()
 {
   t_buffer *buffer = crear_buffer();
@@ -429,34 +421,45 @@ void ciclo_planificacion(){
     default:
       break;
   }
-  if(flagCambioProceso)
-  {
-    mandarNuevoPCB();
-    flagCambioProceso=0;
-  }
+  //if(flagCambioProceso)
+  //{
+    //mandarNuevoPCB();
+    //flagCambioProceso=0;
+  //}
 }
-
-
 
 bool condition_id_igual_n(void *elemento)
   {
 	  PCB *dato = (PCB *)elemento;
-	  return (dato->id == pidGlobal);
+	  return (dato->pid == pidGlobal);
   }
 
 
 PCB *buscarPCB(int pid)
 {
   pidGlobal=pid;
-  pidConQ *PCBEncontrado = list_find(listaPCBs, condition_id_igual_n);
+  PCB* PCBEncontrado = list_find(listaPCBs, condition_id_igual_n);
   return PCBEncontrado;
+}
+
+void mandarNuevoPCB()
+{
+  PCB *pcb_a_enviar = buscarPCB(procesoEXEC); //Busco el pcb que le toca ejecutar en la cola
+  enviar_pcb(*pcb_a_enviar,fd_cpu_dispatch);  //si rompe es casi seguro porque busca un pcb que no coincide con el pid
 }
 
 void iniciar_proceso(char *path)
 {
   PCB *pcb = iniciar_PCB(path);
+  printf("el pid es %d\n",pcb->pid);
   list_add(listaPCBs, pcb);
-  enviar_path_memoria(path, 0);
-  enviar_pid_a_cpu(0);
-  list_add(procesosNEW, &(pcb->pid));
+  enviar_path_memoria(path, pcb->pid);
+  list_add(procesosNEW, &(pcb->pid)); //agrego el pcb al planificador de pids
+  ciclo_planificacion(); //PREGUNTAR LUCA
+
+  printf("antes de entrar al if\n");
+  if(primeraVezEjecuta){
+    printf("despues de entrar al if\n");
+    mandarNuevoPCB();
+  }
 }

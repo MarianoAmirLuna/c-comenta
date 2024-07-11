@@ -84,7 +84,14 @@ void atender_cpu_memoria()
 
 			sem_post(&esperarMarco);
 
-			break;							
+			break;
+		case CANT_INTRUCCIONES:
+		    un_buffer = recibir_todo_el_buffer(fd_memoria);
+
+			cantInstucciones = extraer_int_del_buffer(un_buffer);
+
+			sem_post(&wait_instruccion);
+		    break;						
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

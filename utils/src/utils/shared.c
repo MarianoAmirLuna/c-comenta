@@ -565,8 +565,6 @@ PCB *atender_recibir_pcb(t_buffer *un_buffer)
 	return pcb;
 }
 
-
-
 PCB* inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint8_t bx, uint8_t cx,
 					uint8_t dx, uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx, uint32_t si, uint32_t di)
 {
@@ -590,3 +588,25 @@ PCB* inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint
 	return pcb;
 
 } // recibe todos los registros por eso es tan largo
+
+int contarInstrucciones(char *path)
+{ // Le pasas un .txt y te dice cuantas instrucciones tiene
+	FILE *archivo = fopen(path, "r");
+	if (archivo == NULL)
+	{
+		perror("Error al abrir el archivo");
+		return -1;
+	}
+
+	int contador = 0;
+	char linea[256];
+
+	// Leer el archivo línea por línea y contar cada línea
+	while (fgets(linea, sizeof(linea), archivo))
+	{
+		contador++;
+	}
+
+	fclose(archivo);
+	return contador;
+}

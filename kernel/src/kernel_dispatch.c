@@ -21,6 +21,27 @@ void atender_kernel_dispatch(){
 			enviar_paquete(paquete_pid, fd_cpu_dispatch);
 			destruir_paquete(paquete_pid);
 			break;
+		case RECIBIR_PCB:
+			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
+			list_add(listaPCBs, pcb_devuelto);
+			int codigo = extraer_int_del_buffer(un_buffer);
+
+            if(codigo == 1){ //le faltan instrucciones por ejecutar
+				list_add(procesosREADY,pcb_devuelto->pid); //PREGUNTAR LUCA, SI ES round robbins cambio algo?
+			}
+			else{ //se queda sin instrucciones
+				//hay que liberar el espacio que ocupa en memoria eliminar su tabla de paginas y liberar los marcos del bitmap
+			}
+
+			if(list_size(procesosREADY) != 0){
+				mandarNuevoPCB();
+			}
+			else{
+				primeraVezEjecuta = true;
+			}
+
+			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			control_key = 0;

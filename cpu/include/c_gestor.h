@@ -31,6 +31,7 @@ extern sem_t esperarTamanioDePagina;
 extern sem_t esperarMarco;
 extern sem_t esperarEscrituraDeMemoria;
 extern sem_t esperarLecturaDeMemoria;
+//extern sem_t esperarCantInstrucciones;
 
 extern PCB pcb_ejecucion;
 extern char* instruccion_actual;
@@ -39,7 +40,7 @@ extern bool hayPcbEjecucion;
 extern bool primeraSolicitudTamanioDePagina;
 extern int tamanio_pagina;
 extern int marco;
-
+extern int cantInstucciones;
 
 
 #endif

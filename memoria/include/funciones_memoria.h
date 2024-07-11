@@ -15,7 +15,6 @@ t_list* reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias);
 tablaPaginas inicializarTablaPaginas(int pid);
 int calcularPaginasNecesarias(int tamanio);
 bool puedeCargarloCompleto(int tamanioAcumulado, int tamanioQuiereCargar);
-int contarInstrucciones(char *path);
 char* obtenerInstruccion(char* path, int programCounter);
 char* dividirStringIzquierda( char* instruccion, int tamanio);
 char* dividirStringDerecha(char *instruccion, int tamanio);

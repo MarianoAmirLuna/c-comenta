@@ -46,6 +46,7 @@ typedef enum
 	SEGUNDA_DIRECCION_A_LEER,
 	ESCRIBIO_PRIMERA_PARTE,
 	LEYO_PRIMERA_PARTE,
+	CANT_INTRUCCIONES,
 	
 	//////////////////
 	EJECUTAR_RESIZE,
@@ -184,6 +185,7 @@ int contarLineas(char *nombreArchivo);
 PCB* inicializar_PCB(int, int, int, uint8_t, uint8_t, uint8_t,
 					uint8_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
-void atender_recibir_pcb(t_buffer *);
+PCB* atender_recibir_pcb(t_buffer* un_buffer);
+int contarInstrucciones(char *path);
 
 #endif /* UTILS_H_ */

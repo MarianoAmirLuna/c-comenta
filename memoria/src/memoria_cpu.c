@@ -389,6 +389,25 @@ void buscarMarco(t_buffer *un_buffer)
 	destruir_paquete(un_paquete);
 }
 
+void obtenerCantInstrucciones(int pid){
+	id_global = pid;
+
+	path_conID *elemento_lista = list_find(list_path_id, condition_id_igual_n);
+
+	int cantInstrucciones = contarInstrucciones(elemento_lista->path);
+
+	t_buffer *a_enviar = crear_buffer();
+
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
+	cargar_int_al_buffer(a_enviar,cantInstrucciones);
+
+	t_paquete *un_paquete = crear_super_paquete(CANT_INTRUCCIONES, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);	
+}
+
 //---------------------------------------------------------------------------------------------
 
 void atender_memoria_cpu()
@@ -430,7 +449,11 @@ void atender_memoria_cpu()
 		case DEVOLVER_MARCO:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			buscarMarco(un_buffer);
-
+			break;
+		case CANT_INTRUCCIONES:
+		    un_buffer = recibir_todo_el_buffer(fd_cpu);
+			int pid = extraer_int_del_buffer(un_buffer);
+			obtenerCantInstrucciones(pid);
 			break;
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");

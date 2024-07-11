@@ -33,6 +33,7 @@ sem_t esperarTamanioDePagina;
 sem_t esperarMarco;
 sem_t esperarEscrituraDeMemoria;
 sem_t esperarLecturaDeMemoria;
+//sem_t esperarCantInstrucciones;
 
 char* instruccion_actual;
 bool cambioContexto;
@@ -40,7 +41,6 @@ bool hayPcbEjecucion;
 bool primeraSolicitudTamanioDePagina;
 int tamanio_pagina;
 int marco;
-
-
+int cantInstucciones;
 
 #endif

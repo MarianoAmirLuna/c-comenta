@@ -268,28 +268,6 @@ bool puedeCargarloCompleto(int tamanioAcumulado, int tamanioQuiereCargar)
 	return TAM_PAGINA >= tamanioAcumulado + tamanioQuiereCargar;
 }
 
-int contarInstrucciones(char *path)
-{ // Le pasas un .txt y te dice cuantas instrucciones tiene
-	FILE *archivo = fopen(path, "r");
-	if (archivo == NULL)
-	{
-		perror("Error al abrir el archivo");
-		return -1;
-	}
-
-	int contador = 0;
-	char linea[256];
-
-	// Leer el archivo línea por línea y contar cada línea
-	while (fgets(linea, sizeof(linea), archivo))
-	{
-		contador++;
-	}
-
-	fclose(archivo);
-	return contador;
-}
-
 char *dividirStringIzquierda(char *instruccion, int tamanio)
 { // dado un string y unos bytes, corto al string y me quedo con el lado izquierdo | 1 byte = 1 letra
 	// Calcular el tamaño del nuevo string (mínimo entre n y la longitud de str)
