@@ -21,6 +21,7 @@ void atender_kernel_dispatch(){
 			enviar_paquete(paquete_pid, fd_cpu_dispatch);
 			destruir_paquete(paquete_pid);
 			break;
+
 		case RECIBIR_PCB:
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
@@ -37,7 +38,6 @@ void atender_kernel_dispatch(){
 			else{
 				primeraVezEjecuta = true;
 			}
-
 			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");

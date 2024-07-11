@@ -252,6 +252,14 @@ void estadoPlani(){
 
 }
 
+void iniciar_bucle(){
+  while(flagSeguirPlanificando)
+  {
+    ciclo_planificacion();
+    usleep(100000);
+  }
+}
+
 void iniciar_planificacion(){
   listaPCBs = list_create();
   int flagCambioProceso=0;
@@ -263,6 +271,8 @@ void iniciar_planificacion(){
   procesosREADY=list_create();
   listQPrimas=list_create();
   procesosSuspendidos=list_create();
+
+  //iniciar_bucle();
 
   //dictQPrimas=dictionary_create();
 
@@ -368,6 +378,7 @@ void ciclo_plani_RR(){
     tiempoTranscurrido=0;
     flagCambioProceso=1;
     pthread_mutex_unlock(&mutexExec);
+    avisarDesalojo();
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
   else ejecutandoProceso=1;
@@ -406,6 +417,7 @@ void ciclo_plani_VRR(){
     tiempoTranscurrido=0;
     flagCambioProceso=1;
     pthread_mutex_unlock(&mutexExec);
+    avisarDesalojo();
   }
   if(procesoEXEC==0) ejecutandoProceso=0;
   else ejecutandoProceso=1;
@@ -472,6 +484,7 @@ void iniciar_proceso(char *path)
   list_add(listaPCBs, pcb);
   enviar_path_memoria(path, pcb->pid);
   list_add(procesosNEW, &(pcb->pid)); //agrego el pcb al planificador de pids
+  ciclo_planificacion();
 
   printf("antes de entrar al if\n");
   if(primeraVezEjecuta){
@@ -479,3 +492,4 @@ void iniciar_proceso(char *path)
     mandarNuevoPCB();
   }
 }
+

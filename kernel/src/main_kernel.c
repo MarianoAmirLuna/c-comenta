@@ -23,7 +23,7 @@ int main(void)
 	pthread_t hilo_planificacion;
 	//printf("llega aca\n");
 	pthread_create(&hilo_planificacion, NULL, (void*)iniciar_planificacion, NULL);
-	pthread_join(hilo_planificacion, NULL);
+	pthread_detach(hilo_planificacion);
 
     //log_trace(kernel_logger, "listo para escuchar al IO");
 	log_trace(kernel_log_debug, "listo para escuchar al IO");

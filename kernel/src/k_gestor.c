@@ -18,4 +18,5 @@ t_dictionary *dictQPrimas;
 t_list* listaPCBs=NULL;
 int flagCambioProceso;
 bool primeraVezEjecuta=true;
+int flagSeguirPlanificando = 1;
 
