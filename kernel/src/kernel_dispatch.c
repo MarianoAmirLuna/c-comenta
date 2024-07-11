@@ -27,14 +27,11 @@ void atender_kernel_dispatch(){
 			list_add(listaPCBs, pcb_devuelto);
 			int codigo = extraer_int_del_buffer(un_buffer);
 
-            if(codigo == 1){ //le faltan instrucciones por ejecutar
-				list_add(procesosREADY,pcb_devuelto->pid); //PREGUNTAR LUCA, SI ES round robbins cambio algo?
-			}
-			else{ //se queda sin instrucciones
-				//hay que liberar el espacio que ocupa en memoria eliminar su tabla de paginas y liberar los marcos del bitmap
+            if(codigo == 2){ //le faltan instrucciones por ejecutar
+				//significa que termino todas sus intrucciones y tengo que liberar los recursos
 			}
 
-			if(list_size(procesosREADY) != 0){
+			if(procesoEXEC != 0){
 				mandarNuevoPCB();
 			}
 			else{

@@ -472,7 +472,6 @@ void iniciar_proceso(char *path)
   list_add(listaPCBs, pcb);
   enviar_path_memoria(path, pcb->pid);
   list_add(procesosNEW, &(pcb->pid)); //agrego el pcb al planificador de pids
-  ciclo_planificacion(); //PREGUNTAR LUCA
 
   printf("antes de entrar al if\n");
   if(primeraVezEjecuta){
