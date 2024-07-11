@@ -10,5 +10,6 @@ void imprimir_config();
 void iniciar_semaforos();
 void iniciar_variables();
 PCB iniciar_PCB();
+void iniciar_listas();
 
 #endif

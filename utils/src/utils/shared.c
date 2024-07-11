@@ -610,3 +610,16 @@ int contarInstrucciones(char *path)
 	fclose(archivo);
 	return contador;
 }
+
+int list_index_of(t_list *self, void *data){
+    int index = 0;
+    t_link_element *current = self->head;
+    while (current != NULL) {
+        if (current->data == data) {
+            return index;
+        }
+        current = current->next;
+        index++;
+    }
+    return -1; // Elemento no encontrado
+}

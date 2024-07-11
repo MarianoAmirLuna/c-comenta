@@ -47,6 +47,7 @@ typedef enum
 	ESCRIBIO_PRIMERA_PARTE,
 	LEYO_PRIMERA_PARTE,
 	CANT_INTRUCCIONES,
+	EJECUTAR_CPYSTRING,
 	
 	//////////////////
 	EJECUTAR_RESIZE,
@@ -110,6 +111,8 @@ typedef struct{
 	uint32_t  EDX;
 	uint32_t  SI;
 	uint32_t  DI;
+	uint8_t AUX1;
+	uint32_t AUX2;
 }registros;
 
 typedef struct{
@@ -133,6 +136,11 @@ typedef struct{
 	int cantMarcos;
 	marcoBit array[40];
 } tablaPaginas;
+typedef struct{
+	int pid;
+	int pagina;
+	int marco;
+} lineaTLB;
 
 extern t_log* logger;
 
@@ -187,5 +195,6 @@ PCB* inicializar_PCB(int, int, int, uint8_t, uint8_t, uint8_t,
 
 PCB* atender_recibir_pcb(t_buffer* un_buffer);
 int contarInstrucciones(char *path);
+int list_index_of(t_list *self, void *data);
 
 #endif /* UTILS_H_ */

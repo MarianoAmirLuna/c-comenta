@@ -42,5 +42,10 @@ bool primeraSolicitudTamanioDePagina;
 int tamanio_pagina;
 int marco;
 int cantInstucciones;
+t_queue *cola_tlb;
+char* ALGORITMO_TLB;
+int CANTIDAD_ENTRADAS_TLB;
+int id_global;
+int pagina_global;
 
 #endif

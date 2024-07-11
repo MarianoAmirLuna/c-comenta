@@ -408,6 +408,78 @@ void obtenerCantInstrucciones(int pid){
 	destruir_paquete(un_paquete);	
 }
 
+void obtenerCortesDePagina(t_list* lista,int tamanio_a_escribir, int restante_pagina){
+	int acumulador = 0;  //70 escribir 10 restante
+
+	while(tamanio_a_escribir > 0){
+
+		if(tamanio_a_escribir <= restante_pagina){
+			tamanio_a_escribir = 0; //no agrego nada a la lista y corto el while
+		}
+		else if(tamanio_a_escribir > restante_pagina){
+			int* valorAgregar = (int*)malloc(sizeof(int));
+			*valorAgregar = acumulador + restante_pagina;
+			list_add(lista,valorAgregar); //[10,42]
+			tamanio_a_escribir = tamanio_a_escribir - restante_pagina; 
+			acumulador = acumulador + restante_pagina;
+		}
+		restante_pagina = TAM_PAGINA;   //60 32 => 28 32 
+	}
+
+}
+
+bool necesitoNuevaDF(t_list* cortesPagina, int cantIteraciones) {
+    int* numero;
+    int longitud = list_size(cortesPagina);
+
+    for(int i = 0; i < longitud; i++) {
+        numero = (int*) list_get(cortesPagina, i); // Casteo explícito a (int*)
+        if(*numero == cantIteraciones) { // Dereferenciar el puntero para obtener el valor de 'numero'
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void escribirCPYSTRING(t_buffer *un_buffer){
+	char* stringAEscribir = extraer_string_del_buffer(un_buffer);
+	int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
+	int tamanioAEscribir = extraer_int_del_buffer(un_buffer);
+	int cantIteraciones = 0;
+	t_list* cortesPagina = list_create();
+	obtenerCortesDePagina(cortesPagina,tamanioAEscribir,bytes_restantes_en_pagina); // [10,42,74]
+
+	int longitud = list_size(cortesPagina);
+
+	for(int i = 0; i < longitud;i++){
+		int* pepe = (int*)list_get(cortesPagina,i);
+		printf("valor de la lista cortes: %d\n",*pepe);
+	}
+
+	printf("la longitud es: %d\n",longitud);
+
+    int df = extraer_int_del_buffer(un_buffer);
+
+	while(cantIteraciones <= tamanioAEscribir){
+
+		if(necesitoNuevaDF(cortesPagina,cantIteraciones)){
+			df = extraer_int_del_buffer(un_buffer);
+		}
+
+		printf("en la direccion fisica: %d\n",df);
+		printf("escribo: %c\n",stringAEscribir[cantIteraciones ]);
+
+		memcpy(memoriaPrincipal + df, &stringAEscribir[cantIteraciones ], 1);
+
+		cantIteraciones++;
+		df++;
+	}
+
+	printf("cantidad de iteraciones: %d\n",cantIteraciones);
+
+}
+
 //---------------------------------------------------------------------------------------------
 
 void atender_memoria_cpu()
@@ -454,6 +526,10 @@ void atender_memoria_cpu()
 		    un_buffer = recibir_todo_el_buffer(fd_cpu);
 			int pid = extraer_int_del_buffer(un_buffer);
 			obtenerCantInstrucciones(pid);
+			break;
+		case EJECUTAR_CPYSTRING:
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
+			escribirCPYSTRING(un_buffer);
 			break;
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");

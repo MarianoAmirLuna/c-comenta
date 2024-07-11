@@ -34,7 +34,7 @@ uint32_t *get_registry(char *registro)
         return &pcb_ejecucion.registros_cpu.CX;
     else if (strcmp(registro, "DX") == 0)
         return &pcb_ejecucion.registros_cpu.DX;
-    if (strcmp(registro, "EAX") == 0)
+    else if (strcmp(registro, "EAX") == 0)
         return &pcb_ejecucion.registros_cpu.EAX;
     else if (strcmp(registro, "EBX") == 0)
         return &pcb_ejecucion.registros_cpu.EBX;
@@ -48,6 +48,10 @@ uint32_t *get_registry(char *registro)
         return &pcb_ejecucion.registros_cpu.SI;
     else if (strcmp(registro, "DI") == 0)
         return &pcb_ejecucion.registros_cpu.DI;
+    else if (strcmp(registro, "AUX1") == 0)
+        return &pcb_ejecucion.registros_cpu.AUX1;
+    else if (strcmp(registro, "AUX2") == 0)
+        return &pcb_ejecucion.registros_cpu.AUX2;
     else
     {
         return NULL;
@@ -62,7 +66,7 @@ void _set(char *registro, char *valor)
 
 int conocerTamanioDeLosRegistros(char *registro)
 {
-    if (strcmp(registro, "AX") == 0 || strcmp(registro, "BX") == 0 || strcmp(registro, "CX") == 0 || strcmp(registro, "DX") == 0)
+    if (strcmp(registro, "AX") == 0 || strcmp(registro, "BX") == 0 || strcmp(registro, "CX") == 0 || strcmp(registro, "DX") == 0 || strcmp(registro, "AUX1") == 0)
     {
         return 1;
     }
@@ -281,8 +285,88 @@ void _resize(char *tamanio)
     destruir_paquete(paquete);
 }
 
+void concat_uint8_to_string(char *str, uint8_t ch)
+{
+    size_t len = strlen(str); // Encuentra la longitud actual del string
+
+    str[len] = (char)ch; // Añade el carácter al final del string
+    str[len + 1] = '\0'; // Añade el terminador nulo
+}
+
+int obtener_cant_direcciones(int direccionLogica, int tamanioAEscribir, int bytes_restantes_en_pagina)
+{
+    int cont = 0;
+
+    while (tamanioAEscribir > 0)
+    {
+
+        if (cont == 0)
+        {
+            tamanioAEscribir = tamanioAEscribir - bytes_restantes_en_pagina;
+        }
+        else
+        {
+            tamanioAEscribir = tamanioAEscribir - tamanio_pagina;
+        }
+        cont++;
+    }
+
+    return cont;
+}
+
 void _copy_string(char *tamanio)
 {
+    int desplazamiento_en_pagina = (int)pcb_ejecucion.registros_cpu.DI % tamanio_pagina; // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
+
+    int tamanioAEscribir = atoi(tamanio);
+
+    char str[tamanioAEscribir + 1]; // Inicializa el string como vacío
+    str[0] = '\0';
+    pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.SI;
+
+    for (int i = 0; i < tamanioAEscribir; i++)
+    {
+        _mov_in("AUX1", "AUX2");
+        concat_uint8_to_string(str, pcb_ejecucion.registros_cpu.AUX1);
+        pcb_ejecucion.registros_cpu.AUX2++;
+    }
+
+    printf("$$$$$ El string es: %s\n", str);
+
+    int cantDireccionesNecesarias = obtener_cant_direcciones((int)pcb_ejecucion.registros_cpu.DI, tamanioAEscribir, bytes_restantes_en_pagina);
+
+    t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+    cargar_string_al_buffer(buffer, str);
+    cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
+    cargar_int_al_buffer(buffer, tamanioAEscribir);
+
+    pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.DI;
+    int flag = 0;
+
+    for (int i = 0; i < cantDireccionesNecesarias; i++)
+    {
+        int df = traducir_dl((int)pcb_ejecucion.registros_cpu.AUX2);
+        cargar_int_al_buffer(buffer, df);
+
+        if (flag == 0)
+        {
+            pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.AUX2 + bytes_restantes_en_pagina;
+            flag = 1;
+        }
+        else
+        {
+            pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.AUX2 + tamanio_pagina;
+        }
+        printf("carge un int al buffer\n");
+    }
+
+    t_paquete *paquete = crear_super_paquete(EJECUTAR_CPYSTRING, buffer);
+    enviar_paquete(paquete, fd_memoria);
+    destruir_paquete(paquete);
 }
 
 // faltan las demas
@@ -502,9 +586,87 @@ void enviar_pedido_marco(int num_pag, int pid)
     printf("Pase el semanforo\n");
 }
 
+//////////////////////TLB///////////////////////////
+
+lineaTLB *inicializarLineaTLB(int pid, int pagina, int marco)
+{
+    lineaTLB *lineaTL = (lineaTLB *)malloc(sizeof(lineaTLB));
+    if (lineaTL == NULL)
+    {
+        fprintf(stderr, "Error al asignar memoria para lineaTLB\n");
+        exit(EXIT_FAILURE);
+    }
+    lineaTL->pid = pid;
+    lineaTL->pagina = pagina;
+    lineaTL->marco = marco;
+
+    return lineaTL;
+}
+
+void actualizarPrioridadesTLB(lineaTLB lineaTL)
+{
+
+    int index = list_index_of(cola_tlb->elements, &lineaTL); // obtengo el index del que quiero borrar
+
+    lineaTLB *lineaRemovida = list_remove(cola_tlb->elements, index); // lo borro
+
+    queue_push(cola_tlb, lineaRemovida); // lo vuelvo a agregar al final
+}
+
+void agregarPaginaTLB(int pid, int pagina, int marco)
+{
+    lineaTLB *lineaTL = inicializarLineaTLB(pid, pagina, marco);
+
+    if (queue_size(cola_tlb) < CANTIDAD_ENTRADAS_TLB)
+    { // si entra aca es porque no hay que hacer ningun reemplazo
+        // printf("VOY A AGREGAR LA LINEA A LA COLA CON MARCO: %d\n",lineaTL->marco);
+        queue_push(cola_tlb, lineaTL);
+    }
+    else
+    { // significa que ya se lleno la TLB entonces hay que reemplazar una
+
+        lineaTLB *lineaABorrar = queue_pop(cola_tlb);
+        free(lineaABorrar);
+        queue_push(cola_tlb, lineaTL);
+
+        lineaTLB *linea1 = list_get(cola_tlb->elements, 0);
+
+        // printf("pagina 1: %d\n",linea1->pagina);
+    }
+}
+
+bool condicion_id_pagina(void *elemento)
+{
+    lineaTLB *dato = (lineaTLB *)elemento;
+    return (dato->pid == id_global && dato->pagina == pagina_global);
+}
+
+int buscarMarcoTLB(int pid, int pagina)
+{
+    id_global = pid;
+    pagina_global = pagina;
+
+    lineaTLB *lineaTL = list_find(cola_tlb->elements, condicion_id_pagina);
+
+    if (lineaTL == NULL)
+    { // se produce un MISS al no encontrarlo
+        printf("se produjo un MISS\n");
+        return -1;
+    }
+    printf("se produjo un HIT\n");
+
+    if (strcmp(ALGORITMO_TLB, "LRU") == 0)
+    { // en caso de que sea LRU hay que actualizar la prioridad
+        // printf("actualize la prioridad del LRU\n");
+        actualizarPrioridadesTLB(*lineaTL);
+    }
+
+    return lineaTL->marco; // encontro el marco y lo devuelve
+}
+
 int traducir_dl(int direccionLogica)
 {
-    if (primeraSolicitudTamanioDePagina)
+    if (primeraSolicitudTamanioDePagina) // sirve para obtener el tamanio de pagina de memoria
     {
         solicitarTamanioPagina();
         primeraSolicitudTamanioDePagina = false;
@@ -514,13 +676,24 @@ int traducir_dl(int direccionLogica)
 
     int desplazamiento = direccionLogica - num_pag * tamanio_pagina;
 
-    enviar_pedido_marco(num_pag, pcb_ejecucion.pid);
+    marco = buscarMarcoTLB(pcb_ejecucion.pid, num_pag);
 
-    printf("llega el marco, falta calcular\n");
+    if (marco != -1)
+    { // hubo un HIT
 
-    int direccionFisica = marco * tamanio_pagina + desplazamiento;
-    return direccionFisica;
+        return (marco * tamanio_pagina + desplazamiento);
+    }
+
+    enviar_pedido_marco(num_pag, pcb_ejecucion.pid); // en caso de un miss busca en memoria
+
+    agregarPaginaTLB(pcb_ejecucion.pid, num_pag, marco); // despues del miss se actualiza la TLB
+
+    int sizeTLB = queue_size(cola_tlb);
+
+    return (marco * tamanio_pagina + desplazamiento);
 }
+
+////////////////////////////////////////////////////
 
 int obtener_cantidad_instrucciones(int pid)
 {
@@ -538,7 +711,8 @@ int obtener_cantidad_instrucciones(int pid)
     sem_wait(&wait_instruccion);
 }
 
-void devolverPCBKernel(){
+void devolverPCBKernel()
+{
     t_buffer *a_enviar = crear_buffer();
 
     a_enviar->size = 0;
@@ -560,10 +734,11 @@ void devolverPCBKernel(){
 
     if (cambioContexto)
     {
-        cargar_int_al_buffer(a_enviar, 1); //si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
+        cargar_int_al_buffer(a_enviar, 1); // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
     }
-    else{
-        cargar_int_al_buffer(a_enviar, 2); //si se queda sin instrucciones va un 2
+    else
+    {
+        cargar_int_al_buffer(a_enviar, 2); // si se queda sin instrucciones va un 2
     }
 
     t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, a_enviar);
@@ -597,6 +772,6 @@ void procesar_instruccion()
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
     devolverPCBKernel();
-    
+
     cambioContexto = false;
 }

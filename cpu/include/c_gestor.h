@@ -7,6 +7,7 @@
 #include <commons/config.h>
 #include <pthread.h>
 #include <commons/log.h>
+#include <commons/collections/queue.h>
 
 //Variables GLOBALES
 
@@ -41,6 +42,11 @@ extern bool primeraSolicitudTamanioDePagina;
 extern int tamanio_pagina;
 extern int marco;
 extern int cantInstucciones;
+extern t_queue *cola_tlb;
+extern char* ALGORITMO_TLB;
+extern int CANTIDAD_ENTRADAS_TLB;
+extern int id_global;
+extern int pagina_global;
 
 
 #endif

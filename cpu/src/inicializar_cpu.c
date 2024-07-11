@@ -7,6 +7,7 @@ void inicializar_cpu(){
     imprimir_config();
 	iniciar_semaforos();
 	iniciar_variables();
+	iniciar_listas();
 }
 
 void iniciar_logs(){
@@ -38,7 +39,8 @@ void iniciar_config_cpu(){
 	PUERTO_MEMORIA = config_get_string_value(cpu_config, "PUERTO_MEMORIA");
 	PUERTO_ESCUCHA_DISPATCH = config_get_string_value(cpu_config, "PUERTO_ESCUCHA_DISPATCH");
 	PUERTO_ESCUCHA_INTERRUPT = config_get_string_value(cpu_config, "PUERTO_ESCUCHA_INTERRUPT");
-
+	ALGORITMO_TLB = config_get_string_value(cpu_config, "ALGORITMO_TLB");
+    CANTIDAD_ENTRADAS_TLB = config_get_int_value(cpu_config, "CANTIDAD_ENTRADAS_TLB");
 }
 void imprimir_config(){
     log_info(cpu_logger, "IP_MEMORIA: %s", IP_MEMORIA);
@@ -79,6 +81,9 @@ PCB iniciar_PCB()
   return pcb;
 }
 
+void iniciar_listas(){
+	cola_tlb = queue_create();
+}
 
 void iniciar_variables(){
 	hayPcbEjecucion = false;
