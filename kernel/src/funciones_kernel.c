@@ -37,6 +37,23 @@ PCB *iniciar_PCB()
   return pcb;
 }
 
+void finalizarProceso(int pid){
+  //Le paso el pid a memoria, para que borre lo asociado a ese pid
+  t_buffer *a_enviar = crear_buffer();
+  a_enviar->size = 0;
+  a_enviar->stream = NULL;
+
+  cargar_int_al_buffer(a_enviar, pid);
+
+  t_paquete *un_paquete = crear_super_paquete(ELIMINAR_PROCESO, a_enviar);
+  enviar_paquete(un_paquete, fd_memoria);
+  destruir_paquete(un_paquete);  
+
+
+
+
+}
+
 void enviar_path_memoria(char *path, int pid)
 {
   t_buffer *a_enviar = crear_buffer();

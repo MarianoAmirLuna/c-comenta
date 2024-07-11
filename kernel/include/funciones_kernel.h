@@ -13,6 +13,7 @@ void ciclo_plani_FIFO();
 void ciclo_plani_RR();
 void ciclo_planificacion();
 void iniciar_cpu();
+void finalizarProceso(int pid);
 pidConQ *nuevoPidConQ(int);
 PCB *buscarPCB(int pid);
 void mandarNuevoPCB();

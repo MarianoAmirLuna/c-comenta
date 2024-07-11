@@ -8,5 +8,6 @@
 void atender_memoria_kernel();
 void atender_crear_proceso(t_buffer* un_buffer);
 path_conID *iniciar_path_id(int id, char *path);
+void atender_eliminar_proceso(t_buffer* un_buffer);
 
 #endif

@@ -267,6 +267,14 @@ void _sub(char *registroDestino, char *registroOrigen)
 
 void _jnz(char *registro, char *instruccion)
 {
+    uint32_t *registroAComparar = get_registry(registro);
+    int numeroDeInstr = atoi(instruccion);
+
+    if (*registroAComparar != 0 )
+    {
+        pcb_ejecucion.program_counter = numeroDeInstr;
+    }
+    
 }
 
 void _resize(char *tamanio)

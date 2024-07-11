@@ -22,6 +22,12 @@ void atender_crear_proceso(t_buffer *un_buffer)
 	list_add(listaTablaPaginas, &tabla);
 }
 
+void atender_eliminar_proceso(t_buffer *un_buffer)
+{
+	int pid = extraer_int_del_buffer(un_buffer);
+	tablaPaginas* tablaABorrar = obtener_tabla_pagina(pid);
+}
+
 void atender_memoria_kernel()
 {
 	bool control_key = 1;
@@ -42,6 +48,11 @@ void atender_memoria_kernel()
 			un_buffer = recibir_todo_el_buffer(fd_kernel);
 			atender_crear_proceso(un_buffer);
 			break;
+		case ELIMINAR_PROCESO:
+			printf("llego el pid para eliminar el proceso\n");
+			un_buffer = recibir_todo_el_buffer(fd_kernel);
+			atender_eliminar_proceso(un_buffer);
+			break;			
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de Kernel - Memoria");
 			control_key = 0;
