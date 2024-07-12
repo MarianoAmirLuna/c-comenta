@@ -127,6 +127,8 @@ void leerDato(t_buffer *un_buffer){
 	uint32_t datoLeido32;
 	uint32_t datoLeido8;
 
+	usleep(RETARDO_RESPUESTA * 1000);
+
 	int dirFisicaDelDato = extraer_int_del_buffer(un_buffer);
 	int segundaDF = extraer_int_del_buffer(un_buffer);
 	int tamanioALeer = extraer_int_del_buffer(un_buffer);
@@ -194,6 +196,8 @@ void escribirDato(t_buffer *un_buffer)
 	// Recibimos los datos para poder hacer el memcopy
 	u_int8_t data8;
 	uint32_t data32;
+
+	usleep(RETARDO_RESPUESTA * 1000);
 
 	int direccion_logica = extraer_int_del_buffer(un_buffer);
 	int direccion_fisica = extraer_int_del_buffer(un_buffer);
@@ -327,6 +331,8 @@ void resize(t_buffer *un_buffer)
 	int pid = extraer_int_del_buffer(un_buffer);
 	int tamanioAModificar = extraer_int_del_buffer(un_buffer);
 
+	usleep(RETARDO_RESPUESTA * 1000);
+
 	printf("se va a hacer un resize de: %d\n", tamanioAModificar);
 
 	tablaPaginas *tablaPag = obtener_tabla_pagina(pid);
@@ -374,6 +380,8 @@ void buscarMarco(t_buffer *un_buffer)
 	int num_pag = extraer_int_del_buffer(un_buffer);
 	int pid = extraer_int_del_buffer(un_buffer);
 	t_buffer *a_enviar = crear_buffer();
+
+	usleep(RETARDO_RESPUESTA * 1000);
 
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;

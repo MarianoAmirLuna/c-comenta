@@ -684,13 +684,13 @@ int traducir_dl(int direccionLogica)
 
     int desplazamiento = direccionLogica - num_pag * tamanio_pagina;
 
-    marco = buscarMarcoTLB(pcb_ejecucion.pid, num_pag);
+    //marco = buscarMarcoTLB(pcb_ejecucion.pid, num_pag);
 
-    if (marco != -1)
-    { // hubo un HIT
+    //if (marco != -1)
+    //{ // hubo un HIT
 
-        return (marco * tamanio_pagina + desplazamiento);
-    }
+       // return (marco * tamanio_pagina + desplazamiento);
+    //}
 
     enviar_pedido_marco(num_pag, pcb_ejecucion.pid); // en caso de un miss busca en memoria
 
@@ -778,7 +778,7 @@ void procesar_instruccion()
 
         pcb_ejecucion.program_counter++;
 
-        sleep(2);
+        //sleep(2);
 
         //if(pcb_ejecucion.program_counter == 10){
             //cambioContexto = true;
