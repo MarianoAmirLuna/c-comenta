@@ -769,6 +769,7 @@ void procesar_instruccion()
         printf("se ejecuto la instruccion\n");
         ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
 
+        printf("el PID: %d\n",pcb_ejecucion.pid);
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
         printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
@@ -776,10 +777,16 @@ void procesar_instruccion()
         printf("------------------------------------------------\n\n");
 
         pcb_ejecucion.program_counter++;
+
+        sleep(2);
+
+        //if(pcb_ejecucion.program_counter == 10){
+            //cambioContexto = true;
+        //}
     }
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
     devolverPCBKernel();
-
+    printf("termino de ejecutar\n");
     cambioContexto = false;
 }

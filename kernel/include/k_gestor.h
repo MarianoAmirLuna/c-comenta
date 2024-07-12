@@ -47,6 +47,7 @@ extern int contador_pcbs;
 
 extern pthread_mutex_t mutex_pid;
 extern pthread_mutex_t mutexExec;
+extern pthread_mutex_t modificarLista;
 
 extern t_list *procesosNEW;
 extern t_list *procesosREADY;
@@ -69,9 +70,9 @@ extern int pidGlobal; //la unica implementacion que se me ocurre a las 2:08 AM
 
 extern int sem_planificacion;
 
-extern int quantum;
+extern float quantum;
 
-extern int tiempoTranscurrido;
+extern float tiempoTranscurrido;
 
 extern t_planificacion tipoPlanificacion;
 
@@ -84,5 +85,6 @@ extern t_list *listaPCBs;
 extern int flagCambioProceso;
 extern bool primeraVezEjecuta;
 extern int flagSeguirPlanificando;
+extern bool estaCPULibre;
 
 #endif

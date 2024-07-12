@@ -1,12 +1,11 @@
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <commons/config.h>
-//#include <pthread.h>
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include <commons/config.h>
+// #include <pthread.h>
 #include "utils/shared.h"
-//#include <commons/log.h>
+// #include <commons/log.h>
 #include "../include/funciones_kernel.h"
 #include "../include/servicios_kernel.h"
-
 
 PCB *iniciar_PCB()
 { // revisar si anda o hay que poner struct adelante
@@ -18,7 +17,7 @@ PCB *iniciar_PCB()
   pcb->pid = asignar_pid();
   pcb->program_counter = 1;
   pcb->quantum = config_get_int_value(config, "QUANTUM");
-  //p->b.pathTXT = path;
+  // p->b.pathTXT = path;
   pcb->registros_cpu.AX = 0;
   pcb->registros_cpu.BX = 0;
   pcb->registros_cpu.CX = 0;
@@ -30,15 +29,15 @@ PCB *iniciar_PCB()
   pcb->registros_cpu.SI = 0;
   pcb->registros_cpu.DI = 0;
 
-
-  //printf("El numero del pcb es: ");
-  //printf("%d\n", pcb.pid);
+  // printf("El numero del pcb es: ");
+  // printf("%d\n", pcb.pid);
 
   return pcb;
 }
 
-void finalizarProceso(int pid){
-  //Le paso el pid a memoria, para que borre lo asociado a ese pid
+void finalizarProceso(int pid)
+{
+  // Le paso el pid a memoria, para que borre lo asociado a ese pid
   t_buffer *a_enviar = crear_buffer();
   a_enviar->size = 0;
   a_enviar->stream = NULL;
@@ -47,11 +46,7 @@ void finalizarProceso(int pid){
 
   t_paquete *un_paquete = crear_super_paquete(ELIMINAR_PROCESO, a_enviar);
   enviar_paquete(un_paquete, fd_memoria);
-  destruir_paquete(un_paquete);  
-
-
-
-
+  destruir_paquete(un_paquete);
 }
 
 void enviar_path_memoria(char *path, int pid)
@@ -95,7 +90,7 @@ void enviar_pcb(PCB pcb, int socket_enviar)
   destruir_paquete(un_paquete);
 }
 
-void enviar_pcb_con_codop(PCB pcb, op_code codop , int socket_enviar)
+void enviar_pcb_con_codop(PCB pcb, op_code codop, int socket_enviar)
 {
   t_buffer *a_enviar = crear_buffer();
 
@@ -121,8 +116,8 @@ void enviar_pcb_con_codop(PCB pcb, op_code codop , int socket_enviar)
   destruir_paquete(un_paquete);
 }
 
-
-void enviar_pid_a_cpu(int pid){
+void enviar_pid_a_cpu(int pid)
+{
   t_buffer *buffer_pid = crear_buffer();
   buffer_pid->size = 0;
   buffer_pid->stream = NULL;
@@ -132,73 +127,86 @@ void enviar_pid_a_cpu(int pid){
   destruir_paquete(paquete_pid);
 }
 
-void planificacion(){
-  while(seguirPlanificando){
+void planificacion()
+{
+  while (seguirPlanificando)
+  {
     sem_wait(&sem_cpu_libre);
     ciclo_planificacion();
-    if(ejecutandoProceso){
+    if (ejecutandoProceso)
+    {
       enviar_pid_a_cpu(procesoEXEC);
     }
-    else sem_post(&sem_cpu_libre);
+    else
+      sem_post(&sem_cpu_libre);
   }
 }
 
-pidConQ *nuevoPidConQ(int pid){
-  pidConQ* ret = malloc(sizeof(pidConQ));
-  ret->pid=pid;
-  ret->qPrima=quantum;
+pidConQ *nuevoPidConQ(int pid)
+{
+  pidConQ *ret = malloc(sizeof(pidConQ));
+  ret->pid = pid;
+  ret->qPrima = quantum;
   return ret;
 }
 
-bool pidIgualAlGlobal(void* pid){
-  int *aux = (int*)pid;
-  return *aux==pidGlobal?true:false; //redundancia que puede ser al pedo
+bool pidIgualAlGlobal(void *pid)
+{
+  int *aux = (int *)pid;
+  return *aux == pidGlobal ? true : false; // redundancia que puede ser al pedo
 }
 
-bool pidDeStructIgualAlGlobal(void* pq){
-  pidConQ *aux = (pidConQ*)pq;
-  return aux->pid==pidGlobal?true:false; //redundancia que puede ser al pedo
+bool pidDeStructIgualAlGlobal(void *pq)
+{
+  pidConQ *aux = (pidConQ *)pq;
+  return aux->pid == pidGlobal ? true : false; // redundancia que puede ser al pedo
 }
 
-int buscarQPrima(int pid){
-  pidGlobal=pid;
+int buscarQPrima(int pid)
+{
+  pidGlobal = pid;
   pidConQ *pidConQEncontrado = list_find(listQPrimas, pidDeStructIgualAlGlobal);
   return pidConQEncontrado->qPrima;
 }
 
-pidConQ *buscarPidConQ(int pid){
-  pidGlobal=pid;
+pidConQ *buscarPidConQ(int pid)
+{
+  pidGlobal = pid;
   return (pidConQ *)list_find(listQPrimas, pidIgualAlGlobal);
 }
 
-void restaurarQPrima(int pid){
+void restaurarQPrima(int pid)
+{
   pidConQ *aux = buscarPidConQ(pid);
-  aux->qPrima=quantum;
+  aux->qPrima = quantum;
 }
 
-void modificarQPrima(int pid, int nuevaQPrima){
+void modificarQPrima(int pid, int nuevaQPrima)
+{
   pidConQ *aux = buscarPidConQ(pid);
-  aux->qPrima=nuevaQPrima;
+  aux->qPrima = nuevaQPrima;
 }
 
-void suspenderProceso(){
+void suspenderProceso()
+{
   pidConQ *pidConQEXEC = buscarPidConQ(procesoEXEC);
-  int qPrimaNueva = quantum-tiempoTranscurrido;
-  pidConQEXEC->qPrima=qPrimaNueva==0?quantum:qPrimaNueva; 
+  int qPrimaNueva = quantum - tiempoTranscurrido;
+  pidConQEXEC->qPrima = qPrimaNueva == 0 ? quantum : qPrimaNueva;
   int *aux = malloc(sizeof(int));
-  *aux=procesoEXEC;
+  *aux = procesoEXEC;
   list_add(procesosSuspendidos, aux);
-  procesoEXEC=0;
-  //printf("proceso suspendido: %d, qprima: %d \n", *aux, pidConQEXEC->qPrima);
+  procesoEXEC = 0;
+  // printf("proceso suspendido: %d, qprima: %d \n", *aux, pidConQEXEC->qPrima);
 }
 
-void sacarDeSuspension(){ //saca el primer suspendido
-  //int *aux = list_get(procesosSuspendidos, 0);
+void sacarDeSuspension()
+{ // saca el primer suspendido
+  // int *aux = list_get(procesosSuspendidos, 0);
   int *aux = list_remove(procesosSuspendidos, 0);
-  //if(aux==NULL) printf("no anda el get");
-  //else printf("el get devuelve %d", *aux);
+  // if(aux==NULL) printf("no anda el get");
+  // else printf("el get devuelve %d", *aux);
   list_add(procesosREADY, aux);
-  //printf("proceso sacado de suspension: %d \n", *aux);
+  // printf("proceso sacado de suspension: %d \n", *aux);
 }
 
 /*
@@ -216,23 +224,27 @@ void imprimirListaPidQ(t_list *l){
   }
 }*/
 
-void agregarADict(int *pid){
+void agregarADict(int *pid)
+{
   int value = 3;
-  //char key = *pid;
+  // char key = *pid;
   dictionary_put(dictQPrimas, pid, &value);
 }
 
-int* qPrima(int *pid){
+int *qPrima(int *pid)
+{
   char c;
   c = (char)*pid;
   return dictionary_get(dictQPrimas, &c);
 }
 
-void imprimirLista(t_list* l){
-  //int i=0;
-  for(int i=0;i<list_size(l);i++){
+void imprimirLista(t_list *l)
+{
+  // int i=0;
+  for (int i = 0; i < list_size(l); i++)
+  {
     int *elem = list_get(l, i);
-    if(elem==NULL)
+    if (elem == NULL)
     {
       printf("cagaste\n");
       return;
@@ -241,40 +253,42 @@ void imprimirLista(t_list* l){
   }
 }
 
-void estadoPlani(){
-  //int *new0=list_get(procesosREADY, 0);
-  //void *ready0=list_get(procesosREADY, 1);
-  //printf("New: %d, Ready:%d, exec:%d", new0, ready0, procesoEXEC);
-  //printf("ready: %d, exec:%d\n",*new0, procesoEXEC);
+void estadoPlani()
+{
+  // int *new0=list_get(procesosREADY, 0);
+  // void *ready0=list_get(procesosREADY, 1);
+  // printf("New: %d, Ready:%d, exec:%d", new0, ready0, procesoEXEC);
+  // printf("ready: %d, exec:%d\n",*new0, procesoEXEC);
   printf("ready: ");
   imprimirLista(procesosREADY);
   printf(" exec: %d \n", procesoEXEC);
-
 }
 
-void iniciar_bucle(){
-  while(flagSeguirPlanificando)
+void iniciar_bucle()
+{
+  while (flagSeguirPlanificando)
   {
     ciclo_planificacion();
     usleep(100000);
   }
 }
 
-void iniciar_planificacion(){
+void iniciar_planificacion()
+{
   listaPCBs = list_create();
-  int flagCambioProceso=0;
+  int flagCambioProceso = 0;
 
-  //sleep(2);
-  //printf("llega adentro de iniciarPlani\n");
-  procesosNEW=list_create();
-  //printf("entrando a ciclo plani\n");
-  procesosREADY=list_create();
-  listQPrimas=list_create();
-  procesosSuspendidos=list_create();
+  // sleep(2);
+  // printf("llega adentro de iniciarPlani\n");
+  procesosNEW = list_create();
+  // printf("entrando a ciclo plani\n");
+  procesosREADY = list_create();
+  listQPrimas = list_create();
+  procesosSuspendidos = list_create();
 
-  //iniciar_bucle();
+  iniciar_bucle();
 
-  //dictQPrimas=dictionary_create();
+  // dictQPrimas=dictionary_create();
 
   /*
   procesoEXEC=0;
@@ -326,103 +340,6 @@ void iniciar_planificacion(){
   imprimirLista(procesosREADY);
   modificarQPrima(1, 9);
   printf("Q prima del uno: %d\n",buscarQPrima(1));*/
-
-}
-
-
-
-void ciclo_plani_FIFO(){
-  while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
-    //list_add(procesosREADY, list_remove(procesosNEW, 0));
-    int *pidNuevo = list_remove(procesosNEW, 0);
-    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
-    list_add(listQPrimas, pqNuevo);
-    list_add(procesosREADY, pidNuevo);
-  } 
-  //printf("limpiada lista de new\n");
-  if (procesoEXEC==0 && !list_is_empty(procesosREADY)) //si no hay ningun proceso en ejecucion, pone el primero de READY
-  {
-    pthread_mutex_lock(&mutexExec);
-    int* exec = list_remove(procesosREADY,0);
-    procesoEXEC= *exec; 
-    flagCambioProceso=1;
-    pthread_mutex_unlock(&mutexExec); 
-  }
-  if(procesoEXEC==0) ejecutandoProceso=0;
-  else ejecutandoProceso=1;
-}
-
-void ciclo_plani_RR(){
-  //quantum++;
-  if(tiempoTranscurrido>=quantum && procesoEXEC!=0){
-    printf("FIN DE QUANTUM\n");
-    tiempoTranscurrido=0;
-    int *procesoDesalojado = malloc(sizeof(int)); 
-    *procesoDesalojado = procesoEXEC;
-    list_add(procesosREADY, procesoDesalojado);
-    pthread_mutex_lock(&mutexExec);
-    procesoEXEC=0;
-    pthread_mutex_unlock(&mutexExec);
-  }
-  while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
-    //list_add(procesosREADY, list_remove(procesosNEW, 0));
-    int *pidNuevo = list_remove(procesosNEW, 0);
-    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
-    list_add(listQPrimas, pqNuevo);
-    list_add(procesosREADY, pidNuevo);
-  } 
-  if(procesoEXEC==0){
-    pthread_mutex_lock(&mutexExec);
-    int* exec = list_remove(procesosREADY,0);
-    procesoEXEC= *exec; 
-    tiempoTranscurrido=0;
-    flagCambioProceso=1;
-    pthread_mutex_unlock(&mutexExec);
-    avisarDesalojo();
-  }
-  if(procesoEXEC==0) ejecutandoProceso=0;
-  else ejecutandoProceso=1;
-  tiempoTranscurrido++;
-}
-void desalojarProceso(){
-  
-}
-void bloquearProceso(){
-
-}
-
-void ciclo_plani_VRR(){
-
-  if(procesoEXEC!=0 && tiempoTranscurrido >=buscarQPrima(procesoEXEC) ){
-    printf("FIN DE QPRIMA\n");
-    tiempoTranscurrido=0;
-    int *procesoDesalojado = malloc(sizeof(int)); 
-    *procesoDesalojado = procesoEXEC;
-    restaurarQPrima(procesoEXEC);
-    list_add(procesosREADY, procesoDesalojado);
-    pthread_mutex_lock(&mutexExec);
-    procesoEXEC=0;
-    pthread_mutex_unlock(&mutexExec);
-  }
-  while(!list_is_empty(procesosNEW) && list_size(procesosREADY)<GRADO_MULTIPROGRAMACION){ //si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
-    int *pidNuevo = list_remove(procesosNEW, 0);
-    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
-    list_add(listQPrimas, pqNuevo);
-    list_add(procesosREADY, pidNuevo);
-  } 
-  if(procesoEXEC==0){
-    pthread_mutex_lock(&mutexExec);
-    int* exec = list_remove(procesosREADY,0);
-    procesoEXEC= *exec; 
-    tiempoTranscurrido=0;
-    flagCambioProceso=1;
-    pthread_mutex_unlock(&mutexExec);
-    avisarDesalojo();
-  }
-  if(procesoEXEC==0) ejecutandoProceso=0;
-  else ejecutandoProceso=1;
-  tiempoTranscurrido++;
-
 }
 
 void avisarDesalojo()
@@ -436,60 +353,196 @@ void avisarDesalojo()
   destruir_paquete(paquete_pid);
 }
 
-void ciclo_planificacion(){
-  switch(tipoPlanificacion){
-    case FIFO:
-    //printf("CICLO FIFO\n");
-      ciclo_plani_FIFO();
-      break;
-    case RR:
-      ciclo_plani_RR();
-    case VRR:
-      ciclo_plani_VRR();
-      break;
-    default:
-      break;
+void ciclo_plani_FIFO()
+{
+  //printf("entre al fifo\n");
+  while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
+  { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+    // list_add(procesosREADY, list_remove(procesosNEW, 0));
+    int *pidNuevo = list_remove(procesosNEW, 0);
+    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
+    list_add(listQPrimas, pqNuevo);
+    list_add(procesosREADY, pidNuevo);
+    //mientras que haya cosas en new y el grado de multiprogramacion me lo permita, lo paso a ready
   }
-  //if(flagCambioProceso)
+  // printf("limpiada lista de new\n");
+  if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre) // si no hay ningun proceso en ejecucion, pone el primero de READY
+  {
+    pthread_mutex_lock(&mutexExec);
+    int *exec = list_remove(procesosREADY, 0);
+    procesoEXEC = *exec;
+    flagCambioProceso = 1;
+    pthread_mutex_unlock(&mutexExec);
+    //avisarDesalojo();
+  }
+  // if(procesoEXEC==0) ejecutandoProceso=0;
+  // else ejecutandoProceso=1;
+
+  if (procesoEXEC != 0)
+  {
+    mandarNuevoPCB();
+  }
+}
+
+void ciclo_plani_RR()
+{
+  //printf("entre al rr\n");
+  // quantum++;
+  if (tiempoTranscurrido >= quantum && !estaCPULibre) //FIN DE QUANTUM
+  {
+    //printf("FIN DE QUANTUM\n");
+    tiempoTranscurrido = 0;
+    //int *procesoDesalojado = malloc(sizeof(int));
+    //*procesoDesalojado = procesoEXEC;
+    //list_add(procesosREADY, procesoDesalojado);
+    avisarDesalojo();
+    //pthread_mutex_lock(&mutexExec);
+    //procesoEXEC = 0;
+    //pthread_mutex_unlock(&mutexExec);
+  }
+  while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION) //si hay procesos en new y los podes pasar a ready pasalos
+  { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+    // list_add(procesosREADY, list_remove(procesosNEW, 0));
+    int *pidNuevo = list_remove(procesosNEW, 0);
+    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
+    list_add(listQPrimas, pqNuevo);
+    list_add(procesosREADY, pidNuevo);
+  }
+  if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
+  {
+    pthread_mutex_lock(&mutexExec);
+    int *exec = list_remove(procesosREADY, 0);
+    procesoEXEC = *exec;
+    tiempoTranscurrido = 0;
+    //flagCambioProceso = 1;
+    pthread_mutex_unlock(&mutexExec);
+    //avisarDesalojo();
+  }
+  //if (procesoEXEC == 0)
+    //ejecutandoProceso = 0;
+  //else
+    //ejecutandoProceso = 1;
+  if (procesoEXEC != 0)
+  {
+    mandarNuevoPCB();
+  }
+
+  tiempoTranscurrido = tiempoTranscurrido + 0.1; //PREGUNTAR LUCA
+  //printf("El tiempo transcurrido es: %f\n", tiempoTranscurrido);
+  //printf("El quantum es: %f\n", quantum);
+
+}
+void desalojarProceso()
+{
+}
+void bloquearProceso()
+{
+}
+
+void ciclo_plani_VRR()
+{
+
+  if (procesoEXEC != 0 && tiempoTranscurrido >= buscarQPrima(procesoEXEC))
+  {
+    printf("FIN DE QPRIMA\n");
+    tiempoTranscurrido = 0;
+    int *procesoDesalojado = malloc(sizeof(int));
+    *procesoDesalojado = procesoEXEC;
+    restaurarQPrima(procesoEXEC);
+    list_add(procesosREADY, procesoDesalojado);
+    pthread_mutex_lock(&mutexExec);
+    procesoEXEC = 0;
+    pthread_mutex_unlock(&mutexExec);
+  }
+  while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
+  { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+    int *pidNuevo = list_remove(procesosNEW, 0);
+    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
+    list_add(listQPrimas, pqNuevo);
+    list_add(procesosREADY, pidNuevo);
+  }
+  if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
+  {
+    pthread_mutex_lock(&mutexExec);
+    int *exec = list_remove(procesosREADY, 0);
+    procesoEXEC = *exec;
+    tiempoTranscurrido = 0;
+    flagCambioProceso = 1;
+    pthread_mutex_unlock(&mutexExec);
+    avisarDesalojo();
+  }
+  if (procesoEXEC == 0)
+    ejecutandoProceso = 0;
+  else
+    ejecutandoProceso = 1;
+  tiempoTranscurrido++;
+}
+
+void ciclo_planificacion()
+{
+  switch (tipoPlanificacion)
+  {
+  case FIFO:
+    // printf("CICLO FIFO\n");
+    ciclo_plani_FIFO();
+    break;
+  case RR:
+    ciclo_plani_RR();
+  case VRR:
+    ciclo_plani_VRR();
+    break;
+  default:
+    break;
+  }
+  // if(flagCambioProceso)
   //{
-    //mandarNuevoPCB();
-    //flagCambioProceso=0;
+  // mandarNuevoPCB();
+  // flagCambioProceso=0;
   //}
 }
 
 bool condition_id_igual_n(void *elemento)
-  {
-	  PCB *dato = (PCB *)elemento;
-	  return (dato->pid == pidGlobal);
-  }
-
+{
+  PCB *dato = (PCB *)elemento;
+  return (dato->pid == pidGlobal);
+}
 
 PCB *buscarPCB(int pid)
 {
-  pidGlobal=pid;
-  PCB* PCBEncontrado = list_find(listaPCBs, condition_id_igual_n);
+  pidGlobal = pid;
+  PCB *PCBEncontrado = list_find(listaPCBs, condition_id_igual_n);
   return PCBEncontrado;
 }
 
 void mandarNuevoPCB()
 {
-  PCB *pcb_a_enviar = buscarPCB(procesoEXEC); //Busco el pcb que le toca ejecutar en la cola
-  enviar_pcb(*pcb_a_enviar,fd_cpu_dispatch);  //si rompe es casi seguro porque busca un pcb que no coincide con el pid
+  //printf("mande un PCB\n");
+  PCB *pcb_a_enviar = buscarPCB(procesoEXEC); // Busco el pcb que le toca ejecutar en la cola
+  enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
+  procesoEXEC = 0;
+  estaCPULibre = false; 
+
+  pthread_mutex_lock(&modificarLista);
+  list_remove_element(procesosREADY,(void*)pcb_a_enviar->pid);
+  list_remove_element(listaPCBs,(void*)pcb_a_enviar);
+  pthread_mutex_unlock(&modificarLista);
+
+  //printf("mande un pcb\n");
 }
 
 void iniciar_proceso(char *path)
 {
   PCB *pcb = iniciar_PCB(path);
-  printf("el pid es %d\n",pcb->pid);
+  printf("el pid es %d\n", pcb->pid);
   list_add(listaPCBs, pcb);
   enviar_path_memoria(path, pcb->pid);
-  list_add(procesosNEW, &(pcb->pid)); //agrego el pcb al planificador de pids
-  ciclo_planificacion();
+  list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
+  //ciclo_planificacion();
 
-  printf("antes de entrar al if\n");
-  if(primeraVezEjecuta){
-    printf("despues de entrar al if\n");
-    mandarNuevoPCB();
-  }
+  //printf("antes de entrar al if\n");
+  //if (primeraVezEjecuta)
+  //{
+   // printf("despues de entrar al if\n");
+    //mandarNuevoPCB();
+  //}
 }
-

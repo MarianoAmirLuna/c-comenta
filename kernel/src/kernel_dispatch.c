@@ -6,7 +6,6 @@ void atender_kernel_dispatch(){
 	t_buffer *un_buffer;
 	while (control_key) {
 		int cod_op = recibir_operacion(fd_cpu_dispatch); 
-		printf("codigo de operacion: %d\n",cod_op);
 		switch (cod_op) {
 		case MENSAJE:
 			//
@@ -27,16 +26,15 @@ void atender_kernel_dispatch(){
 			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
 			list_add(listaPCBs, pcb_devuelto);
 			int codigo = extraer_int_del_buffer(un_buffer);
+			estaCPULibre = true;
+
+			if(codigo == 1){// si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
+				list_add(listaPCBs,pcb_devuelto);
+			    list_add(procesosREADY,&(pcb_devuelto->pid));
+			}
 
             if(codigo == 2){ //le faltan instrucciones por ejecutar
 				//significa que termino todas sus intrucciones y tengo que liberar los recursos
-			}
-
-			if(procesoEXEC != 0){
-				mandarNuevoPCB();
-			}
-			else{
-				primeraVezEjecuta = true;
 			}
 			break;
 		case -1:
