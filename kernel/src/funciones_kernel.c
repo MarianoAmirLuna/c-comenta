@@ -427,7 +427,9 @@ void ciclo_plani_RR()
     mandarNuevoPCB();
   }
 
-  tiempoTranscurrido = tiempoTranscurrido + 0.1; //PREGUNTAR LUCA
+  tiempoTranscurrido = tiempoTranscurrido + 1; //PREGUNTAR LUCA
+  //printf("El valor de tiempo transcurrido es: %f\n", tiempoTranscurrido);
+  //printf("El valor del quantum es: %lf\n", quantum);
   //printf("El tiempo transcurrido es: %f\n", tiempoTranscurrido);
   //printf("El quantum es: %f\n", quantum);
 
@@ -488,6 +490,7 @@ void ciclo_planificacion()
     break;
   case RR:
     ciclo_plani_RR();
+    break;
   case VRR:
     ciclo_plani_VRR();
     break;

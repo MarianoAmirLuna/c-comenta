@@ -70,9 +70,9 @@ extern int pidGlobal; //la unica implementacion que se me ocurre a las 2:08 AM
 
 extern int sem_planificacion;
 
-extern float quantum;
+extern double quantum;
 
-extern float tiempoTranscurrido;
+extern double tiempoTranscurrido;
 
 extern t_planificacion tipoPlanificacion;
 
