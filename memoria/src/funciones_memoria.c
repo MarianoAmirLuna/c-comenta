@@ -184,24 +184,23 @@ void reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias)
 
 void liberarFrames(tablaPaginas *tablaPags, int cantidadPaginasBorrar)
 {
-	int cantBitsValidez = contarBitValidez(tablaPags);
-	cantBitsValidez--;									 // porque la tabla de paginas empieza en 0 y te pasas por 1
-	int delta = cantBitsValidez - cantidadPaginasBorrar; // 5 2 => 3
-													// 31 - 30 -- 1 
-	for (int i = cantBitsValidez; i >= delta; i--)
+	int cantBitsValidez = contarBitValidez(tablaPags);							 
+	int delta = cantBitsValidez - cantidadPaginasBorrar; //32 - 30 => 2
+	cantBitsValidez--;
+
+	printf("cantbits validez: %d\n",cantBitsValidez);
+	printf("deta: %d\n",delta);
+													
+	for (int i = cantBitsValidez; i > delta; i--)
 	{
 
-		bitarray_clean_bit(frames_ocupados_ppal, cantBitsValidez);
+		bitarray_clean_bit(frames_ocupados_ppal, i);
 
-		tablaPags->array[cantBitsValidez].bitValidez = false;
-		tablaPags->array[cantBitsValidez].marco = 0;
-	}
-	
-	printf("PID: %d\n", tablaPags->pid);
-	for (int i = 0; i < 40; i++)
-	{
-		printf("Bit de validez del marco %d: %d\n", i, tablaPags->array[i].bitValidez);
-		printf("El nro de marco asignado: %d:\n", tablaPags->array[i].marco);
+		printf("el index es:%d\n",i);
+
+		tablaPags->array[i].bitValidez = false;
+		tablaPags->array[i].marco = 0;
+		tablaPags->cantMarcos--;
 	}
 }
 

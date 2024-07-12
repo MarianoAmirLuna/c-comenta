@@ -354,8 +354,7 @@ void resize(t_buffer *un_buffer)
 	{ // si necesitamos mas paginas
 		printf("ENTRE AL IFFFFFFFFFFFFF\n");
 
-		int bytesNecesarios = tamanioAModificar - tamanioActual;
-		int paginasNecesarias = ceil((double)bytesNecesarios / (double)TAM_PAGINA);
+		int paginasNecesarias = ceil((double)tamanioAModificar / (double)TAM_PAGINA);
 
 		printf("se van a solicitar: %d\n", paginasNecesarias);
 
@@ -372,6 +371,15 @@ void resize(t_buffer *un_buffer)
 			liberarFrames(tablaPag, cantPaginasABorrar);
 			
 		}
+	}
+
+	printf("-------------------------------");
+
+	printf("PID: %d\n", tablaPag->pid);
+	for (int i = 0; i < 40; i++)
+	{
+		printf("Bit de validez del marco %d: %d\n", i, tablaPag->array[i].bitValidez);
+		printf("El nro de marco asignado: %d:\n", tablaPag->array[i].marco);
 	}
 
 	printf("-------------------------------");
