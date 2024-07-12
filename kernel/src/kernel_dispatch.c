@@ -32,9 +32,9 @@ void atender_kernel_dispatch(){
 				list_add(listaPCBs,pcb_devuelto);
 			    list_add(procesosREADY,&(pcb_devuelto->pid));
 			}
-
-            if(codigo == 2){ //le faltan instrucciones por ejecutar
+            else{ //ejecuto todas las instrucciones
 				//significa que termino todas sus intrucciones y tengo que liberar los recursos
+				
 			}
 			break;
 		case -1:

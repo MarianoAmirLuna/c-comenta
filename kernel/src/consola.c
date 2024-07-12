@@ -66,6 +66,7 @@ void _atender_instruccion_validada(char* leido){
         printf("se creo un proceso\n");
 
     } else if (strcmp(comando_consola[0], "FINALIZAR_PROCESO") == 0){
+        
 
     } else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0){
 
