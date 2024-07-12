@@ -47,7 +47,7 @@ extern int contador_pcbs;
 
 extern pthread_mutex_t mutex_pid;
 extern pthread_mutex_t mutexExec;
-extern pthread_mutex_t modificarLista;
+//extern pthread_mutex_t modificarLista;
 
 extern t_list *procesosNEW;
 extern t_list *procesosREADY;

@@ -16,10 +16,10 @@ void atender_crear_proceso(t_buffer *un_buffer)
 	char *path = extraer_string_del_buffer(un_buffer);
 
 	path_conID *path_con_id = iniciar_path_id(pid, path);
-	tablaPaginas tabla = inicializarTablaPaginas(pid);
+	tablaPaginas* tabla = inicializarTablaPaginas(pid);
 
 	list_add(list_path_id, path_con_id);
-	list_add(listaTablaPaginas, &tabla);
+	list_add(listaTablaPaginas, tabla);
 
 	usleep(RETARDO_RESPUESTA * 1000);
 }

@@ -7,7 +7,7 @@ t_list *procesosREADY=NULL;
 t_list *procesosSuspendidos=NULL;
 int procesoEXEC=0;
 pthread_mutex_t mutexExec = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t modificarLista = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t modificarLista = PTHREAD_MUTEX_INITIALIZER;
 int pidGlobal=0;
 t_list *listQPrimas;
 double quantum = 6;

@@ -3,7 +3,6 @@
 #include <inttypes.h>
 #include <stdint.h>
 
-
 #define MAX_LEN 100
 
 char *obtenerInstruccion(char *path, int programCounter)
@@ -104,23 +103,25 @@ void devolverTamanioPagina(t_buffer *un_buffer)
 	destruir_paquete(un_paquete);
 }
 
-void solicitarDireccion(int direccion_logica){
+void solicitarDireccion(int direccion_logica)
+{
 	t_buffer *a_enviar = crear_buffer();
-    a_enviar->size = 0;
-    a_enviar->stream = NULL;
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
 
-    cargar_int_al_buffer(a_enviar, direccion_logica);
+	cargar_int_al_buffer(a_enviar, direccion_logica);
 
-    t_paquete *un_paquete = crear_super_paquete(PEDIR_DIRECCION, a_enviar);
-    enviar_paquete(un_paquete, fd_cpu);
-    destruir_paquete(un_paquete);
+	t_paquete *un_paquete = crear_super_paquete(PEDIR_DIRECCION, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);
 
 	printf("toy esperando\n");
 	sem_wait(&esperar_df);
 	printf("pase el semaforo\n");
 }
 
-void leerDato(t_buffer *un_buffer){
+void leerDato(t_buffer *un_buffer)
+{
 	// Recibimos los datos para poder hacer el memcopy
 	uint8_t data8;
 	uint32_t data32;
@@ -134,7 +135,7 @@ void leerDato(t_buffer *un_buffer){
 	int tamanioALeer = extraer_int_del_buffer(un_buffer);
 	int seEscribe2paginas = extraer_int_del_buffer(un_buffer);
 	int tamanioRestantePagina = extraer_int_del_buffer(un_buffer);
-	char* registroDatos = extraer_string_del_buffer(un_buffer);
+	char *registroDatos = extraer_string_del_buffer(un_buffer);
 
 	printf("Llegaron los datos a leer.\n");
 	printf("la direccion fisica donde hay que leer es: %d\n", dirFisicaDelDato);
@@ -143,52 +144,51 @@ void leerDato(t_buffer *un_buffer){
 
 	if (tamanioALeer == 1) // Caso donde tenemos que leer algo de 1 byte
 	{
-		memcpy( &datoLeido8, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
+		memcpy(&datoLeido8, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
 		printf("############## EL DATO A LEER ES:%" PRIu8 "\n", datoLeido8);
 	}
 	else
 	{
 		if (seEscribe2paginas == 1)
-		{ // caso turbio que hay que leer en 2 paginas diferentes 
-			//ahora leo solo la parte 1 - escribo en el registro la 1ra parte del marco
+		{ // caso turbio que hay que leer en 2 paginas diferentes
+			// ahora leo solo la parte 1 - escribo en el registro la 1ra parte del marco
 
-			printf("direcion fisica dato: %d\n",dirFisicaDelDato);
-			printf("segunda fd: %d\n",segundaDF);
+			printf("direcion fisica dato: %d\n", dirFisicaDelDato);
+			printf("segunda fd: %d\n", segundaDF);
 
 			printf("leyo el caso turbio\n");
 
 			memcpy(&datoLeido32, memoriaPrincipal + dirFisicaDelDato, tamanioRestantePagina);
-            memcpy((uint8_t*)&datoLeido32 + tamanioRestantePagina, memoriaPrincipal + segundaDF, 4 - tamanioRestantePagina);
+			memcpy((uint8_t *)&datoLeido32 + tamanioRestantePagina, memoriaPrincipal + segundaDF, 4 - tamanioRestantePagina);
 
 			printf("############## EL DATO A LEER ES EN EL CASO TRUBIO:%" PRIu32 "\n", datoLeido32);
-			
 		}
-		else //caso donde tenemos que leer algo de 4 bytes, pero está todo en 1 solo marco
-		{ 
-		    memcpy(&datoLeido32, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
-		    printf("############## EL DATO A LEER ES:%" PRIu32 "\n", datoLeido32);
+		else // caso donde tenemos que leer algo de 4 bytes, pero está todo en 1 solo marco
+		{
+			memcpy(&datoLeido32, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
+			printf("############## EL DATO A LEER ES:%" PRIu32 "\n", datoLeido32);
 		}
-
 	}
 
 	t_buffer *a_enviar = crear_buffer();
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;
 
-	cargar_string_al_buffer(a_enviar,registroDatos);
+	cargar_string_al_buffer(a_enviar, registroDatos);
 	cargar_int_al_buffer(a_enviar, tamanioALeer);
 
-	if(tamanioALeer == 1){
-		cargar_uint8_al_buffer(a_enviar,datoLeido8);
+	if (tamanioALeer == 1)
+	{
+		cargar_uint8_al_buffer(a_enviar, datoLeido8);
 	}
-	else{
-		cargar_uint32_al_buffer(a_enviar,datoLeido32);
+	else
+	{
+		cargar_uint32_al_buffer(a_enviar, datoLeido32);
 	}
 
 	t_paquete *un_paquete = crear_super_paquete(LECTURA_HECHA, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
 	destruir_paquete(un_paquete);
-
 }
 
 void escribirDato(t_buffer *un_buffer)
@@ -239,23 +239,23 @@ void escribirDato(t_buffer *un_buffer)
 			void *data32_puntero = &data32;
 			void *data32_reconstruido_puntero = &data32_reconstruido;
 
-            //estos 2 memcpy son para dividir el uint32
+			// estos 2 memcpy son para dividir el uint32
 			memcpy(data32_parte_1, data32_puntero, tamanioRestantePagina);
 			memcpy(data32_parte_2, data32_puntero + tamanioRestantePagina, 4 - tamanioRestantePagina);
 
 			printf("El valor de ECX completo es: %d \n", data32);
 			printf("El valor de ECX antes de reconstruirlo: %d \n", data32_reconstruido);
 
-			//estos sirven para reconstruir el puntero
+			// estos sirven para reconstruir el puntero
 			memcpy(data32_reconstruido_puntero, data32_parte_1, tamanioRestantePagina);
 			memcpy(data32_reconstruido_puntero + tamanioRestantePagina, data32_parte_2, 4 - tamanioRestantePagina);
 
 			printf("El valor de ECX despues de reconstruirlo: %d \n", data32_reconstruido);
 
-			//ahora escribo posta en la memoria solo la parte 1 
+			// ahora escribo posta en la memoria solo la parte 1
 			printf("escribie en el caso trubio\n");
-			printf("primer df %d\n",direccion_fisica);
-            printf("segunda df %d\n",segundaDF);
+			printf("primer df %d\n", direccion_fisica);
+			printf("segunda df %d\n", segundaDF);
 
 			memcpy(memoriaPrincipal + direccion_fisica, data32_parte_1, tamanioRestantePagina);
 			memcpy(memoriaPrincipal + segundaDF, data32_parte_2, 4 - tamanioRestantePagina);
@@ -314,16 +314,18 @@ int contarBitsValidez(tablaPaginas* tabla) {
 		}
 	}
 	return contador;
-}
+}*/
 
-void imprimirBitsValidez(tablaPaginas p) {
+void imprimirBitsValidez(tablaPaginas p)
+{
 
 	printf("PID: %d\n", p.pid);
-	for(int i = 0; i < 10; i++) {
+	for (int i = 0; i < 40; i++)
+	{
 		printf("Bit de validez del marco %d: %d\n", i, p.array[i].bitValidez);
 		printf("El nro de marco asignado: %d:\n", p.array[i].marco);
 	}
-}*/
+}
 
 void resize(t_buffer *un_buffer)
 {
@@ -361,14 +363,15 @@ void resize(t_buffer *un_buffer)
 	}
 	else
 	{
-		// if (tamanioAModificar <= tamanioActual)
-		//{ // si quiero sacar paginas
-		// printf("ENTRE AL ELSEEEEEEEEE");
-		// int cantBytesModificar = tamanioActual - tamanioAModificar;
-		// int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
-
-		// liberarFrames(tablaPag, cantPaginasABorrar);
-		//}
+		printf("Entre al ELSE ###############\n");
+		if (tamanioAModificar <= tamanioActual)
+		{ // si quiero sacar paginas, tengo que cambiar los valores del bitarray & liberar las paginas
+			printf("ENTRE AL ELSEEEEEEEEE");
+			int cantBytesModificar = tamanioActual - tamanioAModificar;
+			int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
+			liberarFrames(tablaPag, cantPaginasABorrar);
+			
+		}
 	}
 
 	printf("-------------------------------");
@@ -397,7 +400,8 @@ void buscarMarco(t_buffer *un_buffer)
 	destruir_paquete(un_paquete);
 }
 
-void obtenerCantInstrucciones(int pid){
+void obtenerCantInstrucciones(int pid)
+{
 	id_global = pid;
 
 	path_conID *elemento_lista = list_find(list_path_id, condition_id_igual_n);
@@ -409,83 +413,92 @@ void obtenerCantInstrucciones(int pid){
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;
 
-	cargar_int_al_buffer(a_enviar,cantInstrucciones);
+	cargar_int_al_buffer(a_enviar, cantInstrucciones);
 
 	t_paquete *un_paquete = crear_super_paquete(CANT_INTRUCCIONES, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
-	destruir_paquete(un_paquete);	
+	destruir_paquete(un_paquete);
 }
 
-void obtenerCortesDePagina(t_list* lista,int tamanio_a_escribir, int restante_pagina){
-	int acumulador = 0;  //70 escribir 10 restante
+void obtenerCortesDePagina(t_list *lista, int tamanio_a_escribir, int restante_pagina)
+{
+	int acumulador = 0; // 70 escribir 10 restante
 
-	while(tamanio_a_escribir > 0){
+	while (tamanio_a_escribir > 0)
+	{
 
-		if(tamanio_a_escribir <= restante_pagina){
-			tamanio_a_escribir = 0; //no agrego nada a la lista y corto el while
+		if (tamanio_a_escribir <= restante_pagina)
+		{
+			tamanio_a_escribir = 0; // no agrego nada a la lista y corto el while
 		}
-		else if(tamanio_a_escribir > restante_pagina){
-			int* valorAgregar = (int*)malloc(sizeof(int));
+		else if (tamanio_a_escribir > restante_pagina)
+		{
+			int *valorAgregar = (int *)malloc(sizeof(int));
 			*valorAgregar = acumulador + restante_pagina;
-			list_add(lista,valorAgregar); //[10,42]
-			tamanio_a_escribir = tamanio_a_escribir - restante_pagina; 
+			list_add(lista, valorAgregar); //[10,42]
+			tamanio_a_escribir = tamanio_a_escribir - restante_pagina;
 			acumulador = acumulador + restante_pagina;
 		}
-		restante_pagina = TAM_PAGINA;   //60 32 => 28 32 
+		restante_pagina = TAM_PAGINA; // 60 32 => 28 32
+	}
+}
+
+bool necesitoNuevaDF(t_list *cortesPagina, int cantIteraciones)
+{
+	int *numero;
+	int longitud = list_size(cortesPagina);
+
+	for (int i = 0; i < longitud; i++)
+	{
+		numero = (int *)list_get(cortesPagina, i); // Casteo explícito a (int*)
+		if (*numero == cantIteraciones)
+		{ // Dereferenciar el puntero para obtener el valor de 'numero'
+			return true;
+		}
 	}
 
+	return false;
 }
 
-bool necesitoNuevaDF(t_list* cortesPagina, int cantIteraciones) {
-    int* numero;
-    int longitud = list_size(cortesPagina);
-
-    for(int i = 0; i < longitud; i++) {
-        numero = (int*) list_get(cortesPagina, i); // Casteo explícito a (int*)
-        if(*numero == cantIteraciones) { // Dereferenciar el puntero para obtener el valor de 'numero'
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void escribirCPYSTRING(t_buffer *un_buffer){
-	char* stringAEscribir = extraer_string_del_buffer(un_buffer);
+void escribirCPYSTRING(t_buffer *un_buffer)
+{
+	char *stringAEscribir = extraer_string_del_buffer(un_buffer);
 	int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
 	int tamanioAEscribir = extraer_int_del_buffer(un_buffer);
 	int cantIteraciones = 0;
-	t_list* cortesPagina = list_create();
-	obtenerCortesDePagina(cortesPagina,tamanioAEscribir,bytes_restantes_en_pagina); // [10,42,74]
+	t_list *cortesPagina = list_create();
+	obtenerCortesDePagina(cortesPagina, tamanioAEscribir, bytes_restantes_en_pagina); // [10,42,74]
 
 	int longitud = list_size(cortesPagina);
 
-	for(int i = 0; i < longitud;i++){
-		int* pepe = (int*)list_get(cortesPagina,i);
-		printf("valor de la lista cortes: %d\n",*pepe);
+	for (int i = 0; i < longitud; i++)
+	{
+		int *pepe = (int *)list_get(cortesPagina, i);
+		printf("valor de la lista cortes: %d\n", *pepe);
 	}
 
-	printf("la longitud es: %d\n",longitud);
+	printf("la longitud es: %d\n", longitud);
 
-    int df = extraer_int_del_buffer(un_buffer);
+	int df = extraer_int_del_buffer(un_buffer);
 
-	while(cantIteraciones <= tamanioAEscribir){
+	while (cantIteraciones <= tamanioAEscribir)
+	{
 
-		if(necesitoNuevaDF(cortesPagina,cantIteraciones)){
+		if (necesitoNuevaDF(cortesPagina, cantIteraciones))
+		{
 			df = extraer_int_del_buffer(un_buffer);
 		}
 
-		printf("en la direccion fisica: %d\n",df);
-		printf("escribo: %c\n",stringAEscribir[cantIteraciones ]);
+		printf("en la direccion fisica: %d\n", df);
+		printf("escribo: %c\n", stringAEscribir[cantIteraciones]);
 
-		memcpy(memoriaPrincipal + df, &stringAEscribir[cantIteraciones ], 1);
+		memcpy(memoriaPrincipal + df, &stringAEscribir[cantIteraciones], 1);
 
 		cantIteraciones++;
 		df++;
 	}
 
-	printf("cantidad de iteraciones: %d\n",cantIteraciones);
-
+	printf("cantidad de iteraciones: %d\n", cantIteraciones);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -525,13 +538,13 @@ void atender_memoria_cpu()
 		case MANDAR_DATO_A_LEER:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			leerDato(un_buffer);
-			break;			
+			break;
 		case DEVOLVER_MARCO:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			buscarMarco(un_buffer);
 			break;
 		case CANT_INTRUCCIONES:
-		    un_buffer = recibir_todo_el_buffer(fd_cpu);
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			int pid = extraer_int_del_buffer(un_buffer);
 			obtenerCantInstrucciones(pid);
 			break;

@@ -35,7 +35,7 @@ int identificador_PID = 1;
 int contador_pcbs = 1;
 
 pthread_mutex_t mutex_pid;
-pthread_mutex_t modificarLista;
+//pthread_mutex_t modificarLista;
 sem_t esta_cpu_libre;
 
 #endif

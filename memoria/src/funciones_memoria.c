@@ -92,16 +92,17 @@ int calcularPaginasNecesarias(int tamanio)
 	return ceil((double)tamanio / (double)TAM_PAGINA);
 }
 
-tablaPaginas inicializarTablaPaginas(int pid)
+tablaPaginas* inicializarTablaPaginas(int pid)
 {
-	tablaPaginas miTabla;
+	
+	tablaPaginas* miTabla = malloc(sizeof(tablaPaginas));
 
-	miTabla.pid = pid;
-	miTabla.cantMarcos = 0;
+	miTabla->pid = pid;
+	miTabla->cantMarcos = 0;
 	
 	for(int i = 0; i < 40; i++) {
-        miTabla.array[i].marco = 0;
-        miTabla.array[i].bitValidez = false;
+        miTabla->array[i].marco = 0;
+        miTabla->array[i].bitValidez = false;
     }
 
 	return miTabla;
@@ -179,22 +180,29 @@ void reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias)
 	printf("el tamanio al reservar frames: %d\n",tamanioReservarFrames);
 }*/
 
+
+
 void liberarFrames(tablaPaginas *tablaPags, int cantidadPaginasBorrar)
 {
-	/*
 	int cantBitsValidez = contarBitValidez(tablaPags);
 	cantBitsValidez--;									 // porque la tabla de paginas empieza en 0 y te pasas por 1
 	int delta = cantBitsValidez - cantidadPaginasBorrar; // 5 2 => 3
-
+													// 31 - 30 -- 1 
 	for (int i = cantBitsValidez; i >= delta; i--)
-	{ //
+	{
 
 		bitarray_clean_bit(frames_ocupados_ppal, cantBitsValidez);
 
-		//tablaPags->array[cantBitsValidez].bitValidez = 0;
-		//tablaPags->array[cantBitsValidez].marco = 0;
+		tablaPags->array[cantBitsValidez].bitValidez = false;
+		tablaPags->array[cantBitsValidez].marco = 0;
 	}
-	*/
+	
+	printf("PID: %d\n", tablaPags->pid);
+	for (int i = 0; i < 40; i++)
+	{
+		printf("Bit de validez del marco %d: %d\n", i, tablaPags->array[i].bitValidez);
+		printf("El nro de marco asignado: %d:\n", tablaPags->array[i].marco);
+	}
 }
 
 void iniciarPaginacion()

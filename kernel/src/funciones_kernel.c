@@ -525,10 +525,10 @@ void mandarNuevoPCB()
   procesoEXEC = 0;
   estaCPULibre = false; 
 
-  pthread_mutex_lock(&modificarLista);
+ // pthread_mutex_lock(&modificarLista);
   list_remove_element(procesosREADY,(void*)pcb_a_enviar->pid);
   list_remove_element(listaPCBs,(void*)pcb_a_enviar);
-  pthread_mutex_unlock(&modificarLista);
+ // pthread_mutex_unlock(&modificarLista);
 
   //printf("mande un pcb\n");
 }
