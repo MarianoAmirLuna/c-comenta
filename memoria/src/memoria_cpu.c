@@ -189,6 +189,8 @@ void leerDato(t_buffer *un_buffer)
 	t_paquete *un_paquete = crear_super_paquete(LECTURA_HECHA, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
 	destruir_paquete(un_paquete);
+
+	terminoInstruccionMemoria();
 }
 
 void escribirDato(t_buffer *un_buffer)
@@ -288,6 +290,8 @@ void escribirDato(t_buffer *un_buffer)
 	t_paquete *un_paquete = crear_super_paquete(ESCRITURA_HECHA, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
 	destruir_paquete(un_paquete);
+
+	terminoInstruccionMemoria();
 }
 
 bool condition_tabla_pagina(void *elemento)
@@ -305,6 +309,17 @@ tablaPaginas *obtener_tabla_pagina(int pid)
 	return tablaPagina;
 }
 
+void terminoInstruccionMemoria(){
+	t_buffer *a_enviar = crear_buffer();
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
+	cargar_int_al_buffer(a_enviar, 0);
+
+	t_paquete *un_paquete = crear_super_paquete(TERMINO_INSTRUCCION_MEMORIA, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);
+}
 
 void imprimirBitsValidez(tablaPaginas p)
 {
@@ -368,14 +383,12 @@ void resize(t_buffer *un_buffer)
 	}
 	else
 	{
-		printf("Entre al ELSE ###############\n");
 		if (tamanioAModificar <= tamanioActual)
 		{ // si quiero sacar paginas, tengo que cambiar los valores del bitarray & liberar las paginas
 			printf("ENTRE AL ELSEEEEEEEEE");
 			int cantBytesModificar = tamanioActual - tamanioAModificar;
 			int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
 			liberarFrames(tablaPag, cantPaginasABorrar);
-			
 		}
 	}
 
@@ -389,6 +402,9 @@ void resize(t_buffer *un_buffer)
 	}
 
 	printf("-------------------------------");
+
+	terminoInstruccionMemoria();
+	imprimirBitmapMemoriaPrincipal();
 }
 
 void buscarMarco(t_buffer *un_buffer)
@@ -481,6 +497,7 @@ void escribirCPYSTRING(t_buffer *un_buffer)
 	int tamanioAEscribir = extraer_int_del_buffer(un_buffer);
 	int cantIteraciones = 0;
 	t_list *cortesPagina = list_create();
+
 	obtenerCortesDePagina(cortesPagina, tamanioAEscribir, bytes_restantes_en_pagina); // [10,42,74]
 
 	int longitud = list_size(cortesPagina);
@@ -513,6 +530,8 @@ void escribirCPYSTRING(t_buffer *un_buffer)
 	}
 
 	printf("cantidad de iteraciones: %d\n", cantIteraciones);
+
+	terminoInstruccionMemoria();
 }
 
 //---------------------------------------------------------------------------------------------

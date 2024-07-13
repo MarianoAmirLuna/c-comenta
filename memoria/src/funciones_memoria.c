@@ -136,16 +136,18 @@ t_list *reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias, i
 	{
 
 		framesParaUsar = list_take(framesLibres, cantidadPaginasNecesarias);
+		int aux = 0;
 
-		for (int i = tamanioActual; i < cantidadPaginasNecesarias + tamanioActual; i++)
+		for (int i = tamanioActual; i < cantidadPaginasNecesarias; i++) 
 		{
-			int *frame = list_get(framesLibres, i);
+			int *frame = list_get(framesLibres, aux);
 
 			bitarray_set_bit(frames_ocupados_ppal, *frame);
 
 			tablaPags->array[i].marco = *frame;
 			tablaPags->array[i].bitValidez = true;
 			tablaPags->cantMarcos++;
+			aux++;
 
 		} // actualizo el bitarray y la tabla de paginas
 	}
@@ -268,112 +270,4 @@ void iniciarPaginacion()
 	//free(memoriaPrincipal);
 
 	// list_destroy_and_destroy_elements(listaPaginas, free); esto se tiene que liberar desp de que se termine el programa
-}
-
-bool puedeCargarloCompleto(int tamanioAcumulado, int tamanioQuiereCargar)
-{
-	return TAM_PAGINA >= tamanioAcumulado + tamanioQuiereCargar;
-}
-
-char *dividirStringIzquierda(char *instruccion, int tamanio)
-{ // dado un string y unos bytes, corto al string y me quedo con el lado izquierdo | 1 byte = 1 letra
-	// Calcular el tamaño del nuevo string (mínimo entre n y la longitud de str)
-	int largoDeString = string_length(instruccion);
-	int nuevoLargo = (tamanio < largoDeString) ? tamanio : largoDeString;
-
-	// Reservar memoria para el nuevo string (+1 para el carácter nulo)
-	char *resultado = (char *)malloc((nuevoLargo + 1) * sizeof(char));
-	if (resultado == NULL)
-	{
-		perror("Error al asignar memoria");
-		return NULL;
-	}
-
-	// Copiar los primeros n caracteres
-	strncpy(resultado, instruccion, nuevoLargo);
-
-	// Asegurarse de que el string está terminado con un carácter nulo
-	resultado[nuevoLargo] = '\0';
-
-	return resultado;
-}
-
-char *dividirStringDerecha(char *instruccion, int tamanio)
-{ // dado un string y unos bytes, corto al string y me quedo con el lado derecho | 1 byte = 1 letra
-	// Calcular la longitud del string original
-	int largoDeString = string_length(instruccion);
-
-	// Determinar el punto de inicio para la parte derecha
-	int start = (tamanio < largoDeString) ? tamanio : largoDeString;
-
-	// Calcular la longitud del nuevo string
-	int nuevoLargo = largoDeString - start;
-
-	// Reservar memoria para el nuevo string (+1 para el carácter nulo)
-	char *resultado = (char *)malloc((nuevoLargo + 1) * sizeof(char));
-	if (resultado == NULL)
-	{
-		perror("Error al asignar memoria");
-		return NULL;
-	}
-
-	// Copiar los caracteres desde el punto de inicio hasta el final
-	strncpy(resultado, instruccion + start, nuevoLargo);
-
-	// Asegurarse de que el string está terminado con un carácter nulo
-	resultado[nuevoLargo] = '\0';
-
-	return resultado;
-}
-
-// Asignar la parte correspondiente de memoryBytes a la página
-// page->data = memoriaPrincipal + i * TAM_PAGINA;
-
-void cargarRegistro(int frame, int tamanioAcumulado, char *instruccion)
-{
-
-	t_page *page = list_get(listaPaginas, frame);
-
-	memcpy(page->data + tamanioAcumulado, instruccion, string_length(instruccion));
-}
-
-void cargarInstrucciones(char *path, t_list *framesParaUsar)
-{
-	int tamanioAcumulado = 0;
-	int indexFrame = 0;
-	int *frame = list_get(framesParaUsar, indexFrame);
-	int cantidadDeInstrucciones = contarInstrucciones(path);
-	int loQueLeSobraALaPagina;
-	char *instruccionPartida;
-	char *instruccion;
-
-	for (int i = 0; i < cantidadDeInstrucciones; i++)
-	{
-		instruccion = obtenerInstruccion(path, i + 1); // Saco la instruccion n°i del .txt
-
-		if (puedeCargarloCompleto(tamanioAcumulado, string_length(instruccion)))
-		{ // verifica si entra completo en la pagina actual
-
-			cargarRegistro(frame, tamanioAcumulado, instruccion); // cargar registro te devuelve cuanto ocupa el registro que se cargo
-			tamanioAcumulado = tamanioAcumulado + string_length(instruccion);
-		}
-		else
-		{ // no me entra en la pagina, lo cargo en 2 o mas hasta que salga del while
-
-			while (!puedeCargarloCompleto(tamanioAcumulado, string_length(instruccion)))
-			{
-				frame = list_get(framesParaUsar, indexFrame);
-				loQueLeSobraALaPagina = TAM_PAGINA - tamanioAcumulado;
-
-				instruccionPartida = dividirStringIzquierda(instruccion, loQueLeSobraALaPagina);
-				instruccion = dividirStringDerecha(instruccion, loQueLeSobraALaPagina);
-
-				cargarRegistro(frame, tamanioAcumulado, instruccionPartida);
-				indexFrame++;
-				tamanioAcumulado = 0;
-			}
-			frame = list_get(framesParaUsar, indexFrame);
-			cargarRegistro(frame, tamanioAcumulado, instruccion);
-		}
-	}
 }

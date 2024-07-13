@@ -430,11 +430,14 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
 
     nombre_instruccion instruction = str_to_instruction(instr);
 
+    //solo van los semaforos en las funciones que solo se ejecutan en CPU las demas memoria/ IO
+    //le avisan a CPU de que termino y recien ahi se liberan
+
     switch (instruction)
     {
     case SET:
         _set(param1, param2);
-
+         sem_post(&wait_instruccion);
         break;
     case MOV_IN:
         _mov_in(param1, param2);
@@ -446,32 +449,32 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         break;
     case SUM:
         _sum(param1, param2);
-
+         sem_post(&wait_instruccion);
         break;
     case SUB:
         _sub(param1, param2);
-
+        sem_post(&wait_instruccion);
         break;
     case JNZ:
         _jnz(param1, param2);
-
+        sem_post(&wait_instruccion);
         break;
     case RESIZE:
         _resize(param1);
-
+        
         break;
     case COPY_STRING:
         _copy_string(param1);
 
         break;
     case WAIT:
-
+        sem_post(&wait_instruccion);
         break;
     case SIGNAL:
-
+        sem_post(&wait_instruccion);
         break;
     case IO_GEN_SLEEP:
-
+        
         break;
     case IO_STDIN_READ:
 
@@ -495,7 +498,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
 
         break;
     case EXIT:
-
+        sem_post(&wait_instruccion);
         break;
     case INVALID_INSTRUCTION:
 
@@ -769,6 +772,8 @@ void procesar_instruccion()
         printf("se ejecuto la instruccion\n");
         ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
 
+        sem_wait(&wait_instruccion);
+
         printf("el PID: %d\n",pcb_ejecucion.pid);
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
@@ -777,12 +782,6 @@ void procesar_instruccion()
         printf("------------------------------------------------\n\n");
 
         pcb_ejecucion.program_counter++;
-
-        //sleep(2);
-
-        //if(pcb_ejecucion.program_counter == 10){
-            //cambioContexto = true;
-        //}
     }
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
