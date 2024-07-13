@@ -11,7 +11,7 @@ void iniciarPaginacion();
 t_list *buscarFramesSinOcupar();
 char* asignarMemoriaBits(int bits);
 int bitsToBytes(int bits);
-t_list* reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias);
+t_list* reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias, int tamanioActual);
 tablaPaginas* inicializarTablaPaginas(int pid);
 int calcularPaginasNecesarias(int tamanio);
 bool puedeCargarloCompleto(int tamanioAcumulado, int tamanioQuiereCargar);

@@ -1,5 +1,6 @@
 #include "../include/memoria_kernel.h"
 #include <pthread.h>
+#include "../include/memoria_cpu.h"
 
 path_conID *iniciar_path_id(int id, char *path)
 {
@@ -18,7 +19,7 @@ void atender_crear_proceso(t_buffer *un_buffer)
 	path_conID *path_con_id = iniciar_path_id(pid, path);
 	tablaPaginas* tabla = inicializarTablaPaginas(pid);
 
-	list_add(list_path_id, path_con_id);
+	list_add(list_path_id, path_con_id); // #ACAJOACO
 	list_add(listaTablaPaginas, tabla);
 
 	usleep(RETARDO_RESPUESTA * 1000);
@@ -28,6 +29,20 @@ void atender_eliminar_proceso(t_buffer *un_buffer)
 {
 	int pid = extraer_int_del_buffer(un_buffer);
 	tablaPaginas* tablaABorrar = obtener_tabla_pagina(pid);
+	list_remove_element(listaTablaPaginas, tablaABorrar); //Eliminamos 1ro la tabla de paginas de la lista de tabla de paginas
+	int cantidadDeBitsVal = contarBitValidez(tablaABorrar);
+	int numMarcoABorrar;
+	
+	// cambiamos el bit de validez del marco en el bitmap
+	for (int i = 0; i < cantidadDeBitsVal; i++)
+	{
+		numMarcoABorrar = tablaABorrar->array[i].marco; //Marco es el de la memoria principal
+		bitarray_clean_bit(frames_ocupados_ppal, numMarcoABorrar);
+	}
+
+	imprimirBitmapMemoriaPrincipal();
+	//Liberamos porque tabla era un maloc
+	free(tablaABorrar);
 }
 
 void atender_memoria_kernel()

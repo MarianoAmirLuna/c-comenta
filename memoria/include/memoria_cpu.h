@@ -15,7 +15,6 @@ char* obtenerInstruccion(char* path, int programCounter);
 //char* obtener_tabla_pagina(int pid, int program_counter);
 bool condition_tabla_pagina(void *elemento);
 tablaPaginas* obtener_tabla_pagina(int pid);
-int contarBitsValidez(tablaPaginas* tabla);
 void imprimirBitsValidez(tablaPaginas p);
 void escribirDato(t_buffer *un_buffer);
 void leerDato(t_buffer *un_buffer);
@@ -23,6 +22,7 @@ void obtenerCantInstrucciones(int pid);
 void escribirCPYSTRING(t_buffer *un_buffer);
 bool necesitoNuevaDF(t_list* cortesPagina, int cantIteraciones);
 void obtenerCortesDePagina(t_list* lista,int tamanio_a_escribir, int restante_pagina);
+void imprimirBitmapMemoriaPrincipal();
 
 
 #endif

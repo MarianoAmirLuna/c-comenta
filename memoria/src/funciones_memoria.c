@@ -125,7 +125,7 @@ int contarBitValidez(tablaPaginas *tabla)
 }
 
 
-t_list *reservarFrames(tablaPaginas* tablaPags, int cantidadPaginasNecesarias)
+t_list *reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias, int tamanioActual)
 {
 	t_list *framesLibres = list_create();
 	t_list *framesParaUsar = list_create();
@@ -137,9 +137,9 @@ t_list *reservarFrames(tablaPaginas* tablaPags, int cantidadPaginasNecesarias)
 
 		framesParaUsar = list_take(framesLibres, cantidadPaginasNecesarias);
 
-		for (int i = 0; i < cantidadPaginasNecesarias; i++)
+		for (int i = tamanioActual; i < cantidadPaginasNecesarias + tamanioActual; i++)
 		{
-			int *frame = list_get(framesParaUsar, i);
+			int *frame = list_get(framesLibres, i);
 
 			bitarray_set_bit(frames_ocupados_ppal, *frame);
 

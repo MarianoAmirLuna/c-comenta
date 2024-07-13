@@ -305,16 +305,6 @@ tablaPaginas *obtener_tabla_pagina(int pid)
 	return tablaPagina;
 }
 
-/*
-int contarBitsValidez(tablaPaginas* tabla) {
-	int contador = 0;
-	for (int i = 0; i < 40; ++i) {
-		if (tabla->array[i].bitValidez == 1) {
-			contador++;
-		}
-	}
-	return contador;
-}*/
 
 void imprimirBitsValidez(tablaPaginas p)
 {
@@ -324,6 +314,22 @@ void imprimirBitsValidez(tablaPaginas p)
 	{
 		printf("Bit de validez del marco %d: %d\n", i, p.array[i].bitValidez);
 		printf("El nro de marco asignado: %d:\n", p.array[i].marco);
+	}
+}
+
+void imprimirBitmapMemoriaPrincipal(){
+	bool estaOcupado;
+	
+	for (int i = 0; i < 128; i++)
+	{
+		estaOcupado =  bitarray_test_bit(frames_ocupados_ppal,i);
+		if (estaOcupado)
+		{
+			printf("El bit: %d esta ocupado.\n",i);
+		} else {
+			printf("El bit: %d esta libre.\n",i);
+		}
+		
 	}
 }
 
@@ -358,7 +364,7 @@ void resize(t_buffer *un_buffer)
 
 		printf("se van a solicitar: %d\n", paginasNecesarias);
 
-		reservarFrames(tablaPag, paginasNecesarias); // aca esta el error
+		reservarFrames(tablaPag, paginasNecesarias, cantBitsValidez); // aca esta el error
 	}
 	else
 	{
@@ -379,7 +385,7 @@ void resize(t_buffer *un_buffer)
 	for (int i = 0; i < 40; i++)
 	{
 		printf("Bit de validez del marco %d: %d\n", i, tablaPag->array[i].bitValidez);
-		printf("El nro de marco asignado: %d:\n", tablaPag->array[i].marco);
+		printf("El nro de marco asignado: %d\n", tablaPag->array[i].marco);
 	}
 
 	printf("-------------------------------");

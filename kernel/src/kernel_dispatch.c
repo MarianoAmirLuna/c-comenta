@@ -1,5 +1,6 @@
 #include "../include/kernel_dispatch.h"
 #include <utils/shared.h>
+#include "../include/funciones_kernel.h"
 
 void atender_kernel_dispatch(){
     bool control_key = 1;
@@ -34,7 +35,7 @@ void atender_kernel_dispatch(){
 			}
             else{ //ejecuto todas las instrucciones
 				//significa que termino todas sus intrucciones y tengo que liberar los recursos
-				
+				finalizarProceso(pcb_devuelto->pid);
 			}
 			break;
 		case -1:
