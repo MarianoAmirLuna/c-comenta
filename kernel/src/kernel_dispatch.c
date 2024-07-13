@@ -28,6 +28,7 @@ void atender_kernel_dispatch(){
 			list_add(listaPCBs, pcb_devuelto);
 			int codigo = extraer_int_del_buffer(un_buffer);
 			estaCPULibre = true;
+			sem_post(&esperar_devolucion_pcb);
 
 			if(codigo == 1){// si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
 				list_add(listaPCBs,pcb_devuelto);

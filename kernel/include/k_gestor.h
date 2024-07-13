@@ -67,17 +67,19 @@ extern t_dictionary *dictQPrimas; //una verga, el troubleshooting me va a tomar 
 
 extern t_list *listQPrimas;
 extern int pidGlobal; //la unica implementacion que se me ocurre a las 2:08 AM
+extern int estaEJecutando;
 
 extern int sem_planificacion;
 
-extern double quantum;
+extern int quantum;
 
-extern double tiempoTranscurrido;
+extern int tiempoTranscurrido;
 
 extern t_planificacion tipoPlanificacion;
 
 extern int seguirPlanificando;
 extern sem_t sem_cpu_libre;
+extern sem_t esperar_devolucion_pcb;
 extern int ejecutandoProceso;
 
 extern t_list *listaPCBs;
