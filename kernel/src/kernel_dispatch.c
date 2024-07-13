@@ -39,6 +39,13 @@ void atender_kernel_dispatch(){
 				finalizarProceso(pcb_devuelto->pid);
 			}
 			break;
+		case ENVIAR_IOGEN:
+			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			char* nombreInterfaz = extraer_string_del_buffer(un_buffer);
+			int unidadesTrabajo = extraer_int_del_buffer(un_buffer);
+
+			
+			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			control_key = 0;

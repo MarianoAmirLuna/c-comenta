@@ -377,6 +377,22 @@ void _copy_string(char *tamanio)
     destruir_paquete(paquete);
 }
 
+void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
+{
+    int uniTra = atoi(unidadesTrabajo);
+
+    t_buffer *buffer_IOKernel = crear_buffer();
+    buffer_IOKernel->size = 0;
+    buffer_IOKernel->stream = NULL;
+    cargar_string_al_buffer(buffer_IOKernel,nombreInterfaz);
+    cargar_int_al_buffer(buffer_IOKernel, unidadesTrabajo);
+    t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IOGEN, buffer_IOKernel);
+    enviar_paquete(paquete_IOKernel, fd_kernel_dispatch);
+    destruir_paquete(paquete_IOKernel);
+
+    
+}
+
 // faltan las demas
 
 nombre_instruccion str_to_instruction(const char *instr)
@@ -474,10 +490,10 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         sem_post(&wait_instruccion);
         break;
     case IO_GEN_SLEEP:
-        
+        ioGenSleep(param1, param2);
         break;
     case IO_STDIN_READ:
-
+        ioSTDINRead()
         break;
     case IO_STDOUT_WRITE:
 

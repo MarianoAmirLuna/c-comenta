@@ -20,6 +20,7 @@ void _sub(char* registroDestino,char* registroOrigen);
 void _jnz(char* registro,char* instruccion);
 void _resize(char* tamanio);
 void _copy_string(char* tamanio);
+void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo);
 int traducir_dl(int direccionLogica);
 uint32_t *get_registry(char *registro);
 void mandarDatoAEscribir(int direccion_logica,int direccion_fisica,int segundaDF ,void *queEscribir, int bytes_a_escribir,int seEscribe2paginas, int tamanioRestantePagina);
