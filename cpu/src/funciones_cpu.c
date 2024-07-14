@@ -393,6 +393,9 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
     
 }
 
+
+void ioSTDINRead(param1, param2, param3);
+
 // faltan las demas
 
 nombre_instruccion str_to_instruction(const char *instr)
@@ -440,9 +443,9 @@ nombre_instruccion str_to_instruction(const char *instr)
 
 void ejecutar_instruccion(char *instruccion, PCB *pcb)
 {
-    char instr[20], param1[20], param2[20];
+    char instr[20], param1[20], param2[20], param3[20], param4[20], param5[20];
 
-    sscanf(instruccion, "%s %s %s", instr, param1, param2);
+    sscanf(instruccion, "%s %s %s %s %s %s", instr, param1, param2, param3, param4, param5);
 
     nombre_instruccion instruction = str_to_instruction(instr);
 
@@ -493,7 +496,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         ioGenSleep(param1, param2);
         break;
     case IO_STDIN_READ:
-        ioSTDINRead()
+        ioSTDINRead(param1, param2, param3);
         break;
     case IO_STDOUT_WRITE:
 
