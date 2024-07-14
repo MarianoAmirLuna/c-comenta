@@ -37,6 +37,21 @@ void ejecutarInterfazGenerica(char* nombre,t_config* config_interface){
 
 }
 
+void escribirEnMemoria(int direccionLogica, char* texto, int tamanio){
+
+	t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+	cargar_int_al_buffer(buffer,direccionLogica);
+	cargar_int_al_buffer(buffer,tamanio);
+	cargar_string_al_buffer(buffer,texto);
+
+    t_paquete *paquete = crear_super_paquete(ESCRIBIR_IO_MEMORIA, buffer);
+    enviar_paquete(paquete, fd_memoria);
+    destruir_paquete(paquete);
+}
+
 void ejecutarInterfazSTDIN(char* nombre,t_config* config_interface){
 	log_info(io_logger,"Iniciando interfaz STDIN");
 
@@ -161,10 +176,3 @@ int main(){
 	
 	return 0;
 }
-
-//iniciar servidor => retorna socket servidor
-//esperar cliente => retorna socket cliente
-//iniciar conexion / crear conexion => retorna socket cliente
-
-
-

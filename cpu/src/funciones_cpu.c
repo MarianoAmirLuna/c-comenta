@@ -188,6 +188,46 @@ void mandarSegundaDireccion(int direccion_fisica)
     destruir_paquete(un_paquete);
 }
 
+void escribir_string_memoria(char* datoEscribir, int direccionLogica){
+
+    int desplazamiento_en_pagina = direccionLogica % tamanio_pagina; // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
+
+    int cantDireccionesNecesarias = obtener_cant_direcciones(direccionLogica, sizeof(datoEscribir), bytes_restantes_en_pagina);
+
+    t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+    cargar_string_al_buffer(buffer, datoEscribir);
+    cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
+    cargar_int_al_buffer(buffer, sizeof(datoEscribir));
+
+    int flag = 0;
+
+    for (int i = 0; i < cantDireccionesNecesarias; i++)
+    {
+        int df = traducir_dl(direccionLogica);
+        cargar_int_al_buffer(buffer, df);
+
+        if (flag == 0)
+        {
+            direccionLogica = direccionLogica + bytes_restantes_en_pagina;
+            flag = 1;
+        }
+        else
+        {
+            direccionLogica = direccionLogica + tamanio_pagina;
+        }
+        printf("carge un int al buffer\n");
+    }
+
+    t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
+    enviar_paquete(paquete, fd_memoria);
+    destruir_paquete(paquete);
+    
+}
+
 void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
 {
     // No tengo el tam_pag
@@ -372,29 +412,27 @@ void _copy_string(char *tamanio)
         printf("carge un int al buffer\n");
     }
 
-    t_paquete *paquete = crear_super_paquete(EJECUTAR_CPYSTRING, buffer);
+    t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
     enviar_paquete(paquete, fd_memoria);
     destruir_paquete(paquete);
 }
 
 void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
 {
-    int uniTra = atoi(unidadesTrabajo);
+    int uniTraba = atoi(unidadesTrabajo);
 
     t_buffer *buffer_IOKernel = crear_buffer();
     buffer_IOKernel->size = 0;
     buffer_IOKernel->stream = NULL;
     cargar_string_al_buffer(buffer_IOKernel,nombreInterfaz);
-    cargar_int_al_buffer(buffer_IOKernel, unidadesTrabajo);
+    cargar_int_al_buffer(buffer_IOKernel, uniTraba);
     t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IOGEN, buffer_IOKernel);
     enviar_paquete(paquete_IOKernel, fd_kernel_dispatch);
     destruir_paquete(paquete_IOKernel);
-
-    
 }
 
 
-void ioSTDINRead(param1, param2, param3);
+//void ioSTDINRead(param1, param2, param3);
 
 // faltan las demas
 
@@ -496,7 +534,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         ioGenSleep(param1, param2);
         break;
     case IO_STDIN_READ:
-        ioSTDINRead(param1, param2, param3);
+        //ioSTDINRead(param1, param2, param3);
         break;
     case IO_STDOUT_WRITE:
 

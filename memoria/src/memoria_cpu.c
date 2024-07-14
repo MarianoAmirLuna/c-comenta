@@ -490,7 +490,7 @@ bool necesitoNuevaDF(t_list *cortesPagina, int cantIteraciones)
 	return false;
 }
 
-void escribirCPYSTRING(t_buffer *un_buffer)
+void escribirMemoria(t_buffer *un_buffer)
 {
 	char *stringAEscribir = extraer_string_del_buffer(un_buffer);
 	int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
@@ -581,9 +581,9 @@ void atender_memoria_cpu()
 			int pid = extraer_int_del_buffer(un_buffer);
 			obtenerCantInstrucciones(pid);
 			break;
-		case EJECUTAR_CPYSTRING:
+		case ESCRIBIR_MEMORIA:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
-			escribirCPYSTRING(un_buffer);
+			escribirMemoria(un_buffer);
 			break;
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");
