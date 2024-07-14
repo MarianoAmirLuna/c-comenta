@@ -623,3 +623,27 @@ int list_index_of(t_list *self, void *data){
     }
     return -1; // Elemento no encontrado
 }
+
+t_buffer* cargar_pcb_buffer(PCB pcb){
+	
+	t_buffer *buffer = crear_buffer();
+
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+    cargar_int_al_buffer(buffer, pcb.pid);
+    cargar_int_al_buffer(buffer, pcb.program_counter);
+    cargar_int_al_buffer(buffer, pcb.quantum);
+    cargar_uint8_al_buffer(buffer, pcb.registros_cpu.AX);
+    cargar_uint8_al_buffer(buffer, pcb.registros_cpu.BX);
+    cargar_uint8_al_buffer(buffer, pcb.registros_cpu.CX);
+    cargar_uint8_al_buffer(buffer, pcb.registros_cpu.DX);
+    cargar_uint32_al_buffer(buffer, pcb.registros_cpu.EAX);
+    cargar_uint32_al_buffer(buffer, pcb.registros_cpu.EBX);
+    cargar_uint32_al_buffer(buffer, pcb.registros_cpu.ECX);
+    cargar_uint32_al_buffer(buffer, pcb.registros_cpu.EDX);
+    cargar_uint32_al_buffer(buffer, pcb.registros_cpu.SI);
+    cargar_uint32_al_buffer(buffer, pcb.registros_cpu.DI);
+
+	return buffer;
+}

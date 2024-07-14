@@ -431,6 +431,27 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
     destruir_paquete(paquete_IOKernel);
 }
 
+void _wait(char* recurso){
+    terminaPorSenial = true;
+    t_buffer* buffer = cargar_pcb_buffer(pcb_ejecucion);
+
+    cargar_string_al_buffer(buffer,recurso);
+
+    t_paquete *paquete = crear_super_paquete(DESALOJO_POR_WAIT, buffer);
+    enviar_paquete(paquete, fd_kernel_dispatch);
+    destruir_paquete(paquete);
+}
+
+void _signal(char* recurso){
+    terminaPorSenial = true;
+    t_buffer* buffer = cargar_pcb_buffer(pcb_ejecucion);
+
+    cargar_string_al_buffer(buffer,recurso);
+
+    t_paquete *paquete = crear_super_paquete(DESALOJO_POR_SIGNAL, buffer);
+    enviar_paquete(paquete, fd_kernel_dispatch);
+    destruir_paquete(paquete);
+}
 
 //void ioSTDINRead(param1, param2, param3);
 
@@ -525,9 +546,11 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
 
         break;
     case WAIT:
+        _wait(param1);
         sem_post(&wait_instruccion);
         break;
     case SIGNAL:
+        _signal(param1);
         sem_post(&wait_instruccion);
         break;
     case IO_GEN_SLEEP:
@@ -555,6 +578,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
 
         break;
     case EXIT:
+        terminarPorExit = true;
         sem_post(&wait_instruccion);
         break;
     case INVALID_INSTRUCTION:
@@ -779,48 +803,35 @@ int obtener_cantidad_instrucciones(int pid)
     sem_wait(&wait_instruccion);
 }
 
+
 void devolverPCBKernel()
 {
-    t_buffer *a_enviar = crear_buffer();
-
-    a_enviar->size = 0;
-    a_enviar->stream = NULL;
-
-    cargar_int_al_buffer(a_enviar, pcb_ejecucion.pid);
-    cargar_int_al_buffer(a_enviar, pcb_ejecucion.program_counter);
-    cargar_int_al_buffer(a_enviar, pcb_ejecucion.quantum);
-    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.AX);
-    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.BX);
-    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.CX);
-    cargar_uint8_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.DX);
-    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.EAX);
-    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.EBX);
-    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.ECX);
-    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.EDX);
-    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.SI);
-    cargar_uint32_al_buffer(a_enviar, pcb_ejecucion.registros_cpu.DI);
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);   
 
     if (cambioContexto)
     {
-        cargar_int_al_buffer(a_enviar, 1); // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
+        cargar_int_al_buffer(buffer, 1); // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
     }
     else
     {
-        cargar_int_al_buffer(a_enviar, 2); // si se queda sin instrucciones va un 2
+        cargar_int_al_buffer(buffer, 2); // si se queda sin instrucciones va un 2
     }
 
-    t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, a_enviar);
+    t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, buffer);
     enviar_paquete(un_paquete, fd_kernel_dispatch);
     destruir_paquete(un_paquete);
 }
 
 void procesar_instruccion()
 {
-    obtener_cantidad_instrucciones(pcb_ejecucion.pid);
 
     printf("la cantidad de instrucciones son: %d\n", cantInstucciones);
 
-    while (cantInstucciones >= pcb_ejecucion.program_counter && !cambioContexto)
+    terminarPorExit = false;
+    terminaPorSenial = false;
+    cambioContexto = false;
+
+    while (!terminarPorExit && !cambioContexto && !terminaPorSenial)
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
@@ -842,7 +853,10 @@ void procesar_instruccion()
     }
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
-    devolverPCBKernel();
+
+    if(!terminaPorSenial){
+        devolverPCBKernel();
+    }
+
     printf("termino de ejecutar\n");
-    cambioContexto = false;
 }

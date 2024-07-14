@@ -47,6 +47,8 @@ extern char* ALGORITMO_TLB;
 extern int CANTIDAD_ENTRADAS_TLB;
 extern int id_global;
 extern int pagina_global;
+extern bool terminarPorExit;
+extern bool terminaPorSenial;
 
 
 #endif

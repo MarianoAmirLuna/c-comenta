@@ -36,5 +36,7 @@ lineaTLB* inicializarLineaTLB(int pid, int pagina, int marco);
 void concat_uint8_to_string(char* str, uint8_t ch);
 int obtener_cant_direcciones(int direccionLogica,int tamanioAEscribir, int bytes_restantes_en_pagina);
 void escribir_string_memoria(char* datoEscribir, int direccionLogica);
+void _wait(char* recurso);
+void _signal(char* recurso);
 
 #endif
