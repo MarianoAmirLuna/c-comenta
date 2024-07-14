@@ -167,7 +167,8 @@ int buscarQPrima(int pid)
   pidGlobal = pid;
   pidConQ *pidConQEncontrado = list_find(listQPrimas, pidDeStructIgualAlGlobal);
 
-  if (pidConQEncontrado == NULL) {
+  if (pidConQEncontrado == NULL)
+  {
     // Maneja el caso en el que no se encuentra nada
     return 1000000; // O cualquier valor que elijas para indicar que no se encontró nada
   }
@@ -203,6 +204,57 @@ void suspenderProceso()
   list_add(procesosSuspendidos, aux);
   procesoEXEC = 0;
   // printf("proceso suspendido: %d, qprima: %d \n", *aux, pidConQEXEC->qPrima);
+}
+
+void bloquearPorRecurso(char* nombre) //FALTA PROBAR
+{
+  pidConQ *pidConQEXEC = buscarPidConQ(procesoEXEC);
+  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido;
+  pidConQEXEC->qPrima = qPrimaNueva == 0 ? quantum : qPrimaNueva;
+
+  int i=0;
+  for(i=0;strcmp(nombre, nombresRecursos[i])==0;i++);
+  t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
+
+  int *aux = malloc(sizeof(int));
+  *aux = estaEJecutando;
+  
+  list_add(lista_donde_agregar, aux);
+  procesoEXEC=0;
+}
+
+void atender_wait(char* recurso) //FALTA PROBAR
+{
+  int i=0;
+  for(i=0;strcmp(recurso, nombresRecursos[i])==0;i++);
+
+  int *instancias = list_get(instanciasRecursos, i);
+
+  if(*instancias>0)
+  {
+    *instancias = (*instancias) - 1;
+  }
+  else
+  {
+    bloquearPorRecurso(recurso);
+  }
+}
+
+void atender_signal(char* recurso) //FALTA PROBAR
+{
+  int i=0;
+  for(i=0;strcmp(recurso, nombresRecursos[i])==0;i++);
+
+  t_list *bloqueados_por_este_recurso = list_get(lista_recursos_y_bloqueados, i);
+  if(list_size(bloqueados_por_este_recurso) == 0)
+  {
+    int * instancias_de_este_recurso = list_get(instanciasRecursos, i);
+    *instancias_de_este_recurso = (*instancias_de_este_recurso) + 1;
+  }
+  else
+  {
+    list_add(procesosREADY, list_remove(bloquearPorRecurso, 0));
+  }
 }
 
 void sacarDeSuspension()
@@ -292,6 +344,15 @@ void iniciar_planificacion()
   listQPrimas = list_create();
   procesosSuspendidos = list_create();
 
+  lista_recursos_y_bloqueados = list_create();
+
+  // Crear N listas y aÃ±adirlas a la lista de listas
+  for (int i = 0; i < cantidad_de_recursos; i++)
+  {
+    t_list *new_list = list_create();
+    list_add(lista_recursos_y_bloqueados, new_list);
+  }
+
   iniciar_bucle();
 
   // dictQPrimas=dictionary_create();
@@ -361,14 +422,14 @@ void avisarDesalojo()
 
 void ciclo_plani_FIFO()
 {
-  //printf("entre al fifo\n");
+  // printf("entre al fifo\n");
   while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
   { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mandod
     int *pidNuevo = list_remove(procesosNEW, 0);
     pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
     list_add(listQPrimas, pqNuevo);
     list_add(procesosREADY, pidNuevo);
-    //mientras que haya cosas en new y el grado de multiprogramacion me lo permita, lo paso a ready
+    // mientras que haya cosas en new y el grado de multiprogramacion me lo permita, lo paso a ready
   }
   // printf("limpiada lista de new\n");
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre) // si no hay ningun proceso en ejecucion, pone el primero de READY
@@ -377,7 +438,7 @@ void ciclo_plani_FIFO()
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
     pthread_mutex_unlock(&mutexExec);
-    //avisarDesalojo();
+    // avisarDesalojo();
   }
   // if(procesoEXEC==0) ejecutandoProceso=0;
   // else ejecutandoProceso=1;
@@ -390,17 +451,16 @@ void ciclo_plani_FIFO()
 
 void ciclo_plani_RR()
 {
-  //printf("entre al rr\n");
-  // quantum++;
-  if (tiempoTranscurrido >= quantum && !estaCPULibre) //FIN DE QUANTUM
+  // printf("entre al rr\n");
+  //  quantum++;
+  if (tiempoTranscurrido >= quantum && !estaCPULibre) // FIN DE QUANTUM
   {
     tiempoTranscurrido = 0;
     avisarDesalojo();
     sem_wait(&esperar_devolucion_pcb);
-
   }
-  while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION) //si hay procesos en new y los podes pasar a ready pasalos
-  { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+  while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION) // si hay procesos en new y los podes pasar a ready pasalos
+  {                                                                                         // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     int *pidNuevo = list_remove(procesosNEW, 0);
     pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
     list_add(listQPrimas, pqNuevo);
@@ -420,7 +480,6 @@ void ciclo_plani_RR()
   }
 
   tiempoTranscurrido++;
-
 }
 void desalojarProceso()
 {
@@ -429,12 +488,11 @@ void bloquearProceso()
 {
 }
 
-
 void ciclo_plani_VRR()
 {
-  if (tiempoTranscurrido >= buscarQPrima(estaEJecutando) && !estaCPULibre) //si el tiempo transcurrido es mayor a lo que le queda
-  { //cuando se termino su qprima
-    //printf("FIN DE QPRIMA\n");
+  if (tiempoTranscurrido >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
+  {                                                                        // cuando se termino su qprima
+    // printf("FIN DE QPRIMA\n");
     restaurarQPrima(estaEJecutando);
     tiempoTranscurrido = 0;
     avisarDesalojo();
@@ -504,19 +562,19 @@ PCB *buscarPCB(int pid)
 
 void mandarNuevoPCB()
 {
-  //printf("mande un PCB\n");
+  // printf("mande un PCB\n");
   PCB *pcb_a_enviar = buscarPCB(procesoEXEC); // Busco el pcb que le toca ejecutar en la cola
   enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
   estaEJecutando = procesoEXEC;
   procesoEXEC = 0;
-  estaCPULibre = false; 
+  estaCPULibre = false;
 
- // pthread_mutex_lock(&modificarLista);
-  list_remove_element(procesosREADY,(void*)pcb_a_enviar->pid);
-  list_remove_element(listaPCBs,(void*)pcb_a_enviar);
- // pthread_mutex_unlock(&modificarLista);
+  // pthread_mutex_lock(&modificarLista);
+  list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
+  list_remove_element(listaPCBs, (void *)pcb_a_enviar);
+  // pthread_mutex_unlock(&modificarLista);
 
-  //printf("mande un pcb\n");
+  // printf("mande un pcb\n");
 }
 
 void iniciar_proceso(char *path)

@@ -9,10 +9,8 @@
 
 void inicializar_kernel();
 
-
-
-
-void inicializar_logs(){
+void inicializar_logs()
+{
 	kernel_logger = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_INFO);
 
 	if (kernel_logger == NULL)
@@ -30,8 +28,9 @@ void inicializar_logs(){
 	}
 }
 
-void inicializar_configs(){
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config"); 
+void inicializar_configs()
+{
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config");
 
 	if (kernel_config == NULL)
 	{
@@ -39,37 +38,54 @@ void inicializar_configs(){
 		exit(EXIT_FAILURE);
 	}
 
-
-
-	PUERTO_ESCUCHA = config_get_string_value(kernel_config,"PUERTO_ESCUCHA");
-	IP_MEMORIA = config_get_string_value(kernel_config,"IP_MEMORIA");
-	PUERTO_MEMORIA = config_get_string_value(kernel_config,"PUERTO_MEMORIA");
-	IP_CPU = config_get_string_value(kernel_config,"IP_CPU");
-	PUERTO_CPU_DISPATCH = config_get_string_value(kernel_config,"PUERTO_CPU_DISPATCH");
-	PUERTO_CPU_INTERRUPT = config_get_string_value(kernel_config,"PUERTO_CPU_INTERRUPT");
-	ALGORITMO_PLANIFICACION = config_get_string_value(kernel_config,"ALGORITMO_PLANIFICACION");
-	QUANTUM = config_get_int_value(kernel_config,"QUANTUM");
-	RECURSOS = config_get_string_value(kernel_config,"RECURSOS");
-	INSTANCIAS_RECURSOS = config_get_string_value(kernel_config,"INSTANCIAS_RECURSOS");
-	GRADO_MULTIPROGRAMACION = config_get_int_value(kernel_config,"GRADO_MULTIPROGRAMACION");
+	PUERTO_ESCUCHA = config_get_string_value(kernel_config, "PUERTO_ESCUCHA");
+	IP_MEMORIA = config_get_string_value(kernel_config, "IP_MEMORIA");
+	PUERTO_MEMORIA = config_get_string_value(kernel_config, "PUERTO_MEMORIA");
+	IP_CPU = config_get_string_value(kernel_config, "IP_CPU");
+	PUERTO_CPU_DISPATCH = config_get_string_value(kernel_config, "PUERTO_CPU_DISPATCH");
+	PUERTO_CPU_INTERRUPT = config_get_string_value(kernel_config, "PUERTO_CPU_INTERRUPT");
+	ALGORITMO_PLANIFICACION = config_get_string_value(kernel_config, "ALGORITMO_PLANIFICACION");
+	QUANTUM = config_get_int_value(kernel_config, "QUANTUM");
+	RECURSOS = config_get_string_value(kernel_config, "RECURSOS");
+	INSTANCIAS_RECURSOS = config_get_string_value(kernel_config, "INSTANCIAS_RECURSOS");
+	GRADO_MULTIPROGRAMACION = config_get_int_value(kernel_config, "GRADO_MULTIPROGRAMACION");
 }
 
-void imprimir_configs(){
+void imprimir_configs()
+{
 	log_info(kernel_logger, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
 	log_warning(kernel_logger, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
 	log_debug(kernel_log_debug, "RECURSOS: %s", RECURSOS);
 	log_trace(kernel_log_debug, "QUANTUM: %d", QUANTUM);
 }
 
-void iniciar_semaforos(){
+void iniciar_semaforos()
+{
 	sem_init(&sem_cpu_libre, 1, 1);
-	sem_init(&esperar_devolucion_pcb,1,0);
+	sem_init(&esperar_devolucion_pcb, 1, 0);
 }
 
-void inicializar_kernel(){
+void iniciar_recursos()
+{
+	nombresRecursos = config_get_array_value(kernel_config, "RECURSOS");
+	char **STR_InstanciasRecursos = config_get_array_value(kernel_config, "INSTANCIAS_RECURSOS");
+	instanciasRecursos = list_create();
+	for (int i = 0; STR_InstanciasRecursos[i] != NULL; i++) // mira el primer caracter de cada string
+	{
+		cantidad_de_recursos++;
+		int *instancia = malloc(sizeof(int));
+		*instancia = atoi(STR_InstanciasRecursos[i]);
+		list_add(instanciasRecursos, instancia);
+		//printf("Recurso: %s, cantidad: %d \n", nombresRecursos[i], *instancia);
+	}
+}
+
+void inicializar_kernel()
+{
 	inicializar_logs();
 	inicializar_configs();
-    imprimir_configs();
-	//iniciar_planificacion();
+	imprimir_configs();
+	// iniciar_planificacion();
 	iniciar_semaforos();
+	iniciar_recursos();
 }

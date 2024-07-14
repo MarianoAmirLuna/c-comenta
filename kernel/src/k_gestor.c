@@ -21,6 +21,10 @@ t_list* listaPCBs=NULL;
 int flagCambioProceso;
 bool primeraVezEjecuta=true;
 int flagSeguirPlanificando = 1;
+char** nombresRecursos = NULL;
+t_list* instanciasRecursos = NULL;
+int cantidad_de_recursos=0;
+t_list *lista_recursos_y_bloqueados=NULL;
 bool estaCPULibre = true;
 int estaEJecutando;
 
