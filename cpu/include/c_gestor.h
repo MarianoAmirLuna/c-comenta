@@ -49,6 +49,7 @@ extern int id_global;
 extern int pagina_global;
 extern bool terminarPorExit;
 extern bool terminaPorSenial;
+extern int waitOSignal;
 
 
 #endif

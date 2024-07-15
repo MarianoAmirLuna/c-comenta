@@ -27,7 +27,6 @@ void mandarDatoAEscribir(int direccion_logica,int direccion_fisica,int segundaDF
 void mandarDatoALeer(int dirFisicaDelDato,int segundaDF ,int bytesALeer,int seEscribe2paginas,int tamanioRestantePagina,char* registroDatos);
 void mandarSegundaDireccionALeer(int direccion_fisica,int bytes_restantes_en_pagina);
 int conocerTamanioDeLosRegistros(char *registro);
-void devolverPCBKernel();
 int buscarMarcoTLB(int pid, int pagina);
 bool condicion_id_pagina(void *elemento);
 void agregarPaginaTLB(int pid,int pagina,int marco);
@@ -38,5 +37,7 @@ int obtener_cant_direcciones(int direccionLogica,int tamanioAEscribir, int bytes
 void escribir_string_memoria(char* datoEscribir, int direccionLogica);
 void _wait(char* recurso);
 void _signal(char* recurso);
+void devolverPCBKernel();
+void devolverPCBKernelSenial();
 
 #endif

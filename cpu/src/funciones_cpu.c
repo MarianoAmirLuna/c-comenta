@@ -188,10 +188,11 @@ void mandarSegundaDireccion(int direccion_fisica)
     destruir_paquete(un_paquete);
 }
 
-void escribir_string_memoria(char* datoEscribir, int direccionLogica){
+void escribir_string_memoria(char *datoEscribir, int direccionLogica)
+{
 
-    int desplazamiento_en_pagina = direccionLogica % tamanio_pagina; // offset
-    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
+    int desplazamiento_en_pagina = direccionLogica % tamanio_pagina;           // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
 
     int cantDireccionesNecesarias = obtener_cant_direcciones(direccionLogica, sizeof(datoEscribir), bytes_restantes_en_pagina);
 
@@ -225,7 +226,6 @@ void escribir_string_memoria(char* datoEscribir, int direccionLogica){
     t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
     enviar_paquete(paquete, fd_memoria);
     destruir_paquete(paquete);
-    
 }
 
 void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
@@ -310,11 +310,10 @@ void _jnz(char *registro, char *instruccion)
     uint32_t *registroAComparar = get_registry(registro);
     int numeroDeInstr = atoi(instruccion);
 
-    if (*registroAComparar != 0 )
+    if (*registroAComparar != 0)
     {
         pcb_ejecucion.program_counter = numeroDeInstr;
     }
-    
 }
 
 void _resize(char *tamanio)
@@ -424,36 +423,14 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
     t_buffer *buffer_IOKernel = crear_buffer();
     buffer_IOKernel->size = 0;
     buffer_IOKernel->stream = NULL;
-    cargar_string_al_buffer(buffer_IOKernel,nombreInterfaz);
+    cargar_string_al_buffer(buffer_IOKernel, nombreInterfaz);
     cargar_int_al_buffer(buffer_IOKernel, uniTraba);
     t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IOGEN, buffer_IOKernel);
     enviar_paquete(paquete_IOKernel, fd_kernel_dispatch);
     destruir_paquete(paquete_IOKernel);
 }
 
-void _wait(char* recurso){
-    terminaPorSenial = true;
-    t_buffer* buffer = cargar_pcb_buffer(pcb_ejecucion);
-
-    cargar_string_al_buffer(buffer,recurso);
-
-    t_paquete *paquete = crear_super_paquete(DESALOJO_POR_WAIT, buffer);
-    enviar_paquete(paquete, fd_kernel_dispatch);
-    destruir_paquete(paquete);
-}
-
-void _signal(char* recurso){
-    terminaPorSenial = true;
-    t_buffer* buffer = cargar_pcb_buffer(pcb_ejecucion);
-
-    cargar_string_al_buffer(buffer,recurso);
-
-    t_paquete *paquete = crear_super_paquete(DESALOJO_POR_SIGNAL, buffer);
-    enviar_paquete(paquete, fd_kernel_dispatch);
-    destruir_paquete(paquete);
-}
-
-//void ioSTDINRead(param1, param2, param3);
+// void ioSTDINRead(param1, param2, param3);
 
 // faltan las demas
 
@@ -508,14 +485,14 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
 
     nombre_instruccion instruction = str_to_instruction(instr);
 
-    //solo van los semaforos en las funciones que solo se ejecutan en CPU las demas memoria/ IO
-    //le avisan a CPU de que termino y recien ahi se liberan
+    // solo van los semaforos en las funciones que solo se ejecutan en CPU las demas memoria/ IO
+    // le avisan a CPU de que termino y recien ahi se liberan
 
     switch (instruction)
     {
     case SET:
         _set(param1, param2);
-         sem_post(&wait_instruccion);
+        sem_post(&wait_instruccion);
         break;
     case MOV_IN:
         _mov_in(param1, param2);
@@ -527,7 +504,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         break;
     case SUM:
         _sum(param1, param2);
-         sem_post(&wait_instruccion);
+        sem_post(&wait_instruccion);
         break;
     case SUB:
         _sub(param1, param2);
@@ -539,7 +516,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         break;
     case RESIZE:
         _resize(param1);
-        
+
         break;
     case COPY_STRING:
         _copy_string(param1);
@@ -557,7 +534,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         ioGenSleep(param1, param2);
         break;
     case IO_STDIN_READ:
-        //ioSTDINRead(param1, param2, param3);
+        // ioSTDINRead(param1, param2, param3);
         break;
     case IO_STDOUT_WRITE:
 
@@ -803,10 +780,19 @@ int obtener_cantidad_instrucciones(int pid)
     sem_wait(&wait_instruccion);
 }
 
+void _wait(char *recurso)
+{
+    terminaPorSenial = true;
+}
+
+void _signal(char *recurso)
+{
+    terminaPorSenial = true;
+}
 
 void devolverPCBKernel()
 {
-    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);   
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
 
     if (cambioContexto)
     {
@@ -820,6 +806,34 @@ void devolverPCBKernel()
     t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, buffer);
     enviar_paquete(un_paquete, fd_kernel_dispatch);
     destruir_paquete(un_paquete);
+}
+
+void devolverPCBKernelSenial()
+{
+    char instr[20], recurso[20];
+
+    sscanf(instruccion_actual, "%s %s", instr, recurso);
+
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
+
+    printf("la instruccion actual: %s\n", instruccion_actual);
+    printf("la inst: %s\n", instr);
+    printf("el recurso: %s\n", recurso);
+
+    cargar_string_al_buffer(buffer, recurso);
+
+    if (strcmp(instr, "WAIT") == 0)
+    {
+        t_paquete *paquete = crear_super_paquete(DESALOJO_POR_WAIT, buffer);
+        enviar_paquete(paquete, fd_kernel_dispatch);
+        destruir_paquete(paquete);
+    }
+    else
+    {
+        t_paquete *paquete = crear_super_paquete(DESALOJO_POR_SIGNAL, buffer);
+        enviar_paquete(paquete, fd_kernel_dispatch);
+        destruir_paquete(paquete);
+    }
 }
 
 void procesar_instruccion()
@@ -842,7 +856,7 @@ void procesar_instruccion()
 
         sem_wait(&wait_instruccion);
 
-        printf("el PID: %d\n",pcb_ejecucion.pid);
+        printf("el PID: %d\n", pcb_ejecucion.pid);
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
         printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
@@ -854,8 +868,13 @@ void procesar_instruccion()
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
 
-    if(!terminaPorSenial){
+    if (!terminaPorSenial)
+    {
         devolverPCBKernel();
+    }
+    else
+    {
+        devolverPCBKernelSenial();
     }
 
     printf("termino de ejecutar\n");
