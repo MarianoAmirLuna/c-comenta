@@ -19,7 +19,7 @@ PCB *buscarPCB(int pid);
 void mandarNuevoPCB();
 void atender_signal(char*);
 void atender_wait(char*);
-
+void estado_instancias();
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;
 //int ejecutandoProceso;

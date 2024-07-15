@@ -78,6 +78,7 @@ void iniciar_recursos()
 		list_add(instanciasRecursos, instancia);
 		//printf("Recurso: %s, cantidad: %d \n", nombresRecursos[i], *instancia);
 	}
+	estado_instancias();
 }
 
 void inicializar_kernel()
