@@ -1,5 +1,9 @@
 #include "shared.h"
 
+#include <unistd.h>
+#include <sys/socket.h>
+#include <errno.h>  // Necesario para errno y constantes de error como EINTR
+
 t_log* logger;
 
 int iniciar_conexion(char* puerto,char *nombre,t_log* logger_debug){
@@ -275,6 +279,75 @@ int recibir_operacion(int socket_cliente)
 		return -1;
 	}
 }
+
+/*int recibir_operacion(int socket_cliente)
+{
+    int cod_op;
+    ssize_t bytes_recibidos;
+    int reintentos = 0;
+
+    while (reintentos < 10) {
+        bytes_recibidos = recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL);
+
+        if (bytes_recibidos > 0) {
+            return cod_op;
+        } else if (bytes_recibidos == 0) {
+            // El cliente cerró la conexión
+            printf("Cliente cerró la conexión.\n");
+            close(socket_cliente);
+            return -1;
+        } else {
+            // Ocurrió un error
+            printf("Error al recibir datos: %s\n", strerror(errno));
+
+            if (errno == EINTR) {
+                // Interrupción por señal, intentar de nuevo
+                printf("recv fue interrumpido por una señal. Intentando de nuevo...\n");
+                reintentos++;
+                continue; // Intentar de nuevo
+            } else {
+                // Error irreparable
+                close(socket_cliente);
+                return -1;
+            }
+        }
+    }
+
+    // Si llegamos aquí, excedimos el número de reintentos permitidos
+    printf("Excedido el número de reintentos permitidos (%d).\n", 10);
+    close(socket_cliente);
+    return -1;
+}*/
+
+/*int recibir_operacion(int socket_cliente) //la tercera es la vencida
+{
+    int cod_op;
+    ssize_t bytes_recibidos;
+    int reintentos = 0;
+
+    while (reintentos < 10) {
+        bytes_recibidos = recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL);
+
+        if (bytes_recibidos > 0) {
+            return cod_op;
+        } 
+        else {
+            // Ocurrió un error
+            printf("Error al recibir datos: %s\n", strerror(errno));
+
+            if (errno == EINTR) {
+                // Interrupción por señal, intentar de nuevo
+                printf("recv fue interrumpido por una señal. Intentando de nuevo...\n");
+                reintentos++;
+                continue; // Intentar de nuevo
+            } 
+        }
+    }
+
+    // Si llegamos aquí, excedimos el número de reintentos permitidos
+    close(socket_cliente);
+    return -1;
+}*/
 
 void* recibir_buffer(int* size, int socket_cliente)
 {

@@ -208,7 +208,7 @@ void suspenderProceso()
 
 void bloquearPorRecurso(char* nombre) //FALTA PROBAR
 {
-  pidConQ *pidConQEXEC = buscarPidConQ(procesoEXEC);
+  pidConQ *pidConQEXEC = buscarPidConQ(estaEJecutando);
   int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido;
   pidConQEXEC->qPrima = qPrimaNueva == 0 ? quantum : qPrimaNueva;
 
@@ -235,7 +235,7 @@ void estado_instancias()
 void atender_wait(char* recurso) //FALTA PROBAR
 {
   int i=0;
-  for(i=0;strcmp(recurso, nombresRecursos[i])==0;i++);
+  for(i=0;strcmp(recurso, nombresRecursos[i])!=0;i++);
 
   int *instancias = list_get(instanciasRecursos, i);
 
