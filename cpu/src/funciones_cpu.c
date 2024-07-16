@@ -816,9 +816,9 @@ void devolverPCBKernelSenial()
 
     t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
 
-    printf("la instruccion actual: %s\n", instruccion_actual);
-    printf("la inst: %s\n", instr);
-    printf("el recurso: %s\n", recurso);
+    //printf("la instruccion actual: %s\n", instruccion_actual);
+    //printf("la inst: %s\n", instr);
+    //printf("el recurso: %s\n", recurso);
 
     cargar_string_al_buffer(buffer, recurso);
 

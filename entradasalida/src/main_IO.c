@@ -115,10 +115,10 @@ int main(){
 	log_info(io_logger,"Inicializando Entrada/Salida");
 
 
+	fd_kernel = iniciar_conexion(PUERTO_KERNEL, "KERNEL",io_log_debug);
 	
 	fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",io_log_debug);
 	
-	fd_kernel = iniciar_conexion(PUERTO_KERNEL, "KERNEL",io_log_debug);
 
 
 	/*pthread_t hilo_kernel;

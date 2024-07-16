@@ -2,11 +2,13 @@
 #include "../include/funciones_kernel.h"
 
 void iniciar_consola_interactiva(){
+    
+    //sleep(3);
     char* leido;
     leido = readline("> ");
     bool validacion_leido;
 
-    while(strcmp(leido, "\0") != 0){
+    while(1){ //strcmp(leido, "\0") != 0
         validacion_leido = _validacion_de_instruccion_de_consola(leido); 
         if(!validacion_leido){ //esta bien el primer comando?
             log_error(kernel_logger, "Comando de CONSOLA no reconocido");

@@ -232,7 +232,9 @@ void estado_instancias()
   }
 }
 
-void atender_wait(char* recurso) //FALTA PROBAR
+
+
+void atender_wait(char* recurso, int *pid) //FALTA PROBAR
 {
   int i=0;
   for(i=0;strcmp(recurso, nombresRecursos[i])!=0;i++);
@@ -245,6 +247,7 @@ void atender_wait(char* recurso) //FALTA PROBAR
   {
     *instancias = (*instancias) - 1;
     printf("hay instancias disponibles \n");
+    list_add(procesosREADY, pid);
   }
   else
   {
@@ -252,14 +255,16 @@ void atender_wait(char* recurso) //FALTA PROBAR
     printf("NO hay instancias disponibles, se bloqueo el recurso \n");
   }
   estado_instancias();
+  printf("fin atender_wait\n");
 }
 
 void atender_signal(char* recurso) //FALTA PROBAR
 {
   int i=0;
-  for(i=0;strcmp(recurso, nombresRecursos[i])==0;i++);
+  for(i=0;strcmp(recurso, nombresRecursos[i])!=0;i++);
 
   t_list *bloqueados_por_este_recurso = list_get(lista_recursos_y_bloqueados, i);
+  printf("recurso liberado: %s\n", recurso);
   if(list_size(bloqueados_por_este_recurso) == 0)
   {
     int * instancias_de_este_recurso = list_get(instanciasRecursos, i);
@@ -270,6 +275,7 @@ void atender_signal(char* recurso) //FALTA PROBAR
     list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
   }
   estado_instancias();
+  printf("fin atender_signal\n");
 }
 
 void sacarDeSuspension()

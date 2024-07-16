@@ -56,17 +56,16 @@ void atender_kernel_dispatch()
 			list_add(listaPCBs, pcb_devuelto_por_wait);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
-			list_add(listaPCBs, pcb_devuelto_por_wait);
-			list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
+
+			//list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
 			
 			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
-			atender_wait(nombre_recurso_wait);
+			atender_wait(nombre_recurso_wait, &(pcb_devuelto_por_wait->pid));
 			break;
 
 		case DESALOJO_POR_SIGNAL:
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_devuelto_por_signal = atender_recibir_pcb(un_buffer);
-			list_add(listaPCBs, pcb_devuelto_por_signal);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
 			list_add(listaPCBs, pcb_devuelto_por_signal);
@@ -78,7 +77,7 @@ void atender_kernel_dispatch()
 
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
-			control_key = 0;
+			//control_key = 0;
 			break;
 		default:
 			log_warning(logger, "Operacion desconocida de KERNEL - Dispatch");

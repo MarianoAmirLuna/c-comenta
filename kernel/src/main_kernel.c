@@ -28,6 +28,7 @@ int main(void)
     //log_trace(kernel_logger, "listo para escuchar al IO");
 	log_trace(kernel_log_debug, "listo para escuchar al IO");
 	fd_io = esperar_cliente(fd_kernel);
+	printf("pasa de EsperarCliente\n");
 
 	pthread_t hilo_cpu_interrupt;
 	pthread_create(&hilo_cpu_interrupt, NULL, (void*)atender_kernel_interrupt, NULL);
@@ -41,14 +42,16 @@ int main(void)
 	pthread_create(&hilo_io, NULL, (void*)atender_kernel_io, NULL);
 	pthread_detach(hilo_io);
 
-	pthread_t hilo_memoria;
+	/*pthread_t hilo_memoria;
 	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
-	pthread_detach(hilo_memoria);
+	pthread_detach(hilo_memoria);*/
 
 	
-
+	pthread_t hilo_consola;
+	pthread_create(&hilo_consola, NULL, (void*)iniciar_consola_interactiva, NULL);
+	pthread_join(hilo_consola, NULL);
 	//Iniciar la consola interactiva
-	iniciar_consola_interactiva();
+	//iniciar_consola_interactiva();
 	
 	log_debug(kernel_log_debug, "Advertencia de salida de Kernel");
 
