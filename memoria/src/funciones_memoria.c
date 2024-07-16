@@ -193,7 +193,7 @@ void liberarFrames(tablaPaginas *tablaPags, int cantidadPaginasBorrar)
 	printf("cantbits validez: %d\n",cantBitsValidez);
 	printf("deta: %d\n",delta);
 													
-	for (int i = cantBitsValidez; i > delta; i--)
+	for (int i = cantBitsValidez; i >= delta; i--)
 	{
 
 		bitarray_clean_bit(frames_ocupados_ppal, i);

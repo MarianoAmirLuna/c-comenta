@@ -32,6 +32,7 @@ extern sem_t esperarTamanioDePagina;
 extern sem_t esperarMarco;
 extern sem_t esperarEscrituraDeMemoria;
 extern sem_t esperarLecturaDeMemoria;
+extern sem_t esperar_lectura_caracter;
 //extern sem_t esperarCantInstrucciones;
 
 extern PCB pcb_ejecucion;
@@ -50,6 +51,7 @@ extern int pagina_global;
 extern bool terminarPorExit;
 extern bool terminaPorSenial;
 extern int waitOSignal;
+extern uint8_t caracterGlobal;
 
 
 #endif

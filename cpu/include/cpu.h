@@ -33,6 +33,7 @@ sem_t esperarTamanioDePagina;
 sem_t esperarMarco;
 sem_t esperarEscrituraDeMemoria;
 sem_t esperarLecturaDeMemoria;
+sem_t esperar_lectura_caracter;
 //sem_t esperarCantInstrucciones;
 
 char* instruccion_actual;
@@ -49,5 +50,6 @@ int id_global;
 int pagina_global;
 bool terminarPorExit;
 bool terminaPorSenial;
+uint8_t caracterGlobal;
 
 #endif

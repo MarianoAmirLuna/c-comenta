@@ -57,6 +57,7 @@ void iniciar_semaforos(){
 	sem_init(&esperarMarco,1,0);
 	sem_init(&esperarEscrituraDeMemoria,1,0);
 	sem_init(&esperarLecturaDeMemoria,1,0);
+	sem_init(&esperar_lectura_caracter,1,0);
 	//sem_init(&esperarCantInstrucciones,1,0);
 }
 

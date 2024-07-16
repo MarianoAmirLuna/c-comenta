@@ -535,6 +535,25 @@ void escribirMemoria(t_buffer *un_buffer)
 	terminoInstruccionMemoria();
 }
 
+void leer_caracter(int df){
+
+	uint8_t datoLeido;
+
+	memcpy(&datoLeido, memoriaPrincipal + df, 1);
+
+    t_buffer *a_enviar = crear_buffer();
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
+	cargar_uint8_al_buffer(a_enviar, datoLeido);
+
+	printf("se encontro el caracter %u\n",datoLeido);
+
+	t_paquete *un_paquete = crear_super_paquete(RECIBIR_CARACTER, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);
+}
+
 //---------------------------------------------------------------------------------------------
 
 void atender_memoria_cpu()
@@ -586,6 +605,12 @@ void atender_memoria_cpu()
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			escribirMemoria(un_buffer);
 			break;
+		case LEER_CARACTER_MEMORIA:
+		    un_buffer = recibir_todo_el_buffer(fd_cpu);
+			int df = extraer_int_del_buffer(un_buffer);
+			printf("la df recibida es: %d\n");
+			leer_caracter(df);
+		    break;
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

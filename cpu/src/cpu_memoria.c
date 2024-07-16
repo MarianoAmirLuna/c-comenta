@@ -96,7 +96,11 @@ void atender_cpu_memoria()
 	        un_buffer = recibir_todo_el_buffer(fd_memoria);
 			int xd = extraer_int_del_buffer(un_buffer);	
 			sem_post(&wait_instruccion);
-
+		    break;
+		case RECIBIR_CARACTER:
+		    un_buffer = recibir_todo_el_buffer(fd_memoria);
+			caracterGlobal = extraer_uint8_del_buffer(un_buffer);
+			sem_post(&esperar_lectura_caracter);
 			break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");

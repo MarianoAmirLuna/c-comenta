@@ -24,6 +24,6 @@ bool necesitoNuevaDF(t_list* cortesPagina, int cantIteraciones);
 void obtenerCortesDePagina(t_list* lista,int tamanio_a_escribir, int restante_pagina);
 void imprimirBitmapMemoriaPrincipal();
 void terminoInstruccionMemoria();
-
+void leer_caracter(int df);
 
 #endif

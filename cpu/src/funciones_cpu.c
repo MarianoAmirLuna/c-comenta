@@ -346,7 +346,34 @@ void _sub(char *registroDestino, char *registroOrigen)
     uint32_t *destino = get_registry(registroDestino);
     uint32_t *origen = get_registry(registroOrigen);
 
-    *destino = *destino - *origen;
+    uint32_t destinoValue = 0;
+    uint32_t origenValue = 0;
+
+    // Detectar si el origen es un registro de 8 bits
+    if (strcmp(registroOrigen, "AX") == 0 || strcmp(registroOrigen, "BX") == 0 ||
+        strcmp(registroOrigen, "CX") == 0 || strcmp(registroOrigen, "DX") == 0)
+    {
+        origenValue = *(uint8_t *)origen;
+    }
+    else
+    {
+        origenValue = *origen;
+    }
+
+    // Detectar si el destino es un registro de 8 bits
+    if (strcmp(registroDestino, "AX") == 0 || strcmp(registroDestino, "BX") == 0 ||
+        strcmp(registroDestino, "CX") == 0 || strcmp(registroDestino, "DX") == 0)
+    {
+        destinoValue = *(uint8_t *)destino;
+        destinoValue -= origenValue;
+        *(uint8_t *)destino = (uint8_t)destinoValue;
+    }
+    else
+    {
+        destinoValue = *destino;
+        destinoValue -= origenValue;
+        *destino = destinoValue;
+    }
 }
 
 void _jnz(char *registro, char *instruccion)
@@ -407,18 +434,36 @@ int obtener_cant_direcciones(int direccionLogica, int tamanioAEscribir, int byte
     return cont;
 }
 
+void leerCaracterMemoria(int direccionLogica){
+
+    int df = traducir_dl(direccionLogica);
+
+    t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+    cargar_int_al_buffer(buffer, df);
+
+    printf("la direccion fisica: %d\n",df);
+
+    t_paquete *paquete = crear_super_paquete(LEER_CARACTER_MEMORIA, buffer);
+    enviar_paquete(paquete, fd_memoria);
+    destruir_paquete(paquete);
+
+    sem_wait(&esperar_lectura_caracter);
+}
+
 void leerStringMemoria(int direccionLogica, int tamanio)
 {
 
     char str[tamanio + 1]; // Inicializa el string como vacío
     str[0] = '\0';
-    pcb_ejecucion.registros_cpu.AUX2 = direccionLogica;
 
     for (int i = 0; i < tamanio; i++)
     {
-        _mov_in("AUX1", "AUX2");
-        concat_uint8_to_string(str, pcb_ejecucion.registros_cpu.AUX1);
-        pcb_ejecucion.registros_cpu.AUX2++;
+        leerCaracterMemoria(direccionLogica);
+        concat_uint8_to_string(str, caracterGlobal);
+        direccionLogica++;
     }
 
     printf("$$$$$ El string es: %s\n", str);
@@ -618,6 +663,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         break;
     case IO_STDOUT_WRITE:
         io_stdout_write(param1, param2, param3);
+        sem_post(&wait_instruccion);
         break;
     case IO_FS_CREATE:
 
