@@ -291,10 +291,41 @@ void _mov_out(char *registroDireccion, char *registroDatos)
 
 void _sum(char *registroDestino, char *registroOrigen)
 {
+    /*uint32_t *destino = get_registry(registroDestino);
+    uint32_t *origen = get_registry(registroOrigen);
+
+    *destino = *destino + *origen;*/
     uint32_t *destino = get_registry(registroDestino);
     uint32_t *origen = get_registry(registroOrigen);
 
-    *destino = *destino + *origen;
+    uint32_t destinoValue = 0;
+    uint32_t origenValue = 0;
+
+    // Detectar si el origen es un registro de 8 bits
+    if (strcmp(registroOrigen, "AX") == 0 || strcmp(registroOrigen, "BX") == 0 ||
+        strcmp(registroOrigen, "CX") == 0 || strcmp(registroOrigen, "DX") == 0)
+    {
+        origenValue = *(uint8_t *)origen;
+    }
+    else
+    {
+        origenValue = *origen;
+    }
+
+    // Detectar si el destino es un registro de 8 bits
+    if (strcmp(registroDestino, "AX") == 0 || strcmp(registroDestino, "BX") == 0 ||
+        strcmp(registroDestino, "CX") == 0 || strcmp(registroDestino, "DX") == 0)
+    {
+        destinoValue = *(uint8_t *)destino;
+        destinoValue += origenValue;
+        *(uint8_t *)destino = (uint8_t)destinoValue;
+    }
+    else
+    {
+        destinoValue = *destino;
+        destinoValue += origenValue;
+        *destino = destinoValue;
+    }
 }
 
 void _sub(char *registroDestino, char *registroOrigen)
@@ -336,6 +367,8 @@ void concat_uint8_to_string(char *str, uint8_t ch)
 {
     size_t len = strlen(str); // Encuentra la longitud actual del string
 
+    printf("el caracter es: %c\n", (char)ch);
+
     str[len] = (char)ch; // Añade el carácter al final del string
     str[len + 1] = '\0'; // Añade el terminador nulo
 }
@@ -359,6 +392,23 @@ int obtener_cant_direcciones(int direccionLogica, int tamanioAEscribir, int byte
     }
 
     return cont;
+}
+
+void leerStringMemoria(int direccionLogica, int tamanio)
+{
+
+    char str[tamanio + 1]; // Inicializa el string como vacío
+    str[0] = '\0';
+    pcb_ejecucion.registros_cpu.AUX2 = direccionLogica;
+
+    for (int i = 0; i < tamanio; i++)
+    {
+        _mov_in("AUX1", "AUX2");
+        concat_uint8_to_string(str, pcb_ejecucion.registros_cpu.AUX1);
+        pcb_ejecucion.registros_cpu.AUX2++;
+    }
+
+    printf("$$$$$ El string es: %s\n", str);
 }
 
 void _copy_string(char *tamanio)
@@ -432,6 +482,21 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
 
 // void ioSTDINRead(param1, param2, param3);
 
+void io_stdout_write(char *interfaz, char *direccionLogica, char *tamanio)
+{
+    // por algun motivo write es escribir
+    // IO_STDOUT_WRITE MONITOR EAX AX
+    uint32_t *dl = get_registry(direccionLogica);
+    uint32_t *tam = get_registry(tamanio);
+    
+    // Imprimir los valores de los registros dereferenciados directamente
+    printf("la dl value es: %u\n", *dl);
+    printf("el tamanio value es: %u\n", *tam);
+
+    // Convertir los valores a tipo int y llamar a la función
+    leerStringMemoria((int)(*dl), (int)(*tam));
+}
+
 // faltan las demas
 
 nombre_instruccion str_to_instruction(const char *instr)
@@ -491,7 +556,9 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     switch (instruction)
     {
     case SET:
+        printf("el registo bx: %u\n",pcb_ejecucion.registros_cpu.BX);
         _set(param1, param2);
+        printf("el registo bx: %u\n",pcb_ejecucion.registros_cpu.BX);
         sem_post(&wait_instruccion);
         break;
     case MOV_IN:
@@ -537,7 +604,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         // ioSTDINRead(param1, param2, param3);
         break;
     case IO_STDOUT_WRITE:
-
+        io_stdout_write(param1, param2, param3);
         break;
     case IO_FS_CREATE:
 
@@ -816,9 +883,9 @@ void devolverPCBKernelSenial()
 
     t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
 
-    //printf("la instruccion actual: %s\n", instruccion_actual);
-    //printf("la inst: %s\n", instr);
-    //printf("el recurso: %s\n", recurso);
+    // printf("la instruccion actual: %s\n", instruccion_actual);
+    // printf("la inst: %s\n", instr);
+    // printf("el recurso: %s\n", recurso);
 
     cargar_string_al_buffer(buffer, recurso);
 
@@ -849,18 +916,32 @@ void procesar_instruccion()
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
-        sem_wait(&wait_instruccion);
-
-        printf("se ejecuto la instruccion\n");
-        ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
-
-        sem_wait(&wait_instruccion);
-
         printf("el PID: %d\n", pcb_ejecucion.pid);
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
         printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
         printf("PC: %d\n\n", pcb_ejecucion.program_counter);
+        printf("------------------------------------------------\n\n");
+
+        sem_wait(&wait_instruccion);
+
+        printf("se ejecuto la instruccion\n");
+        ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
+
+        printf("Estado de los registros:\n");
+        printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
+        printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
+        printf("PC: %d\n\n", pcb_ejecucion.program_counter);
+        printf("------------------------------------------------\n\n");
+
+        sem_wait(&wait_instruccion);
+
+        printf("Estado de los registros:\n");
+        printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
+        printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
+        printf("PC: %d\n\n", pcb_ejecucion.program_counter);
+        printf("------------------------------------------------\n\n");
+        printf("------------------------------------------------\n\n");
         printf("------------------------------------------------\n\n");
 
         pcb_ejecucion.program_counter++;

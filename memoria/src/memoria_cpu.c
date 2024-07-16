@@ -58,6 +58,7 @@ void devolver_instruccion(t_buffer *un_buffer)
 {
 	int pid = extraer_int_del_buffer(un_buffer);
 	int program_counter = extraer_int_del_buffer(un_buffer);
+	program_counter++;
 
 	// printf("el pid que fue serializado: %d\n",pid);
 	// printf("el pid que fue serializado: %d\n",program_counter);

@@ -15,7 +15,7 @@ PCB *iniciar_PCB()
   PCB *pcb = malloc(sizeof(PCB));
 
   pcb->pid = asignar_pid();
-  pcb->program_counter = 1;
+  pcb->program_counter = 0;
   pcb->quantum = config_get_int_value(config, "QUANTUM");
   // p->b.pathTXT = path;
   pcb->registros_cpu.AX = 0;
@@ -213,14 +213,16 @@ void bloquearPorRecurso(char* nombre) //FALTA PROBAR
   pidConQEXEC->qPrima = qPrimaNueva == 0 ? quantum : qPrimaNueva;
 
   int i=0;
-  for(i=0;strcmp(nombre, nombresRecursos[i])==0;i++);
+  for(i=0;strcmp(nombre, nombresRecursos[i])!=0;i++); //PREGUNTAR LUCA, antes estaba en ==
   t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
+
+  printf("lo agrege a la lista nro: %d\n",i);
 
   int *aux = malloc(sizeof(int));
   *aux = estaEJecutando;
   
   list_add(lista_donde_agregar, aux);
-  procesoEXEC=0;
+  //procesoEXEC=0;
 }
 
 void estado_instancias()

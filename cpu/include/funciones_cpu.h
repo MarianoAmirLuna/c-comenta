@@ -39,5 +39,7 @@ void _wait(char* recurso);
 void _signal(char* recurso);
 void devolverPCBKernel();
 void devolverPCBKernelSenial();
+void io_stdout_write(char* interfaz,char* direccionLogica,char* tamanio);
+void leerStringMemoria(int direccionLogica, int tamanio);
 
 #endif
