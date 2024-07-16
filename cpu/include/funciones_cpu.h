@@ -41,5 +41,6 @@ void devolverPCBKernel();
 void devolverPCBKernelSenial();
 void io_stdout_write(char* interfaz,char* direccionLogica,char* tamanio);
 void leerStringMemoria(int direccionLogica, int tamanio);
+int is_8bit_register(char *registro);
 
 #endif

@@ -58,10 +58,24 @@ uint32_t *get_registry(char *registro)
     }
 }
 
+int is_8bit_register(char *registro) {
+    // Supongamos que los registros de 8 bits tienen un nombre específico que podemos identificar
+    return strcmp(registro, "AX") == 0 || strcmp(registro, "BX") == 0 || strcmp(registro, "CX") == 0 || strcmp(registro, "DX") == 0;
+}
+
 void _set(char *registro, char *valor)
 {
-    uint32_t *destino = get_registry(registro);
-    *destino = atoi(valor);
+    /*uint32_t *destino = get_registry(registro);
+    *destino = atoi(valor);*/
+   if (is_8bit_register(registro)) {
+        // Obtener el puntero al registro de 8 bits
+        uint8_t *destino8 = (uint8_t *)get_registry(registro);
+        *destino8 = (uint8_t)atoi(valor);
+    } else {
+        // Obtener el puntero al registro de 32 bits
+        uint32_t *destino32 = get_registry(registro);
+        *destino32 = (uint32_t)atoi(valor);
+    }
 }
 
 int conocerTamanioDeLosRegistros(char *registro)
@@ -269,24 +283,23 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
 void _mov_out(char *registroDireccion, char *registroDatos)
 {
 
-    // obtengo el valor de los registros y se los paso a hacerMovOut
+   // Obtengo el valor de los registros y se los paso a hacerMovOut
     void *direccionLogica = (void *)get_registry(registroDireccion);
     void *dato = (void *)get_registry(registroDatos);
 
-    uint8_t *ptr_dato = (uint8_t *)dato;
-    printf("el valor de 'dato' es: %" PRIu8 "\n", *ptr_dato);
-
-    // Suponiendo que 'direccionLogica' apunta a un uint32_t
-    uint32_t *ptr_direccionLogica = (uint32_t *)direccionLogica;
-    printf("el valor de 'direccionLogica' es: %" PRIu32 "\n", *ptr_direccionLogica);
-
     int tamanioDato = conocerTamanioDeLosRegistros(registroDatos);
+    
+    // Determinar el tamaño del registro de direccionLogica
+    int tamanioDireccionLogica = conocerTamanioDeLosRegistros(registroDireccion);
 
-    printf("el tamanio del dato: %d\n", tamanioDato);
-
-    int *dirLogic = (int *)direccionLogica;
-
-    hacerMovOut(*dirLogic, dato, tamanioDato);
+    // Convertir el puntero de direccionLogica al tipo adecuado
+    if (tamanioDireccionLogica == sizeof(uint8_t)) {
+        uint8_t *dirLogic = (uint8_t *)direccionLogica;
+        hacerMovOut(*dirLogic, dato, tamanioDato);
+    } else {
+        uint32_t *dirLogic = (uint32_t *)direccionLogica;
+        hacerMovOut(*dirLogic, dato, tamanioDato);
+    }
 }
 
 void _sum(char *registroDestino, char *registroOrigen)
@@ -484,7 +497,7 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
 
 void io_stdout_write(char *interfaz, char *direccionLogica, char *tamanio)
 {
-    // por algun motivo write es escribir
+    // por algun motivo write es leer
     // IO_STDOUT_WRITE MONITOR EAX AX
     uint32_t *dl = get_registry(direccionLogica);
     uint32_t *tam = get_registry(tamanio);
@@ -916,32 +929,18 @@ void procesar_instruccion()
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
-        printf("el PID: %d\n", pcb_ejecucion.pid);
-        printf("Estado de los registros:\n");
-        printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
-        printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
-        printf("PC: %d\n\n", pcb_ejecucion.program_counter);
-        printf("------------------------------------------------\n\n");
-
         sem_wait(&wait_instruccion);
 
         printf("se ejecuto la instruccion\n");
         ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
 
-        printf("Estado de los registros:\n");
-        printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
-        printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
-        printf("PC: %d\n\n", pcb_ejecucion.program_counter);
-        printf("------------------------------------------------\n\n");
-
         sem_wait(&wait_instruccion);
 
+        printf("el PID: %d\n", pcb_ejecucion.pid);
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
         printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
         printf("PC: %d\n\n", pcb_ejecucion.program_counter);
-        printf("------------------------------------------------\n\n");
-        printf("------------------------------------------------\n\n");
         printf("------------------------------------------------\n\n");
 
         pcb_ejecucion.program_counter++;
