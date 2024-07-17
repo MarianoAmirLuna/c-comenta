@@ -26,5 +26,6 @@ t_list* instanciasRecursos = NULL;
 int cantidad_de_recursos=0;
 t_list *lista_recursos_y_bloqueados=NULL;
 bool estaCPULibre = true;
+t_list *listaPidsRecursos = NULL;
 int estaEJecutando;
 

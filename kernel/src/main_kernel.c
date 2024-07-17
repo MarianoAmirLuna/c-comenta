@@ -28,7 +28,7 @@ int main(void)
     //log_trace(kernel_logger, "listo para escuchar al IO");
 	log_trace(kernel_log_debug, "listo para escuchar al IO");
 	fd_io = esperar_cliente(fd_kernel);
-	printf("pasa de EsperarCliente\n");
+	//printf("pasa de EsperarCliente\n");
 
 	pthread_t hilo_cpu_interrupt;
 	pthread_create(&hilo_cpu_interrupt, NULL, (void*)atender_kernel_interrupt, NULL);

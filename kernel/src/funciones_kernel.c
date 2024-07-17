@@ -142,6 +142,8 @@ void planificacion()
   }
 }
 
+
+
 pidConQ *nuevoPidConQ(int pid)
 {
   pidConQ *ret = malloc(sizeof(pidConQ));
@@ -234,6 +236,36 @@ void estado_instancias()
   }
 }
 
+pidConRecursos_t *encontrarPidRecursos(int pid)
+{
+  pidConRecursos_t *pidConRec=NULL;
+  for(int i=0;i<list_size(listaPidsRecursos);i++) //me rehuso a usar list_find
+  {
+    pidConRec=list_get(listaPidsRecursos, i);
+    if(pidConRec->pid == pid)
+    {
+      break;
+    }
+  }
+  return pidConRec;
+}
+
+void mostrarInstanciasTomadas(int pid)
+{
+  pidConRecursos_t *pidConRec = encontrarPidRecursos(pid);
+  /*for(int i=0;i<list_size(listaPidsRecursos);i++) //me rehuso a usar list_find
+  {
+    pidConRec=list_get(listaPidsRecursos, i);
+    if(pidConRec->pid == pid)
+    {
+      break;
+    }
+  }*/
+  for(int j=0;nombresRecursos[j]!=NULL;j++)
+  {
+    printf("recurso: %s, instancias usadas: %d\n", nombresRecursos[j], *(int*)list_get(pidConRec->recursosTomados,j));
+  }
+}
 
 
 void atender_wait(char* recurso, int *pid) //FALTA PROBAR
@@ -243,21 +275,31 @@ void atender_wait(char* recurso, int *pid) //FALTA PROBAR
 
   int *instancias = list_get(instanciasRecursos, i);
 
-  printf("recurso pedido: %s \n", recurso);
+  pidGlobal = *pid;
+
+  pidConRecursos_t *pidRec = encontrarPidRecursos(*pid);
+
+  int *instanciasPedidasRecurso = list_get(pidRec->recursosTomados, i); 
+
+  //printf("recurso pedido: %s \n", recurso);
 
   if(*instancias>0)
   {
     *instancias = (*instancias) - 1;
-    printf("hay instancias disponibles \n");
+    //printf("hay instancias disponibles \n");
     list_add(procesosREADY, pid);
+    mostrarInstanciasTomadas(pid);
+    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) +1;
+    printf("Instancias disponibles, se tomo el recurso");
   }
   else
   {
     bloquearPorRecurso(recurso);
-    printf("NO hay instancias disponibles, se bloqueo el recurso \n");
+    printf("NO hay instancias disponibles, se bloqueo el proceso \n");
   }
-  estado_instancias();
-  printf("fin atender_wait\n");
+  //estado_instancias();
+  //printf("fin atender_wait\n");
+  mostrarInstanciasTomadas(*pid);
 }
 
 void atender_signal(char* recurso) //FALTA PROBAR
@@ -266,7 +308,7 @@ void atender_signal(char* recurso) //FALTA PROBAR
   for(i=0;strcmp(recurso, nombresRecursos[i])!=0;i++);
 
   t_list *bloqueados_por_este_recurso = list_get(lista_recursos_y_bloqueados, i);
-  printf("recurso liberado: %s\n", recurso);
+  //printf("recurso liberado: %s\n", recurso);
   if(list_size(bloqueados_por_este_recurso) == 0)
   {
     int * instancias_de_este_recurso = list_get(instanciasRecursos, i);
@@ -276,8 +318,8 @@ void atender_signal(char* recurso) //FALTA PROBAR
   {
     list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
   }
-  estado_instancias();
-  printf("fin atender_signal\n");
+  //estado_instancias();
+  //printf("fin atender_signal\n");
 }
 
 void sacarDeSuspension()
@@ -357,11 +399,13 @@ void iniciar_bucle()
 void iniciar_planificacion()
 {
   listaPCBs = list_create();
+  listaPidsRecursos=list_create();
   int flagCambioProceso = 0;
 
   // sleep(2);
   // printf("llega adentro de iniciarPlani\n");
   procesosNEW = list_create();
+  
   // printf("entrando a ciclo plani\n");
   procesosREADY = list_create();
   listQPrimas = list_create();
@@ -600,6 +644,21 @@ void mandarNuevoPCB()
   // printf("mande un pcb\n");
 }
 
+void nuevaListaRecursos(int pid)
+{
+  pidConRecursos_t *pidRecAux = malloc(sizeof(pidConRecursos_t));
+  pidRecAux->pid = pid;
+  pidRecAux->recursosTomados = list_create();
+  for(int i=0;i<nombresRecursos[i]!=NULL;i++)
+  {
+    int *recurso_i = malloc(sizeof(int));
+    *recurso_i =0;
+    list_add(pidRecAux->recursosTomados, recurso_i);
+    //printf("recurso: %s, instancias usadas: %d\n", nombresRecursos[i], *recurso_i);
+  }
+  list_add(listaPidsRecursos, pidRecAux);
+}
+
 void iniciar_proceso(char *path)
 {
   PCB *pcb = iniciar_PCB(path);
@@ -607,4 +666,6 @@ void iniciar_proceso(char *path)
   list_add(listaPCBs, pcb);
   enviar_path_memoria(path, pcb->pid);
   list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
+  nuevaListaRecursos(pcb->pid);
+  //mostrarInstanciasTomadas(pcb->pid);
 }
