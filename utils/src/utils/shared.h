@@ -66,6 +66,9 @@ typedef enum
 	LECTURA_HECHA,
 	OUT_OF_MEMORY,
 
+	//IO
+	CREAR_INTERFAZ,
+
 }op_code;
 
 typedef enum
@@ -122,6 +125,12 @@ typedef struct{
 	uint8_t AUX1;
 	uint32_t AUX2;
 }registros;
+
+typedef struct {
+    int fd_interfaz;
+	char* nombre_interfaz;
+	char* tipo_interfaz;
+} interfaces_io;
 
 typedef struct{
 	int pid;

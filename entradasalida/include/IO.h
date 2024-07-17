@@ -10,6 +10,7 @@
 t_log* io_logger;
 t_log* io_log_debug;
 t_config* io_config;
+t_bitarray* bitarray_bloques;
 
 int fd_memoria;
 int fd_kernel;

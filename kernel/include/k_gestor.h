@@ -11,6 +11,7 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>
+#include <commons/collections/queue.h>
 
 typedef enum{
     FIFO,
@@ -53,6 +54,7 @@ extern t_list *procesosNEW;
 extern t_list *procesosREADY;
 extern t_list *procesosReadyConQ;
 extern t_list *procesosSuspendidos;
+extern t_queue* lista_interfaces;
 
 typedef struct{
     int pid;

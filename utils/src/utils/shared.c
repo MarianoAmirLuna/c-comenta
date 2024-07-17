@@ -17,7 +17,6 @@ t_log *logger;
 }*/
 int iniciar_conexion(char *puerto, char *nombre, t_log *logger_debug)
 {
-
 	struct addrinfo hints;
 	struct addrinfo *server_info;
 

@@ -5,6 +5,8 @@ t_planificacion tipoPlanificacion=FIFO;//PREGUNTAR LUCA
 t_list *procesosNEW=NULL;
 t_list *procesosREADY=NULL;
 t_list *procesosSuspendidos=NULL;
+t_queue* lista_interfaces=NULL;
+
 int procesoEXEC=0;
 pthread_mutex_t mutexExec = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t modificarLista = PTHREAD_MUTEX_INITIALIZER;

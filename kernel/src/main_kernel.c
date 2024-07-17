@@ -11,7 +11,8 @@
 int main(void)
 {
 	//recibe mensajes del interrupt / dispatch / io / memoria
-	
+	lista_interfaces = queue_create();
+
 	inicializar_kernel();
 	fd_kernel = iniciar_servidor(PUERTO_ESCUCHA);
 
@@ -25,11 +26,6 @@ int main(void)
 	pthread_create(&hilo_planificacion, NULL, (void*)iniciar_planificacion, NULL);
 	pthread_detach(hilo_planificacion);
 
-    //log_trace(kernel_logger, "listo para escuchar al IO");
-	log_trace(kernel_log_debug, "listo para escuchar al IO");
-	fd_io = esperar_cliente(fd_kernel);
-	printf("pasa de EsperarCliente\n");
-
 	pthread_t hilo_cpu_interrupt;
 	pthread_create(&hilo_cpu_interrupt, NULL, (void*)atender_kernel_interrupt, NULL);
 	pthread_detach(hilo_cpu_interrupt);
@@ -37,30 +33,38 @@ int main(void)
 	pthread_t hilo_cpu_dispatch;
 	pthread_create(&hilo_cpu_dispatch, NULL, (void*)atender_kernel_dispatch, NULL);
 	pthread_detach(hilo_cpu_dispatch);
-
-	pthread_t hilo_io;
-	pthread_create(&hilo_io, NULL, (void*)atender_kernel_io, NULL);
-	pthread_detach(hilo_io);
-
-	/*pthread_t hilo_memoria;
-	pthread_create(&hilo_memoria, NULL, (void*)atender_kernel_memoria, NULL);
-	pthread_detach(hilo_memoria);*/
-
 	
 	pthread_t hilo_consola;
 	pthread_create(&hilo_consola, NULL, (void*)iniciar_consola_interactiva, NULL);
-	pthread_join(hilo_consola, NULL);
-	//Iniciar la consola interactiva
-	//iniciar_consola_interactiva();
-	
-	log_debug(kernel_log_debug, "Advertencia de salida de Kernel");
+	pthread_detach(hilo_consola);
 
-	printf("llegue al while");
+	while(1) {
 
-	while(1){
-		printf("estoy en el while\n");
-		sleep(20);
-	}
+        printf("entre al while\n");
+
+        int* socket_cliente = malloc(sizeof(int));
+
+        if (socket_cliente == NULL) {
+            perror("Error en malloc()");
+            return EXIT_FAILURE;
+        }
+
+		printf("un instante antes del accept\n");
+        *socket_cliente = accept(fd_kernel, NULL, NULL); //en el momento que recibe una nueva conexion por parte de io pasa el accept y crea un nuevo hilo
+		printf("un instante despues del accept\n");
+
+        printf("el socket del cliente es: %d\n",*socket_cliente);
+
+        if (*socket_cliente < 0) {
+            perror("Error en accept()");
+            free(socket_cliente); // Libera la memoria en caso de error
+            continue;
+        }
+
+        pthread_t thread;
+        pthread_create(&thread, NULL, (void*)atender_creacion_interfaz, socket_cliente);
+        pthread_detach(thread);
+    }
 
 	return 0;
 }

@@ -3,6 +3,6 @@
 
 #include "k_gestor.h"
 
-void atender_kernel_io();
+void atender_creacion_interfaz();
 
 #endif

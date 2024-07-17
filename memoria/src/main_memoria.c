@@ -21,9 +21,6 @@ int main() {
 	log_trace(memoria_log_debug, "listo para escuchar al KERNEL");
 	fd_kernel = esperar_cliente(fd_memoria);
 
-	log_trace(memoria_log_debug, "listo para escuchar al IO");
-	fd_io = esperar_cliente(fd_memoria);
-
 	//Atender los mensajes del kernel
 
 	pthread_t hilo_kernel;
@@ -33,19 +30,7 @@ int main() {
 	//Atender los mensajes del CPU
 	pthread_t hilo_cpu;
 	pthread_create(&hilo_cpu, NULL, (void*)atender_memoria_cpu, NULL);
-	pthread_detach(hilo_cpu);
-
-	//Atender los mensajes del IO
-	pthread_t hilo_io;
-	pthread_create(&hilo_io, NULL, (void*)atender_memoria_io, NULL);
-	pthread_join(hilo_io, NULL);
-
-	printf("llegue al while");
-
-	while(1){
-		printf("estoy en el while\n");
-		sleep(20);
-	}
+	pthread_join(hilo_cpu,NULL);
 
 	return 0;
 

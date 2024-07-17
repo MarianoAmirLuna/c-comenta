@@ -8,6 +8,7 @@
 #include <commons/config.h>
 #include <pthread.h>
 #include <commons/log.h>
+#include <commons/bitarray.h>
 
 //Variables GLOBALES
 
@@ -17,6 +18,7 @@ extern t_config* io_config;
 
 extern int fd_memoria;
 extern int fd_kernel;
+extern t_bitarray* bitarray_bloques;
 
 extern char* TIPO_INTERFAZ;
 extern char* IP_MEMORIA;
