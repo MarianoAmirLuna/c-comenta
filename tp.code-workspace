@@ -15,7 +15,8 @@
 			"tuple": "c",
 			"type_traits": "c",
 			"utility": "c",
-			"cstdlib": "c"
+			"cstdlib": "c",
+			"fileSystem_io.C": "cpp"
 		},
 		"C_Cpp.errorSquiggles": "disabled",
 	},
