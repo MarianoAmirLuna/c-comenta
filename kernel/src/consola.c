@@ -69,6 +69,10 @@ void _atender_instruccion_validada(char* leido){
 
     } else if (strcmp(comando_consola[0], "FINALIZAR_PROCESO") == 0){
         
+        int * pidComando = malloc(sizeof(int));
+        *pidComando = atoi(comando_consola[1]);
+        liberarRecursosProceso(pidComando);
+        free(pidComando);
 
     } else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0){
 

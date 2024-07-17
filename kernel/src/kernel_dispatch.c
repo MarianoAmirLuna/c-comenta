@@ -72,7 +72,7 @@ void atender_kernel_dispatch()
 			list_add(procesosREADY, &(pcb_devuelto_por_signal->pid));
 
 			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
-			atender_signal(nombre_recurso_signal);
+			atender_signal(nombre_recurso_signal, &(pcb_devuelto_por_signal->pid));
 			break;
 
 		case -1:
