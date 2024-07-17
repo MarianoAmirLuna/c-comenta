@@ -310,7 +310,8 @@ tablaPaginas *obtener_tabla_pagina(int pid)
 	return tablaPagina;
 }
 
-void terminoInstruccionMemoria(){
+void terminoInstruccionMemoria()
+{
 	t_buffer *a_enviar = crear_buffer();
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;
@@ -333,19 +334,21 @@ void imprimirBitsValidez(tablaPaginas p)
 	}
 }
 
-void imprimirBitmapMemoriaPrincipal(){
+void imprimirBitmapMemoriaPrincipal()
+{
 	bool estaOcupado;
-	
+
 	for (int i = 0; i < 128; i++)
 	{
-		estaOcupado =  bitarray_test_bit(frames_ocupados_ppal,i);
+		estaOcupado = bitarray_test_bit(frames_ocupados_ppal, i);
 		if (estaOcupado)
 		{
-			printf("El bit: %d esta ocupado.\n",i);
-		} else {
-			printf("El bit: %d esta libre.\n",i);
+			printf("El bit: %d esta ocupado.\n", i);
 		}
-		
+		else
+		{
+			printf("El bit: %d esta libre.\n", i);
+		}
 	}
 }
 
@@ -357,55 +360,70 @@ void resize(t_buffer *un_buffer)
 
 	usleep(RETARDO_RESPUESTA * 1000);
 
-	printf("se va a hacer un resize de: %d\n", tamanioAModificar);
+	if (tamanioAModificar > TAM_MEMORIA)
+	{
+		t_buffer *buffer = crear_buffer();
+		buffer->size = 0;
+		buffer->stream = NULL;
 
-	tablaPaginas *tablaPag = obtener_tabla_pagina(pid);
+		cargar_int_al_buffer(buffer, 7);
 
-	printf("el pid de la tabla de paginas: %d\n", tablaPag->pid);
-
-	int cantBitsValidez = tablaPag->cantMarcos;
-
-	printf("la cant de bits de validez en 1: %d\n", cantBitsValidez);
-
-	int tamanioActual = cantBitsValidez * TAM_PAGINA;
-
-	printf("el tamanio actual es: %d\n", tamanioActual);
-	printf("el tamanio a modificar es: %d\n", tamanioAModificar);
-
-	if (tamanioAModificar > tamanioActual)
-	{ // si necesitamos mas paginas
-		printf("ENTRE AL IFFFFFFFFFFFFF\n");
-
-		int paginasNecesarias = ceil((double)tamanioAModificar / (double)TAM_PAGINA);
-
-		printf("se van a solicitar: %d\n", paginasNecesarias);
-
-		reservarFrames(tablaPag, paginasNecesarias, cantBitsValidez); // aca esta el error
+		t_paquete *paquete = crear_super_paquete(OUT_OF_MEMORY, buffer);
+		enviar_paquete(paquete, fd_cpu);
+    	destruir_paquete(paquete);
 	}
 	else
 	{
-		if (tamanioAModificar <= tamanioActual)
-		{ // si quiero sacar paginas, tengo que cambiar los valores del bitarray & liberar las paginas
-			printf("ENTRE AL ELSEEEEEEEEE");
-			int cantBytesModificar = tamanioActual - tamanioAModificar;
-			int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
-			liberarFrames(tablaPag, cantPaginasABorrar);
+		printf("se va a hacer un resize de: %d\n", tamanioAModificar);
+
+		tablaPaginas *tablaPag = obtener_tabla_pagina(pid);
+
+		printf("el pid de la tabla de paginas: %d\n", tablaPag->pid);
+
+		int cantBitsValidez = tablaPag->cantMarcos;
+
+		printf("la cant de bits de validez en 1: %d\n", cantBitsValidez);
+
+		int tamanioActual = cantBitsValidez * TAM_PAGINA;
+
+		printf("el tamanio actual es: %d\n", tamanioActual);
+		printf("el tamanio a modificar es: %d\n", tamanioAModificar);
+
+		if (tamanioAModificar > tamanioActual)
+		{ // si necesitamos mas paginas
+			printf("ENTRE AL IFFFFFFFFFFFFF\n");
+
+			int paginasNecesarias = ceil((double)tamanioAModificar / (double)TAM_PAGINA);
+
+			printf("se van a solicitar: %d\n", paginasNecesarias);
+
+			reservarFrames(tablaPag, paginasNecesarias, cantBitsValidez); // aca esta el error
 		}
+		else
+		{
+			if (tamanioAModificar <= tamanioActual)
+			{ // si quiero sacar paginas, tengo que cambiar los valores del bitarray & liberar las paginas
+				printf("ENTRE AL ELSEEEEEEEEE");
+				int cantBytesModificar = tamanioActual - tamanioAModificar;
+				int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
+				liberarFrames(tablaPag, cantPaginasABorrar);
+			}
+		}
+
+		printf("-------------------------------");
+
+		printf("PID: %d\n", tablaPag->pid);
+		for (int i = 0; i < 40; i++)
+		{
+			printf("Bit de validez del marco %d: %d\n", i, tablaPag->array[i].bitValidez);
+			printf("El nro de marco asignado: %d\n", tablaPag->array[i].marco);
+		}
+
+		printf("-------------------------------");
+
+		terminoInstruccionMemoria();
+		imprimirBitmapMemoriaPrincipal();
 	}
-
-	printf("-------------------------------");
-
-	printf("PID: %d\n", tablaPag->pid);
-	for (int i = 0; i < 40; i++)
-	{
-		printf("Bit de validez del marco %d: %d\n", i, tablaPag->array[i].bitValidez);
-		printf("El nro de marco asignado: %d\n", tablaPag->array[i].marco);
-	}
-
-	printf("-------------------------------");
-
-	terminoInstruccionMemoria();
-	imprimirBitmapMemoriaPrincipal();
 }
 
 void buscarMarco(t_buffer *un_buffer)
@@ -535,19 +553,20 @@ void escribirMemoria(t_buffer *un_buffer)
 	terminoInstruccionMemoria();
 }
 
-void leer_caracter(int df){
+void leer_caracter(int df)
+{
 
 	uint8_t datoLeido;
 
 	memcpy(&datoLeido, memoriaPrincipal + df, 1);
 
-    t_buffer *a_enviar = crear_buffer();
+	t_buffer *a_enviar = crear_buffer();
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;
 
 	cargar_uint8_al_buffer(a_enviar, datoLeido);
 
-	printf("se encontro el caracter %u\n",datoLeido);
+	printf("se encontro el caracter %u\n", datoLeido);
 
 	t_paquete *un_paquete = crear_super_paquete(RECIBIR_CARACTER, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
@@ -606,11 +625,11 @@ void atender_memoria_cpu()
 			escribirMemoria(un_buffer);
 			break;
 		case LEER_CARACTER_MEMORIA:
-		    un_buffer = recibir_todo_el_buffer(fd_cpu);
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			int df = extraer_int_del_buffer(un_buffer);
 			printf("la df recibida es: %d\n");
 			leer_caracter(df);
-		    break;
+			break;
 		case -1:
 			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

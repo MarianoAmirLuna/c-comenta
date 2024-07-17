@@ -102,6 +102,18 @@ void atender_cpu_memoria()
 			caracterGlobal = extraer_uint8_del_buffer(un_buffer);
 			sem_post(&esperar_lectura_caracter);
 			break;
+		case OUT_OF_MEMORY:
+		    un_buffer = recibir_todo_el_buffer(fd_memoria);
+			int valorRandom = extraer_int_del_buffer(un_buffer);
+			printf("OUT OF MEMORY\n\n");
+			printf("el PID: %d\n", pcb_ejecucion.pid);
+			printf("Estado de los registros:\n");
+			printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
+			printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
+			printf("PC: %d\n\n", pcb_ejecucion.program_counter);
+			printf("------------------------------------------------\n\n");
+			terminarPorExit = true;
+			break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

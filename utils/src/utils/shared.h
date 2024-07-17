@@ -64,7 +64,7 @@ typedef enum
 	DEVOLVER_TAMANIO_PAGINA,
 	ESCRITURA_HECHA,
 	LECTURA_HECHA,
-	
+	OUT_OF_MEMORY,
 
 }op_code;
 
