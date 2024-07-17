@@ -24,7 +24,7 @@ void atender_cpu_memoria()
 
             instruccion_actual = extraer_string_del_buffer(un_buffer);
 
-			printf("La instruccion es: %s\n",instruccion_actual);
+			//printf("La instruccion es: %s\n",instruccion_actual);
 
 			sem_post(&wait_instruccion);
 			
@@ -44,10 +44,21 @@ void atender_cpu_memoria()
 
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
 
-			int basura = extraer_int_del_buffer(un_buffer);
+			int direccion_fisica = extraer_int_del_buffer(un_buffer);
+			int tamanio_a_escribir = extraer_int_del_buffer(un_buffer);
 
-		    printf("A memoria le llegó lo que tenía que escribir.\n");
+			if (tamanio_a_escribir == 1)
+			{
+				uint8_t dato8 = extraer_uint8_del_buffer(un_buffer);
+				log_debug(cpu_log_debug, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, direccion_fisica, dato8);
+			}
+			else
+			{
+				uint32_t dato32 = extraer_uint32_del_buffer(un_buffer);
+				log_debug(cpu_log_debug, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, direccion_fisica, dato32);
+			}
 
+		    //printf("A memoria le llegó lo que tenía que escribir.\n");
 			sem_post(&esperarEscrituraDeMemoria);
 			
 			break;
@@ -55,18 +66,20 @@ void atender_cpu_memoria()
 
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
 
+			int dirFisicaDelDato = extraer_int_del_buffer(un_buffer);
 			char* registroDatos = extraer_string_del_buffer(un_buffer);
 			void *direccionRegistroDatos = (void *)get_registry(registroDatos);
-
 			int tamanio = extraer_int_del_buffer(un_buffer);
 
 			if(tamanio == 1){
 				uint8_t dato8 = extraer_uint32_del_buffer(un_buffer);
 				memcpy(direccionRegistroDatos,&dato8,1);
+				log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato8);
 			}
 			else{
                 uint32_t dato32 = extraer_uint32_del_buffer(un_buffer);
 				memcpy(direccionRegistroDatos,&dato32,4);
+				log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato32);
 			}
 
 		    printf("Ya leyo el MOV_IN.\n");
@@ -80,7 +93,7 @@ void atender_cpu_memoria()
 
 			marco = extraer_int_del_buffer(un_buffer);
 
-		    printf("llego marquitos a cpu %d\n", marco);
+		    //printf("llego marquitos a cpu %d\n", marco);
 
 			sem_post(&esperarMarco);
 
@@ -105,13 +118,7 @@ void atender_cpu_memoria()
 		case OUT_OF_MEMORY:
 		    un_buffer = recibir_todo_el_buffer(fd_memoria);
 			int valorRandom = extraer_int_del_buffer(un_buffer);
-			printf("OUT OF MEMORY\n\n");
-			printf("el PID: %d\n", pcb_ejecucion.pid);
-			printf("Estado de los registros:\n");
-			printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
-			printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
-			printf("PC: %d\n\n", pcb_ejecucion.program_counter);
-			printf("------------------------------------------------\n\n");
+			log_error(cpu_log_debug, "OUT OF MEMORY");
 			terminarPorExit = true;
 			break;
 		case -1:

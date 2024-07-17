@@ -8,7 +8,7 @@ void inicializar_io(){
 }
 
 void iniciar_logs(){
-	io_logger = log_create("cliente.log","", 1 ,LOG_LEVEL_INFO);
+	io_logger = log_create("io.log","", 1 ,LOG_LEVEL_INFO);
 
 	if(io_logger == NULL){
 		perror ("Hay un error al iniciar el log.");
@@ -16,7 +16,7 @@ void iniciar_logs(){
 	}
 
 
-	io_log_debug = log_create("cliente.log","", 1 ,LOG_LEVEL_TRACE);
+	io_log_debug = log_create("io.log","", 1 ,LOG_LEVEL_TRACE);
 
 	if(io_log_debug == NULL){
 		perror ("Hay un error al iniciar el log.");
@@ -48,9 +48,8 @@ void iniciar_config_io(){
 }
 
 void imprimir_config(){
-	log_info(io_logger, "IP_MEMORIA: %s", IP_MEMORIA);
-	log_warning(io_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
+	log_debug(io_log_debug, "IP_MEMORIA: %s", IP_MEMORIA);
+	log_debug(io_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
 	log_debug(io_log_debug, "TIEMPO_UNIDAD_TRABAJO: %d", TIEMPO_UNIDAD_TRABAJO);
-	log_trace(io_log_debug, "BLOCK_COUNT: %d", BLOCK_COUNT);
-
+	log_debug(io_log_debug, "BLOCK_COUNT: %d", BLOCK_COUNT);
 }

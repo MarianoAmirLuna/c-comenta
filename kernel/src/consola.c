@@ -1,5 +1,6 @@
 #include "../include/consola.h"
 #include "../include/funciones_kernel.h"
+#include <commons/log.h>
 
 void iniciar_consola_interactiva(){
     
@@ -65,7 +66,9 @@ void _atender_instruccion_validada(char* leido){
         printf("%s\n",comando_consola[1]);
 
         iniciar_proceso(comando_consola[1]);
-        printf("se creo un proceso\n");
+        
+        log_trace(kernel_log_debug, "Se creo un proceso\n");
+
 
     } else if (strcmp(comando_consola[0], "FINALIZAR_PROCESO") == 0){
         

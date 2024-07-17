@@ -8,6 +8,7 @@
 #include "../include/funciones_cpu.h"
 #include <semaphore.h>
 #include <inttypes.h>
+#include <string.h>
 
 bool es4bytes(char *registro)
 {
@@ -156,6 +157,7 @@ void _mov_in(char *registroDatos, char *registroDireccion)
     int *dirLogicaDelDato = (int *)direccionLogicaDelDato;
 
     hacerMovIn(*dirLogicaDelDato, tamanioDatoALeer, registroDatos);
+
 }
 
 void mandarDatoAEscribir(int direccion_logica, int direccion_fisica, int segundaDF, void *queEscribir, int bytes_a_escribir, int seEscribe2paginas, int tamanioRestantePagina)
@@ -614,55 +616,61 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     switch (instruction)
     {
     case SET:
-        printf("el registo bx: %u\n",pcb_ejecucion.registros_cpu.BX);
         _set(param1, param2);
-        printf("el registo bx: %u\n",pcb_ejecucion.registros_cpu.BX);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case MOV_IN:
         _mov_in(param1, param2);
-
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case MOV_OUT:
         _mov_out(param1, param2);
-
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case SUM:
         _sum(param1, param2);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case SUB:
         _sub(param1, param2);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case JNZ:
         _jnz(param1, param2);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case RESIZE:
         _resize(param1);
-
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case COPY_STRING:
         _copy_string(param1);
-
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case WAIT:
         _wait(param1);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case SIGNAL:
         _signal(param1);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case IO_GEN_SLEEP:
         ioGenSleep(param1, param2);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s - <<%s, %s>>", pcb->pid, instruccion, param1, param2);
         break;
     case IO_STDIN_READ:
         // ioSTDINRead(param1, param2, param3);
         break;
     case IO_STDOUT_WRITE:
         io_stdout_write(param1, param2, param3);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case IO_FS_CREATE:
@@ -682,6 +690,7 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         break;
     case EXIT:
         terminarPorExit = true;
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case INVALID_INSTRUCTION:
@@ -697,8 +706,9 @@ void solicitar_instruccion(int pid, int program_counter)
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
-    printf("el pid en solicitar_instruccion es: %d\n", pid);
+    //printf("el pid en solicitar_instruccion es: %d\n", pid);
     printf("el program counter en solicitar instrucciones: %d\n", program_counter);
+    log_trace(cpu_log_debug, "PID: %d - FETCH - Program Counter: %d", pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
     cargar_int_al_buffer(a_enviar, pid);
     cargar_int_al_buffer(a_enviar, program_counter);
@@ -845,10 +855,11 @@ int buscarMarcoTLB(int pid, int pagina)
 
     if (lineaTL == NULL)
     { // se produce un MISS al no encontrarlo
-        printf("se produjo un MISS\n");
+        log_warning(cpu_log_debug, "PID: %d - TLB MISS - Pagina: %d", pid, pagina);
         return -1;
     }
-    printf("se produjo un HIT\n");
+    
+    log_trace(cpu_log_debug, "PID: %d - TLB HIT - Pagina: %d", pid, pagina);
 
     if (strcmp(ALGORITMO_TLB, "LRU") == 0)
     { // en caso de que sea LRU hay que actualizar la prioridad
@@ -882,6 +893,8 @@ int traducir_dl(int direccionLogica)
     enviar_pedido_marco(num_pag, pcb_ejecucion.pid); // en caso de un miss busca en memoria
 
     agregarPaginaTLB(pcb_ejecucion.pid, num_pag, marco); // despues del miss se actualiza la TLB
+
+    log_debug(cpu_log_debug, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pcb_ejecucion.pid, num_pag, marco);
 
     int sizeTLB = queue_size(cola_tlb);
 
@@ -982,7 +995,7 @@ void procesar_instruccion()
 
         sem_wait(&wait_instruccion);
 
-        printf("el PID: %d\n", pcb_ejecucion.pid);
+        //printf("el PID: %d\n", pcb_ejecucion.pid);
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
         printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);

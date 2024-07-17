@@ -11,7 +11,7 @@ void inicializar_cpu(){
 }
 
 void iniciar_logs(){
-	cpu_logger = log_create("cliente.log","", 1 ,LOG_LEVEL_INFO);
+	cpu_logger = log_create("cpu.log","", 1 ,LOG_LEVEL_INFO);
 
 	if(cpu_logger == NULL){
 		perror ("Hay un error al iniciar el log.");
@@ -19,7 +19,7 @@ void iniciar_logs(){
 	}
 
 
-	cpu_log_debug = log_create("cliente.log","", 1 ,LOG_LEVEL_TRACE);
+	cpu_log_debug = log_create("cpu.log","", 1 ,LOG_LEVEL_TRACE);
 
 	if(cpu_log_debug == NULL){
 		perror ("Hay un error al iniciar el log.");
@@ -43,10 +43,10 @@ void iniciar_config_cpu(){
     CANTIDAD_ENTRADAS_TLB = config_get_int_value(cpu_config, "CANTIDAD_ENTRADAS_TLB");
 }
 void imprimir_config(){
-    log_info(cpu_logger, "IP_MEMORIA: %s", IP_MEMORIA);
-	log_warning(cpu_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
+	log_debug(cpu_log_debug, "IP_MEMORIA: %s", IP_MEMORIA);
+	log_debug(cpu_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
 	log_debug(cpu_log_debug, "PUERTO_ESCUCHA_DISPATCH: %s", PUERTO_ESCUCHA_DISPATCH);
-	log_trace(cpu_log_debug, "PUERTO_ESCUCHA_INTERRUPT: %s", PUERTO_ESCUCHA_INTERRUPT);
+	log_debug(cpu_log_debug, "PUERTO_ESCUCHA_INTERRUPT: %s", PUERTO_ESCUCHA_INTERRUPT);
 }
 
 void iniciar_semaforos(){
