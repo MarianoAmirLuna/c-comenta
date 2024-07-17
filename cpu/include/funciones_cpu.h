@@ -8,7 +8,7 @@ void ejecutar_instruccion(char* instruccion, PCB* pcb);
 bool huboCambioContexto(int pidAEjecutar);
 void procesar_instruccion();
 void actualizarPCB();
-nombre_instruccion str_to_instruction(const char* instr) ;
+nombre_instruccion str_to_instruction(const char* instr);
 bool es4bytes(char* instruccion);
 void _set(char* registro,char* valor);
 void hacerMovIn( int dirLogicaDelDato, int tamanioDatoALeer,char* registroDatos);

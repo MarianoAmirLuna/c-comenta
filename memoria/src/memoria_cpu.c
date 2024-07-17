@@ -175,6 +175,7 @@ void leerDato(t_buffer *un_buffer)
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;
 
+	cargar_int_al_buffer(a_enviar, dirFisicaDelDato);
 	cargar_string_al_buffer(a_enviar, registroDatos);
 	cargar_int_al_buffer(a_enviar, tamanioALeer);
 
@@ -207,6 +208,10 @@ void escribirDato(t_buffer *un_buffer)
 	int segundaDF = extraer_int_del_buffer(un_buffer);
 	int tamanio_a_escribir = extraer_int_del_buffer(un_buffer);
 
+	t_buffer *a_enviar = crear_buffer();
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
 	if (tamanio_a_escribir == 1)
 	{
 		data8 = extraer_uint8_del_buffer(un_buffer);
@@ -224,10 +229,18 @@ void escribirDato(t_buffer *un_buffer)
 	printf("El valor de uint8_t es: %u\n", data8);
 	printf("El valor de uint32_t es: %u\n", data32);
 
+	//Le mando la dirección física a CPU para los LOGs obligatorios
+	cargar_int_al_buffer(a_enviar, direccion_fisica);
+
 	if (tamanio_a_escribir == 1)
 	{
 		memcpy((memoriaPrincipal + direccion_fisica), &data8, tamanio_a_escribir);
 		tamanioRestantePagina = tamanioRestantePagina - 1;
+
+		//Le mando el dato escrito a CPU
+		cargar_int_al_buffer(a_enviar, tamanio_a_escribir);
+		cargar_uint8_al_buffer(a_enviar, data8);
+
 	}
 	else
 	{
@@ -255,10 +268,14 @@ void escribirDato(t_buffer *un_buffer)
 
 			printf("El valor de ECX despues de reconstruirlo: %d \n", data32_reconstruido);
 
+			//Le mando el dato escrito a CPU
+			cargar_int_al_buffer(a_enviar, tamanio_a_escribir);
+			cargar_uint32_al_buffer(a_enviar, data32_reconstruido);
+
 			// ahora escribo posta en la memoria solo la parte 1
-			printf("escribie en el caso trubio\n");
-			printf("primer df %d\n", direccion_fisica);
-			printf("segunda df %d\n", segundaDF);
+			printf("Escribie en el caso turbio\n");
+			printf("Primer df %d\n", direccion_fisica);
+			printf("Segunda df %d\n", segundaDF);
 
 			memcpy(memoriaPrincipal + direccion_fisica, data32_parte_1, tamanioRestantePagina);
 			memcpy(memoriaPrincipal + segundaDF, data32_parte_2, 4 - tamanioRestantePagina);
@@ -269,6 +286,10 @@ void escribirDato(t_buffer *un_buffer)
 		else
 		{
 			memcpy((memoriaPrincipal + direccion_fisica), &data32, tamanio_a_escribir);
+
+			//Le mando el dato escrito a CPU
+			cargar_int_al_buffer(a_enviar, tamanio_a_escribir);
+			cargar_uint32_al_buffer(a_enviar, data32);
 		}
 
 		tamanioRestantePagina = tamanioRestantePagina - 4;
@@ -281,12 +302,12 @@ void escribirDato(t_buffer *un_buffer)
 		bitarray_set_bit(frames_ocupados_ppal, num_pag);
 	}
 
-	// Mandamos basura, para hacer el sem_post
+	/* Mandamos basura, para hacer el sem_post
 	t_buffer *a_enviar = crear_buffer();
 	a_enviar->size = 0;
 	a_enviar->stream = NULL;
 
-	cargar_int_al_buffer(a_enviar, 1);
+	cargar_int_al_buffer(a_enviar, 1);*/
 
 	t_paquete *un_paquete = crear_super_paquete(ESCRITURA_HECHA, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
@@ -392,6 +413,7 @@ void resize(t_buffer *un_buffer)
 		if (tamanioAModificar > tamanioActual)
 		{ // si necesitamos mas paginas
 			printf("ENTRE AL IFFFFFFFFFFFFF\n");
+			log_debug(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, tamanioActual, tamanioAModificar);
 
 			int paginasNecesarias = ceil((double)tamanioAModificar / (double)TAM_PAGINA);
 
@@ -404,6 +426,7 @@ void resize(t_buffer *un_buffer)
 			if (tamanioAModificar <= tamanioActual)
 			{ // si quiero sacar paginas, tengo que cambiar los valores del bitarray & liberar las paginas
 				printf("ENTRE AL ELSEEEEEEEEE");
+				log_debug(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Reducir: %d", pid, tamanioActual, tamanioAModificar);
 				int cantBytesModificar = tamanioActual - tamanioAModificar;
 				int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
 				liberarFrames(tablaPag, cantPaginasABorrar);
@@ -441,6 +464,8 @@ void buscarMarco(t_buffer *un_buffer)
 	tablaPaginas *tablaDePaginas = obtener_tabla_pagina(pid);
 	int marco = tablaDePaginas->array[num_pag].marco;
 	// Si estan pasando cosas raras con el marco que va a recibir el cpu. Puede ser que no se haya inicializado bien el array.
+
+	log_debug(memoria_log_debug, "PID: %d - Pagina: %d - Marco: %d", pid, num_pag, marco);
 
 	cargar_int_al_buffer(a_enviar, marco);
 
@@ -488,7 +513,7 @@ void obtenerCortesDePagina(t_list *lista, int tamanio_a_escribir, int restante_p
 			tamanio_a_escribir = tamanio_a_escribir - restante_pagina;
 			acumulador = acumulador + restante_pagina;
 		}
-		restante_pagina = TAM_PAGINA; // 60 32 => 28 32
+		restante_pagina = TAM_PAGINA; // 60 32 => 28 32	
 	}
 }
 

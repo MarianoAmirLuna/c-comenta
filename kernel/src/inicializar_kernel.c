@@ -11,7 +11,7 @@ void inicializar_kernel();
 
 void inicializar_logs()
 {
-	kernel_logger = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_INFO);
+	kernel_logger = log_create("kernel.log", "", 1, LOG_LEVEL_INFO);
 
 	if (kernel_logger == NULL)
 	{
@@ -19,13 +19,14 @@ void inicializar_logs()
 		exit(EXIT_FAILURE);
 	}
 
-	kernel_log_debug = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_TRACE);
+	kernel_log_debug = log_create("kernel.log", "", 1, LOG_LEVEL_TRACE);
 
 	if (kernel_log_debug == NULL)
 	{
 		perror("Hay un error al iniciar el log.");
 		exit(EXIT_FAILURE);
 	}
+
 }
 
 void inicializar_configs()
@@ -53,10 +54,10 @@ void inicializar_configs()
 
 void imprimir_configs()
 {
-	log_info(kernel_logger, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
-	log_warning(kernel_logger, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
+	log_debug(kernel_log_debug, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
+	log_debug(kernel_log_debug, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
 	log_debug(kernel_log_debug, "RECURSOS: %s", RECURSOS);
-	log_trace(kernel_log_debug, "QUANTUM: %d", QUANTUM);
+	log_debug(kernel_log_debug, "QUANTUM: %d", QUANTUM);
 }
 
 void iniciar_semaforos()

@@ -19,6 +19,8 @@ void atender_crear_proceso(t_buffer *un_buffer)
 	path_conID *path_con_id = iniciar_path_id(pid, path);
 	tablaPaginas* tabla = inicializarTablaPaginas(pid);
 
+	log_debug(memoria_log_debug, "PID: %d - Tamaño: %d", pid, tabla->cantMarcos);
+
 	list_add(list_path_id, path_con_id); // #ACAJOACO
 	list_add(listaTablaPaginas, tabla);
 
@@ -29,6 +31,10 @@ void atender_eliminar_proceso(t_buffer *un_buffer)
 {
 	int pid = extraer_int_del_buffer(un_buffer);
 	tablaPaginas* tablaABorrar = obtener_tabla_pagina(pid);
+
+	//log obligatorio de destruccion
+	log_debug(memoria_log_debug, "PID: %d - Tamaño: %d", pid, tablaABorrar->cantMarcos);
+
 	list_remove_element(listaTablaPaginas, tablaABorrar); //Eliminamos 1ro la tabla de paginas de la lista de tabla de paginas
 	int cantidadDeBitsVal = contarBitValidez(tablaABorrar);
 	int numMarcoABorrar;

@@ -9,7 +9,7 @@ void iniciar_listas(){
 
 void iniciar_logs(){
     
-	memoria_logger = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_INFO);
+	memoria_logger = log_create("memoria.log", "", 1, LOG_LEVEL_INFO);
 
 	if (memoria_logger == NULL)
 	{
@@ -17,7 +17,7 @@ void iniciar_logs(){
 		exit(EXIT_FAILURE);
 	}
 
-	memoria_log_debug = log_create("cliente.log", "CL_LOG", 1, LOG_LEVEL_TRACE);
+	memoria_log_debug = log_create("memoria.log", "", 1, LOG_LEVEL_TRACE);
 
 	if (memoria_log_debug == NULL)
 	{
@@ -44,10 +44,10 @@ void iniciar_config(){
 }
 
 void imprimir_config(){    	
-	log_info(memoria_logger, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
-	log_warning(memoria_log_debug, "TAM_MEMORIA: %d", TAM_MEMORIA);
+	log_debug(memoria_log_debug, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
+	log_debug(memoria_log_debug, "TAM_MEMORIA: %d", TAM_MEMORIA);
 	log_debug(memoria_log_debug, "TAM_PAGINA: %d", TAM_PAGINA);
-	log_trace(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
+	log_debug(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
 }
 
 void iniciar_semaforos(){

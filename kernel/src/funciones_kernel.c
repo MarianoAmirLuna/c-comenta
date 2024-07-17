@@ -434,6 +434,7 @@ void iniciar_planificacion()
 
 void avisarDesalojo()
 {
+  log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", estaEJecutando);
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
