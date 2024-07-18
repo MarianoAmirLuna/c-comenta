@@ -658,6 +658,20 @@ void mandarNuevoPCB()
   // pthread_mutex_unlock(&modificarLista);
 
   // printf("mande un pcb\n");
+
+  /*BORRAR DESPUES*/
+
+  int fdXD = obtener_fd_interfaz("MONITOR");
+
+  t_buffer *buffer_pid = crear_buffer();
+  buffer_pid->size = 0;
+  buffer_pid->stream = NULL;
+
+  cargar_int_al_buffer(buffer_pid, 1);
+
+  t_paquete *paquete_pid = crear_super_paquete(HABLAR_CON_IO, buffer_pid);
+  enviar_paquete(paquete_pid, fdXD);
+  destruir_paquete(paquete_pid);
 }
 
 void nuevaListaRecursos(int pid)
@@ -699,4 +713,26 @@ void liberarRecursosProceso(int *pid)
     }
     
   }
+}
+
+interfaces_io* encontrar_interfaz(char* nombre_buscado){
+  
+    for (int i = 0; i < list_size(lista_interfaces); i++) {
+
+        interfaces_io* elemento = list_get(lista_interfaces, i);
+
+        printf("nombre: %d\n",elemento->nombre_interfaz);
+
+        //if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0) {
+          //  return elemento;
+        //}
+    }
+    return NULL; // No se encontró la interfaz con el nombre buscado
+}
+
+int obtener_fd_interfaz(char* nombre_interfaz){
+
+  interfaces_io* interfaz = encontrar_interfaz(nombre_interfaz);
+
+  return interfaz->fd_interfaz;
 }

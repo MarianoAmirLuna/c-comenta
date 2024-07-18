@@ -54,7 +54,7 @@ extern t_list *procesosNEW;
 extern t_list *procesosREADY;
 extern t_list *procesosReadyConQ;
 extern t_list *procesosSuspendidos;
-extern t_queue* lista_interfaces;
+extern t_list *lista_interfaces;
 
 typedef struct{
     int pid;

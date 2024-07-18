@@ -17,19 +17,28 @@ void atender_creacion_interfaz(int *arg)
 		case CREAR_INTERFAZ:
 		    printf("estoy por crear la interfaz\n");
 
-		    interfaces_io* nueva_interfaz = malloc(sizeof(interfaces_io));
+		    interfaces_io* nueva_interfaz = (interfaces_io*)malloc(sizeof(interfaces_io));
+
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 
             char* nombre_interfaz = extraer_string_del_buffer(un_buffer);
             char* tipo_interfaz = extraer_string_del_buffer(un_buffer);
 
+			printf("el nombre dela interfaz: %s\n",nombre_interfaz);
+			printf("el tipo dela interfaz: %s\n",tipo_interfaz);
+
             nueva_interfaz->fd_interfaz = fd_entradasalida_kernel;
             nueva_interfaz->nombre_interfaz = nombre_interfaz;
             nueva_interfaz->tipo_interfaz = tipo_interfaz;
+			nueva_interfaz->procesos_bloqueados = queue_create();
 
-            queue_push(lista_interfaces, nueva_interfaz);
+            list_add(lista_interfaces, nueva_interfaz);
             
 			printf("agrege la nueva interfaz a la queue\n");
+
+			int size = list_size(lista_interfaces);
+
+			printf("el tamanio de la list interfaces: %d\n",size);
 
             free(nueva_interfaz);
 

@@ -11,6 +11,7 @@
 #include<commons/log.h>
 #include<commons/config.h>
 #include<commons/collections/list.h>
+#include<commons/collections/queue.h>
 #include<assert.h>
 #include<semaphore.h>
 #include<math.h>
@@ -68,6 +69,7 @@ typedef enum
 
 	//IO
 	CREAR_INTERFAZ,
+	HABLAR_CON_IO,
 
 }op_code;
 
@@ -130,6 +132,7 @@ typedef struct {
     int fd_interfaz;
 	char* nombre_interfaz;
 	char* tipo_interfaz;
+	t_queue* procesos_bloqueados;
 } interfaces_io;
 
 typedef struct{

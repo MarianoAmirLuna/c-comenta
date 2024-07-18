@@ -3,6 +3,6 @@
 
 #include "i_gestor.h"
 
-void atender_io_kernel();
+void atender_interfaz_kernel(int *arg);
 
 #endif

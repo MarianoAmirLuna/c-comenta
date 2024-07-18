@@ -21,6 +21,8 @@ void atender_signal(char*, int*);
 void atender_wait(char*, int*);
 void liberarRecursosProceso(int *);
 void estado_instancias();
+interfaces_io* encontrar_interfaz(char* nombre_buscado);
+
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;
 //int ejecutandoProceso;

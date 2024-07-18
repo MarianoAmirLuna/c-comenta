@@ -1,27 +1,33 @@
 #include "../include/io_memoria.h"
 #include <utils/shared.h>
 
-void atender_io_memoria()
+void atender_interfaz_memoria(int *arg)
 {
-    bool control_key = 1;
-    while (control_key)
-    {
-        int cod_op = recibir_operacion(fd_memoria);
-        switch (cod_op)
-        {
-        case MENSAJE:
-            //
+    int fd_entradasalida_memoria = *arg;
+	bool control_key = 1;
+	t_buffer *un_buffer;
+
+	while (control_key)
+	{
+		int cod_op = recibir_operacion(fd_entradasalida_memoria);
+		printf("el codigo de operacion es: %d\n", cod_op);
+
+		switch (cod_op)
+		{
+            
+		case HABLAR_CON_IO:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
+			int xd = extraer_int_del_buffer(un_buffer);
+			printf("logre recibir el mensaje de la lista de memoria\n");
+
             break;
-        case PAQUETE:
-            //
-            break;
-        case -1:
-            log_trace(io_log_debug, "Desconexion de MEMORIA - IO");
-            control_key = 0;
-            break;
-        default:
-            log_warning(logger, "Operacion desconocida de MEMORIA - IO");
-            break;
-        }
-    }
+		case -1:
+
+			control_key = 0;
+			break;
+		default:
+			log_warning(logger, "Operacion desconocida de KERNEL - IO");
+			break;
+		}
+	}
 }

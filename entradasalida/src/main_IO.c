@@ -108,7 +108,7 @@ void ejecutarInterfazSTDOUT(char *nombre, t_config *config_interface)
 
 // Inicio DialFS
 
-int setearPrimerBitDisponible(t_bitarray *bloq_dis) //setea en 1 el primer bit en 0 que encuentre y devuelve la posicion donde hizo el cambio
+int setearPrimerBitDisponible(t_bitarray *bloq_dis) // setea en 1 el primer bit en 0 que encuentre y devuelve la posicion donde hizo el cambio
 {
 
 	for (int base = 0; base < bitarray_get_max_bit(bloq_dis); base++)
@@ -121,62 +121,69 @@ int setearPrimerBitDisponible(t_bitarray *bloq_dis) //setea en 1 el primer bit e
 	}
 }
 
-void escribirCentinelaInicialBLoques(char* PATH_FS,int numPagina,char escribir){
+void escribirCentinelaInicialBLoques(char *PATH_FS, int numPagina, char escribir)
+{
 
-	char* PATH_bloques=string_duplicate(PATH_FS);
-printf("path_bloques antes de append: %s\n",PATH_bloques);
-	string_append(&PATH_bloques,"/ bloques.dat");
-printf("path_bloques despues de append: %s\n",PATH_bloques);
-/*
-	numPagina=0;
-	escribir='/0';
-*/
+	char *PATH_bloques = string_duplicate(PATH_FS);
+	printf("path_bloques antes de append: %s\n", PATH_bloques);
+	string_append(&PATH_bloques, "/ bloques.dat");
+	printf("path_bloques despues de append: %s\n", PATH_bloques);
+	/*
+		numPagina=0;
+		escribir='/0';
+	*/
 	int fd = open(PATH_bloques, O_RDWR);
-    if (fd == -1) {
-        perror("Error al abrir el archivo");
-        exit(EXIT_FAILURE);
-    }
+	if (fd == -1)
+	{
+		perror("Error al abrir el archivo");
+		exit(EXIT_FAILURE);
+	}
 
-    // Obtener el tamaño del archivo
-    struct stat sb;
-    if (fstat(fd, &sb) == -1) {
-        perror("Error al obtener el tamaño del archivo");
-        close(fd);
-        exit(EXIT_FAILURE);
-    }
-/*
-    // Asegurarse de que el archivo tenga al menos 16 bytes
-    if (sb.st_size < 16) {
-        if (ftruncate(fd, 16) == -1) {
-            perror("Error al redimensionar el archivo");
-            close(fd);
-            exit(EXIT_FAILURE);
-        }
-    }
-*/
-    // Mapear el archivo en memoria
-    char *map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if (map == MAP_FAILED) {
-        perror("Error al mapear el archivo");
-        close(fd);
-        exit(EXIT_FAILURE);
-    }
+	// Obtener el tamaño del archivo
+	struct stat sb;
+	if (fstat(fd, &sb) == -1)
+	{
+		perror("Error al obtener el tamaño del archivo");
+		close(fd);
+		exit(EXIT_FAILURE);
+	}
+	/*
+		// Asegurarse de que el archivo tenga al menos 16 bytes
+		if (sb.st_size < 16) {
+			if (ftruncate(fd, 16) == -1) {
+				perror("Error al redimensionar el archivo");
+				close(fd);
+				exit(EXIT_FAILURE);
+			}
+		}
+	*/
+	// Mapear el archivo en memoria
+	char *map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (map == MAP_FAILED)
+	{
+		perror("Error al mapear el archivo");
+		close(fd);
+		exit(EXIT_FAILURE);
+	}
 
-    // Escribir '\0' en los primeros 16 bytes
-    for (int i = (numPagina)*16; i < (numPagina+1)*16; i++) {
-        map[i] = escribir;
-    }
+	// Escribir '\0' en los primeros 16 bytes
+	for (int i = (numPagina) * 16; i < (numPagina + 1) * 16; i++)
+	{
+		map[i] = escribir;
+	}
 
-    // Sincronizar los cambios
-    if (msync(map, sb.st_size, MS_SYNC) == -1) {
-        perror("Error al sincronizar los cambios");
-    }
+	// Sincronizar los cambios
+	if (msync(map, sb.st_size, MS_SYNC) == -1)
+	{
+		perror("Error al sincronizar los cambios");
+	}
 
-    // Desmapear el archivo y cerrar el descriptor
-    if (munmap(map, sb.st_size) == -1) {
-        perror("Error al desmapear el archivo");
-    }
-    close(fd);
+	// Desmapear el archivo y cerrar el descriptor
+	if (munmap(map, sb.st_size) == -1)
+	{
+		perror("Error al desmapear el archivo");
+	}
+	close(fd);
 }
 
 void crearArchivo(char *nombre_Archivo, t_config *config_interface, t_bitarray *bloq_dis)
@@ -186,15 +193,13 @@ void crearArchivo(char *nombre_Archivo, t_config *config_interface, t_bitarray *
 
 	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
 
-	char* PATH_metadata = string_duplicate(PATH_FS);
+	char *PATH_metadata = string_duplicate(PATH_FS);
 
 	char *direccionArchivoCrear = string_from_format("/ %s", nombre_Archivo);
 
 	string_append(&PATH_metadata, direccionArchivoCrear);
 
 	FILE *archivoACrear = fopen(PATH_metadata, "w"); // creo el archivo de metadatos
-
-	
 
 	bool bit = bitarray_test_bit(bloq_dis, 0);
 	printf("El valor del bit antes de setear es: %d\n", bit);
@@ -206,18 +211,17 @@ void crearArchivo(char *nombre_Archivo, t_config *config_interface, t_bitarray *
 
 	fprintf(archivoACrear, "BLOQUE_INICIAL=\nTAMANIO_ARCHIVO=\n");
 	fclose(archivoACrear);
-	
-	t_config* config_metadata = config_create(PATH_metadata);
 
+	t_config *config_metadata = config_create(PATH_metadata);
 
-	config_set_value(config_metadata,"BLOQUE_INICIAL",string_itoa(bloqueInicial));
-	config_set_value(config_metadata,"TAMANIO_ARCHIVO","0");
+	config_set_value(config_metadata, "BLOQUE_INICIAL", string_itoa(bloqueInicial));
+	config_set_value(config_metadata, "TAMANIO_ARCHIVO", "0");
 	config_save(config_metadata);
 	config_destroy(config_metadata);
 
-	//printf("voy a escribir los bloques\n");
-	//t_config* nuevoConfig = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
-	escribirCentinelaInicialBLoques(PATH_FS,bloqueInicial,'/0');
+	// printf("voy a escribir los bloques\n");
+	// t_config* nuevoConfig = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
+	escribirCentinelaInicialBLoques(PATH_FS, bloqueInicial, '/0');
 
 	log_info(io_logger, "Fin creacion de archivo de metadata");
 }
@@ -325,8 +329,7 @@ void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 	t_config *config_interface = crearConfig(direccion_Config);
 
 	char *TIPO_INTERFAZZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
-	log_info(io_logger, "%s",TIPO_INTERFAZZ);
-
+	log_info(io_logger, "%s", TIPO_INTERFAZZ);
 
 	if (strcmp(TIPO_INTERFAZZ, "GENERICA") == 0)
 	{
@@ -361,7 +364,6 @@ void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 
 void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 {
-
 	t_config *config_interface = crearConfig(direccion_Config);
 
 	char *IP_KERNEL = config_get_string_value(config_interface, "IP_KERNEL");
@@ -370,69 +372,38 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 	char *PUERTO_MEMORIA = config_get_string_value(config_interface, "PUERTO_MEMORIA");
 	char *TIPO_INTERFAZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
 
-	// CREA CONEXIONES A LOS MODULOS KERNEL Y MEMORIA
-	if (strcmp(TIPO_INTERFAZ, "GENERICA") == 0)
-	{
-		// CONEXION CON KERNEL
-		printf("se creo una generica\n");
-		log_info(io_logger, "Creando conexión con Kernel");
-		fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL); //puerto kernel = 49152 49152
-		log_info(io_logger, "Conexion con kernel exitosa!");
+	printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
 
-		//printf("pase el sleep 3 voy a mandar un buffer a kernel\n");
-		//sleep(3);
-		//si se genera un problema de condicion de carrera ver de poner el sleep o un semaforo
+	log_info(io_logger, "Creando conexión con Kernel");
+	fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
+	log_info(io_logger, "Conexion con kernel exitosa!");
 
-		t_buffer *buffer = crear_buffer();
-		buffer->size = 0;
-		buffer->stream = NULL;
+	//log_info(io_logger, "Creando conexión con Memoria");
+	//fd_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
+	//log_info(io_logger, "Conexion con memoria exitosa!");
 
-		cargar_string_al_buffer(buffer, nombre_Interfaz);
-		cargar_string_al_buffer(buffer, TIPO_INTERFAZ);
+	//pthread_t hilo_generica2; // planificador largo plazo
+	//pthread_create(&hilo_generica2, NULL, (void *)atender_interfaz_memoria, &fd_memoria);
+	//pthread_join(hilo_generica2,NULL);
 
-		t_paquete *paquete = crear_super_paquete(CREAR_INTERFAZ, buffer);
-		enviar_paquete(paquete, fd_kernel);
-		destruir_paquete(paquete);
+	t_buffer *a_enviar = crear_buffer();
 
-		printf("se envio el paquete para crear la interfaz a kernel\n");
-	}
-	else if (strcmp(TIPO_INTERFAZ, "STDIN") == 0)
-	{
-		// CONEXION CON KERNEL
-		printf("se creo una stdin\n");
-		log_info(io_logger, "Creando conexión con Kernel");
-		fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
-		log_info(io_logger, "Conexion con kernel exitosa!");
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
 
-		// CONEXION CON MEMORIA
-		log_info(io_logger, "Creando conexión con Memoria");
-		fd_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
-		log_info(io_logger, "Conexion con memoria exitosa!");
-	}
-	else if (strcmp(TIPO_INTERFAZ, "STDOUT") == 0)
-	{
-		// CONEXION CON KERNEL
-		printf("se creo una stdout\n");
-		log_info(io_logger, "Creando conexión con Kernel");
-		fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
-		log_info(io_logger, "Conexion con kernel exitosa!");
-		// CONEXION CON MEMORIA
-		log_info(io_logger, "Creando conexión con Memoria");
-		fd_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
-		log_info(io_logger, "Conexion con memoria exitosa!");
-	}
-	else if (strcmp(TIPO_INTERFAZ, "DIALFS") == 0)
-	{
-		// CONEXION CON KERNEL
-		printf("se creo una dialfs\n");
-		log_info(io_logger, "Creando conexión con Kernel");
-		fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
-		log_info(io_logger, "Conexion con kernel exitosa!");
-		// CONEXION CON MEMORIA
-		log_info(io_logger, "Creando conexión con Memoria");
-		fd_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
-		log_info(io_logger, "Conexion con memoria exitosa!");
-	}
+    cargar_string_al_buffer(a_enviar, nombre_Interfaz);
+	cargar_string_al_buffer(a_enviar,TIPO_INTERFAZ);
+
+    t_paquete *un_paquete = crear_super_paquete(CREAR_INTERFAZ, a_enviar);
+    enviar_paquete(un_paquete, fd_kernel);
+    destruir_paquete(un_paquete);
+
+	printf("mande un buffer yei\n");
+
+	pthread_t hilo_generica; // planificador largo plazo
+	pthread_create(&hilo_generica, NULL, (void *)atender_interfaz_kernel, &fd_kernel);
+	pthread_join(hilo_generica,NULL);
+
 }
 
 int main()
@@ -440,45 +411,42 @@ int main()
 	inicializar_io();
 
 	log_info(io_logger, "Inicializando Entrada/Salida");
-	
+
 	char *nombreInterACrear;
 	char *direccionConfigInterCrear;
 
-	//while (1)
-	//{
-		do
+	do
+	{
+		log_info(io_logger, "Escriba el nombre de la interfaz");
+		nombreInterACrear = readline(">");
+
+		if (string_is_empty(nombreInterACrear))
 		{
-			log_info(io_logger, "Escriba el nombre de la interfaz");
-			nombreInterACrear = readline(">");
+			log_warning(io_log_debug, "Una interfaz no puede tener el nombre vacio");
+		}
+	} while (string_is_empty(nombreInterACrear));
 
-			if (string_is_empty(nombreInterACrear))
-			{
-				log_warning(io_log_debug, "Una interfaz no puede tener el nombre vacio");
-			}
-		} while (string_is_empty(nombreInterACrear));
+	log_info(io_logger, "El nombre elegido es %s", nombreInterACrear);
 
-		log_info(io_logger, "El nombre elegido es %s", nombreInterACrear);
+	do
+	{
+		log_info(io_logger, "Escriba la direccion del archivo de configuracion");
+		direccionConfigInterCrear = readline(">");
 
-		do
+		if (string_is_empty(direccionConfigInterCrear))
 		{
-			log_info(io_logger, "Escriba la direccion del archivo de configuracion");
-			direccionConfigInterCrear = readline(">");
+			log_warning(io_log_debug, "Una direccion no puede ser vacia");
+		}
 
-			if (string_is_empty(direccionConfigInterCrear))
-			{
-				log_warning(io_log_debug, "Una direccion no puede ser vacia");
-			}
+	} while (string_is_empty(direccionConfigInterCrear));
 
-		} while (string_is_empty(direccionConfigInterCrear));
+	direccionConfigInterCrear = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"; // hardcodeo el path del config para hacer pruebas
+	log_info(io_logger, "La direccion elegida es %s", direccionConfigInterCrear);											  // TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
 
-		direccionConfigInterCrear = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"; //hardcodeo el path del config para hacer pruebas
-		log_info(io_logger, "La direccion elegida es %s", direccionConfigInterCrear); // TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
-
-		//crearInterfaz(nombreInterACrear, direccionConfigInterCrear);
-		iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
-		// free(direccionConfigInterCrear);
-		free(nombreInterACrear);
-	//}
+	crearInterfaz(nombreInterACrear, direccionConfigInterCrear);
+	//iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
+	// free(direccionConfigInterCrear);
+	free(nombreInterACrear);
 
 	log_info(io_logger, "Fin de Entrada/Salida");
 

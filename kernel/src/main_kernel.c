@@ -11,7 +11,7 @@
 int main(void)
 {
 	//recibe mensajes del interrupt / dispatch / io / memoria
-	lista_interfaces = queue_create();
+	lista_interfaces = list_create();
 
 	inicializar_kernel();
 	fd_kernel = iniciar_servidor(PUERTO_ESCUCHA);

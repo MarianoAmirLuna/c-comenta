@@ -3,6 +3,6 @@
 
 #include "i_gestor.h"
 
-void atender_io_memoria();
+void atender_interfaz_memoria();
 
 #endif
