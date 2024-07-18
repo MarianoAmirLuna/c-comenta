@@ -96,6 +96,13 @@ extern bool estaCPULibre;
 
 extern int cantidad_de_recursos;
 
+typedef struct{
+    int pid;
+    t_list *recursosTomados;
+} pidConRecursos_t;
+
+extern t_list *listaPidsRecursos;
+
 extern t_list *lista_recursos_y_bloqueados; //<--- ordenada igual que nombresRecursos, tiene elementos t_list
 
 #endif
