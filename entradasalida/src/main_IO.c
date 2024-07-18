@@ -9,6 +9,10 @@
 #include <readline/readline.h>
 #include <commons/string.h>
 #include <commons/bitarray.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 int bitsToBytes(int bits)
 {
@@ -104,7 +108,7 @@ void ejecutarInterfazSTDOUT(char *nombre, t_config *config_interface)
 
 // Inicio DialFS
 
-void setearPrimerBitDisponible(t_bitarray *bloq_dis)
+int setearPrimerBitDisponible(t_bitarray *bloq_dis) //setea en 1 el primer bit en 0 que encuentre y devuelve la posicion donde hizo el cambio
 {
 
 	for (int base = 0; base < bitarray_get_max_bit(bloq_dis); base++)
@@ -112,35 +116,110 @@ void setearPrimerBitDisponible(t_bitarray *bloq_dis)
 		if (bitarray_test_bit(bloq_dis, base) == 0)
 		{
 			bitarray_set_bit(bloq_dis, base);
-			return;
+			return base;
 		}
 	}
+}
+
+void escribirCentinelaInicialBLoques(char* PATH_FS,int numPagina,char escribir){
+
+	char* PATH_bloques=string_duplicate(PATH_FS);
+printf("path_bloques antes de append: %s\n",PATH_bloques);
+	string_append(&PATH_bloques,"/ bloques.dat");
+printf("path_bloques despues de append: %s\n",PATH_bloques);
+/*
+	numPagina=0;
+	escribir='/0';
+*/
+	int fd = open(PATH_bloques, O_RDWR);
+    if (fd == -1) {
+        perror("Error al abrir el archivo");
+        exit(EXIT_FAILURE);
+    }
+
+    // Obtener el tamaño del archivo
+    struct stat sb;
+    if (fstat(fd, &sb) == -1) {
+        perror("Error al obtener el tamaño del archivo");
+        close(fd);
+        exit(EXIT_FAILURE);
+    }
+/*
+    // Asegurarse de que el archivo tenga al menos 16 bytes
+    if (sb.st_size < 16) {
+        if (ftruncate(fd, 16) == -1) {
+            perror("Error al redimensionar el archivo");
+            close(fd);
+            exit(EXIT_FAILURE);
+        }
+    }
+*/
+    // Mapear el archivo en memoria
+    char *map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (map == MAP_FAILED) {
+        perror("Error al mapear el archivo");
+        close(fd);
+        exit(EXIT_FAILURE);
+    }
+
+    // Escribir '\0' en los primeros 16 bytes
+    for (int i = (numPagina)*16; i < (numPagina+1)*16; i++) {
+        map[i] = escribir;
+    }
+
+    // Sincronizar los cambios
+    if (msync(map, sb.st_size, MS_SYNC) == -1) {
+        perror("Error al sincronizar los cambios");
+    }
+
+    // Desmapear el archivo y cerrar el descriptor
+    if (munmap(map, sb.st_size) == -1) {
+        perror("Error al desmapear el archivo");
+    }
+    close(fd);
 }
 
 void crearArchivo(char *nombre_Archivo, t_config *config_interface, t_bitarray *bloq_dis)
 {
 
-	log_info(io_logger, "Iniciando creacion de archivo");
+	log_info(io_logger, "Iniciando creacion de archivo de Metadata");
 
 	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
 
+	char* PATH_metadata = string_duplicate(PATH_FS);
+
 	char *direccionArchivoCrear = string_from_format("/ %s", nombre_Archivo);
 
-	string_append(&PATH_FS, direccionArchivoCrear);
+	string_append(&PATH_metadata, direccionArchivoCrear);
 
-	FILE *archivoACrear = fopen(PATH_FS, "w"); // creo el archivo de metadatos
+	FILE *archivoACrear = fopen(PATH_metadata, "w"); // creo el archivo de metadatos
 
-	fclose(archivoACrear);
+	
 
 	bool bit = bitarray_test_bit(bloq_dis, 0);
 	printf("El valor del bit antes de setear es: %d\n", bit);
 
-	setearPrimerBitDisponible(bloq_dis);
+	int bloqueInicial = setearPrimerBitDisponible(bloq_dis);
 
 	bit = bitarray_test_bit(bloq_dis, 0);
 	printf("El valor del bit despues de setear es: %d\n", bit);
 
-	log_info(io_logger, "Fin creacion de archivo");
+	fprintf(archivoACrear, "BLOQUE_INICIAL=\nTAMANIO_ARCHIVO=\n");
+	fclose(archivoACrear);
+	
+	t_config* config_metadata = config_create(PATH_metadata);
+
+
+	config_set_value(config_metadata,"BLOQUE_INICIAL",string_itoa(bloqueInicial));
+	config_set_value(config_metadata,"TAMANIO_ARCHIVO","0");
+	config_save(config_metadata);
+	config_destroy(config_metadata);
+
+	//printf("voy a escribir los bloques\n");
+	//t_config* nuevoConfig = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
+	escribirCentinelaInicialBLoques(PATH_FS,bloqueInicial,'/0');
+
+	log_info(io_logger, "Fin creacion de archivo de metadata");
 }
 
 void crearArchivosInicialesFS(t_config *config_interface)
@@ -246,6 +325,8 @@ void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 	t_config *config_interface = crearConfig(direccion_Config);
 
 	char *TIPO_INTERFAZZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
+	log_info(io_logger, "%s",TIPO_INTERFAZZ);
+
 
 	if (strcmp(TIPO_INTERFAZZ, "GENERICA") == 0)
 	{
@@ -363,8 +444,8 @@ int main()
 	char *nombreInterACrear;
 	char *direccionConfigInterCrear;
 
-	while (1)
-	{
+	//while (1)
+	//{
 		do
 		{
 			log_info(io_logger, "Escriba el nombre de la interfaz");
@@ -390,13 +471,14 @@ int main()
 
 		} while (string_is_empty(direccionConfigInterCrear));
 
+		direccionConfigInterCrear = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"; //hardcodeo el path del config para hacer pruebas
 		log_info(io_logger, "La direccion elegida es %s", direccionConfigInterCrear); // TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
 
-		crearInterfaz(nombreInterACrear, direccionConfigInterCrear);
-
+		//crearInterfaz(nombreInterACrear, direccionConfigInterCrear);
+		iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
 		// free(direccionConfigInterCrear);
 		free(nombreInterACrear);
-	}
+	//}
 
 	log_info(io_logger, "Fin de Entrada/Salida");
 

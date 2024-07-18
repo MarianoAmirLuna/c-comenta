@@ -15,7 +15,8 @@ t_bitarray* bitarray_bloques;
 int fd_memoria;
 int fd_kernel;
 
-char* TIPO_INTERFAZ;
+
+char* TIPO_INTERFAZ; //Los nombres de las variables estan repetidos generando problemas, por eso los comento, capaz haya que eliminar la creacion de un config inicial y estas variables
 char* IP_MEMORIA;
 char* PUERTO_MEMORIA;
 char* IP_KERNEL;
@@ -25,5 +26,6 @@ char* PATH_BASE_DIALFS;
 int BLOCK_SIZE;
 int BLOCK_COUNT;
 int RETRASO_COMPACTACION;
+
 
 #endif
