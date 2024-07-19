@@ -78,10 +78,13 @@ void _atender_instruccion_validada(char* leido){
         free(pidComando);
 
     } else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0){
+        
+        sem_wait(&sem_seguir_planificando);
 
     } else if (strcmp(comando_consola[0], "INICIAR_PLANIFICACION") == 0){
 
         //iniciar_cpu();
+        sem_post(&sem_seguir_planificando);
 
     } else if (strcmp(comando_consola[0], "MULTIPROGRAMACION") == 0){
 

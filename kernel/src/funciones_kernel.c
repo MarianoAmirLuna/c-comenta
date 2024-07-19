@@ -403,9 +403,11 @@ void estadoPlani()
 
 void iniciar_bucle()
 {
-  while (flagSeguirPlanificando)
+  while (1)
   {
+    sem_wait(&sem_seguir_planificando);
     ciclo_planificacion();
+    sem_post(&sem_seguir_planificando);
     usleep(100000);
   }
 }
