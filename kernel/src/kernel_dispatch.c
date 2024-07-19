@@ -6,6 +6,8 @@ void atender_kernel_dispatch()
 {
 	bool control_key = 1;
 	t_buffer *un_buffer;
+	char *nombre_interfaz;
+
 	while (control_key)
 	{
 		int cod_op = recibir_operacion(fd_cpu_dispatch);
@@ -74,28 +76,81 @@ void atender_kernel_dispatch()
 			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			atender_signal(nombre_recurso_signal, &(pcb_devuelto_por_signal->pid));
 			break;
+
 		case INSTRUCCION_TIPO_IO: // significa que el proceso fue desalojado al ejecutar una instruccion de tipo io
 
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_devuelto2 = atender_recibir_pcb(un_buffer);
-			char *nombre_interfaz = extraer_string_del_buffer(un_buffer);
-			char* tipo_instruccion = extraer_string_del_buffer(un_buffer);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			char *tipo_instruccion = extraer_string_del_buffer(un_buffer);
+			estaCPULibre = true;
+			sem_post(&esperar_devolucion_pcb);
+
+			printf("llego el pcb a cpu\n");
+			printf("el nombre de la interfaz: %s\n",nombre_interfaz);
 
 			interfaces_io *interfaz = encontrar_interfaz(nombre_interfaz);
 			list_add(listaPCBs, pcb_devuelto2);
 
-			if (interfaz == NULL) //si es NULL no la encuentra en la lista por lo tanto esta desconectada
+			if (interfaz == NULL) // si es NULL no la encuentra en la lista por lo tanto esta desconectada
 			{
-				list_add(procesosEXIT,&(pcb_devuelto2->pid));
+				printf("lo agrege a exit\n");
+				list_add(procesosEXIT, &(pcb_devuelto2->pid));
 			}
-			else{
-				if(!admiteOperacionInterfaz(nombre_interfaz,tipo_instruccion)){
+			else
+			{
+				if (!admiteOperacionInterfaz(nombre_interfaz, tipo_instruccion))
+				{
+					printf("lo agrege a exit 2.0\n");
+					list_add(procesosEXIT, &(pcb_devuelto2->pid));
+				}
+				else
+				{
+					printf("lo agrege a la queue de procesos bloqueados\n");
+					printf("de la interfaz: %s\n",interfaz->nombre_interfaz);
+					queue_push(interfaz->procesos_bloqueados, &(pcb_devuelto2->pid)); // agrego el pid a la queue de bloqueados de dicha interfaz
+				}
+			}
 
-					list_add(procesosEXIT,&(pcb_devuelto2->pid));
-				}
-				else{
-					queue_push(interfaz->procesos_bloqueados,&(pcb_devuelto2->pid)); //agrego el pid a la queue de bloqueados de dicha interfaz
-				}
+			break;
+
+		case ENVIAR_IO_GEN_SLEEP:
+			int *unidades_trabajo = malloc(sizeof(int));
+			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+
+			*unidades_trabajo = extraer_int_del_buffer(un_buffer);
+			estaCPULibre = true;
+			sem_post(&esperar_devolucion_pcb);
+			interfaces_io *interfaz2 = encontrar_interfaz(nombre_interfaz);
+
+			printf("el nombre de la insterfaz es: %s\n", nombre_interfaz);
+			printf("las unidades de trabajo son: %d\n", *unidades_trabajo);
+
+			if (interfaz2 != NULL && admiteOperacionInterfaz(nombre_interfaz, tipo_instruccion))
+			{
+
+				instruccion *instruccionXD = (instruccion *)malloc(sizeof(instruccion));
+
+				instruccionXD->nombre_instruccion = "IO_GEN_SLEEP";
+				instruccionXD->nombre_archivo = "";
+				instruccionXD->lista_enteros = list_create();
+
+				list_add(instruccionXD->lista_enteros, unidades_trabajo);
+
+				queue_push(interfaz2->instrucciones_ejecutar,instruccionXD);
+			}
+
+			break;
+		case ENVIAR_IO_STDIN_READ:
+			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			int tamanio_restante_pag = extraer_int_del_buffer(un_buffer);
+			int tamanio_escribir = extraer_int_del_buffer(un_buffer);
+			int cant_direcciones = extraer_int_del_buffer(un_buffer);
+
+			for (int i = 0; i < cant_direcciones; i++)
+			{
 			}
 
 			break;

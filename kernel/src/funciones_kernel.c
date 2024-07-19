@@ -141,8 +141,6 @@ void planificacion()
   }
 }
 
-
-
 pidConQ *nuevoPidConQ(int pid)
 {
   pidConQ *ret = malloc(sizeof(pidConQ));
@@ -207,41 +205,42 @@ void suspenderProceso()
   // printf("proceso suspendido: %d, qprima: %d \n", *aux, pidConQEXEC->qPrima);
 }
 
-void bloquearPorRecurso(char* nombre) //FALTA PROBAR
+void bloquearPorRecurso(char *nombre) // FALTA PROBAR
 {
   pidConQ *pidConQEXEC = buscarPidConQ(estaEJecutando);
   int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido;
   pidConQEXEC->qPrima = qPrimaNueva == 0 ? quantum : qPrimaNueva;
 
-  int i=0;
-  for(i=0;strcmp(nombre, nombresRecursos[i])!=0;i++); //PREGUNTAR LUCA, antes estaba en ==
+  int i = 0;
+  for (i = 0; strcmp(nombre, nombresRecursos[i]) != 0; i++)
+    ; // PREGUNTAR LUCA, antes estaba en ==
   t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
 
-  printf("lo agrege a la lista nro: %d\n",i);
+  printf("lo agrege a la lista nro: %d\n", i);
 
   int *aux = malloc(sizeof(int));
   *aux = estaEJecutando;
-  
+
   list_add(lista_donde_agregar, aux);
-  //procesoEXEC=0;
+  // procesoEXEC=0;
 }
 
 void estado_instancias()
 {
-  for(int i=0;nombresRecursos[i] != NULL;i++)
+  for (int i = 0; nombresRecursos[i] != NULL; i++)
   {
     int *aux = list_get(instanciasRecursos, i);
-    printf("recurso: %s, instancias: %d \n", nombresRecursos[i],*aux);
+    printf("recurso: %s, instancias: %d \n", nombresRecursos[i], *aux);
   }
 }
 
 pidConRecursos_t *encontrarPidRecursos(int pid)
 {
-  pidConRecursos_t *pidConRec=NULL;
-  for(int i=0;i<list_size(listaPidsRecursos);i++) //me rehuso a usar list_find
+  pidConRecursos_t *pidConRec = NULL;
+  for (int i = 0; i < list_size(listaPidsRecursos); i++) // me rehuso a usar list_find
   {
-    pidConRec=list_get(listaPidsRecursos, i);
-    if(pidConRec->pid == pid)
+    pidConRec = list_get(listaPidsRecursos, i);
+    if (pidConRec->pid == pid)
     {
       break;
     }
@@ -260,17 +259,17 @@ void mostrarInstanciasTomadas(int pid)
       break;
     }
   }*/
-  for(int j=0;nombresRecursos[j]!=NULL;j++)
+  for (int j = 0; nombresRecursos[j] != NULL; j++)
   {
-    printf("recurso: %s, instancias usadas: %d\n", nombresRecursos[j], *(int*)list_get(pidConRec->recursosTomados,j));
+    printf("recurso: %s, instancias usadas: %d\n", nombresRecursos[j], *(int *)list_get(pidConRec->recursosTomados, j));
   }
 }
 
-
-void atender_wait(char* recurso, int *pid) //FALTA PROBAR
+void atender_wait(char *recurso, int *pid) // FALTA PROBAR
 {
-  int i=0;
-  for(i=0;strcmp(recurso, nombresRecursos[i])!=0;i++);
+  int i = 0;
+  for (i = 0; strcmp(recurso, nombresRecursos[i]) != 0; i++)
+    ;
 
   int *instancias = list_get(instanciasRecursos, i);
 
@@ -278,62 +277,62 @@ void atender_wait(char* recurso, int *pid) //FALTA PROBAR
 
   pidConRecursos_t *pidRec = encontrarPidRecursos(*pid);
 
-  int *instanciasPedidasRecurso = list_get(pidRec->recursosTomados, i); 
+  int *instanciasPedidasRecurso = list_get(pidRec->recursosTomados, i);
 
-  //printf("recurso pedido: %s \n", recurso);
+  // printf("recurso pedido: %s \n", recurso);
 
-  if(*instancias>0)
+  if (*instancias > 0)
   {
     *instancias = (*instancias) - 1;
-    //printf("hay instancias disponibles \n");
+    // printf("hay instancias disponibles \n");
     list_add(procesosREADY, pid);
-    //mostrarInstanciasTomadas(pid);
-    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) +1;
-    //printf("Instancias disponibles, se tomo el recurso\n");
+    // mostrarInstanciasTomadas(pid);
+    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) + 1;
+    // printf("Instancias disponibles, se tomo el recurso\n");
   }
   else
   {
     bloquearPorRecurso(recurso);
-    //printf("NO hay instancias disponibles, se bloqueo el proceso \n");
+    // printf("NO hay instancias disponibles, se bloqueo el proceso \n");
   }
-  //estado_instancias();
-  //printf("fin atender_wait\n");
-  //mostrarInstanciasTomadas(*pid);
+  // estado_instancias();
+  // printf("fin atender_wait\n");
+  // mostrarInstanciasTomadas(*pid);
 }
 
-void atender_signal(char* recurso, int *pid) //FALTA PROBAR
+void atender_signal(char *recurso, int *pid) // FALTA PROBAR
 {
-  int i=0;
-  for(i=0;strcmp(recurso, nombresRecursos[i])!=0;i++);
+  int i = 0;
+  for (i = 0; strcmp(recurso, nombresRecursos[i]) != 0; i++)
+    ;
 
   t_list *bloqueados_por_este_recurso = list_get(lista_recursos_y_bloqueados, i);
 
   pidConRecursos_t *pidRec = encontrarPidRecursos(*pid);
-  int* instanciasPedidasRecurso = list_get(pidRec->recursosTomados, i);
+  int *instanciasPedidasRecurso = list_get(pidRec->recursosTomados, i);
 
-  if(*instanciasPedidasRecurso > 0)
+  if (*instanciasPedidasRecurso > 0)
   {
     /*printf("Se esta intentando liberar un recurso que nunca se pidio\n");
     return; //flaco para que carajo liberas un recurso que no pediste*/
-    *instanciasPedidasRecurso = (*instanciasPedidasRecurso)-1;
+    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) - 1;
   }
 
-  
-  //printf("Se liberó el recurso\n");
+  // printf("Se liberó el recurso\n");
 
-  //printf("recurso liberado: %s\n", recurso);
-  if(list_size(bloqueados_por_este_recurso) == 0)
+  // printf("recurso liberado: %s\n", recurso);
+  if (list_size(bloqueados_por_este_recurso) == 0)
   {
-    int * instancias_de_este_recurso = list_get(instanciasRecursos, i);
+    int *instancias_de_este_recurso = list_get(instanciasRecursos, i);
     *instancias_de_este_recurso = (*instancias_de_este_recurso) + 1;
   }
   else
   {
     list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
   }
-  //estado_instancias();
-  //mostrarInstanciasTomadas(*pid);
-  //printf("fin atender_signal\n");
+  // estado_instancias();
+  // mostrarInstanciasTomadas(*pid);
+  // printf("fin atender_signal\n");
 }
 
 void sacarDeSuspension()
@@ -415,13 +414,13 @@ void iniciar_bucle()
 void iniciar_planificacion()
 {
   listaPCBs = list_create();
-  listaPidsRecursos= list_create();
+  listaPidsRecursos = list_create();
   int flagCambioProceso = 0;
 
   // sleep(2);
   // printf("llega adentro de iniciarPlani\n");
   procesosNEW = list_create();
-  
+
   // printf("entrando a ciclo plani\n");
   procesosREADY = list_create();
   listQPrimas = list_create();
@@ -440,28 +439,79 @@ void iniciar_planificacion()
   iniciar_bucle();
 }
 
-void ejectuar_siguiente_instruccion_io(interfaces_io interfaz){
+void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
+{
 
-  
+  t_buffer *buffer = crear_buffer();
+  buffer->size = 0;
+  buffer->stream = NULL;
+
+  instruccion *instruccionXD = queue_pop(interfaz.instrucciones_ejecutar);
+
+  if (strcmp(instruccionXD->nombre_instruccion, "IO_GEN_SLEEP") == 0)
+  {
+    printf("voy a ejecutar un gen_sleep\n");
+    
+    int* unidades_trabajo = list_get(instruccionXD->lista_enteros, 0);
+
+    cargar_int_al_buffer(buffer, *unidades_trabajo);
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_GEN_SLEEP, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
+  }
+
+  else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDIN_READ") == 0)
+  {
+  }
+
+  else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDOUT_WRITE") == 0)
+  {
+  }
+
+  else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_CREATE") == 0)
+  {
+  }
+
+  else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_DELETE") == 0)
+  {
+  }
+
+  else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_TRUNCATE") == 0)
+  {
+  }
+
+  else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_WRITE") == 0)
+  {
+  }
+
+  else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_READ") == 0)
+  {
+  }
 }
 
-void iniciar_planificacion_io(){
-    
-    while(1){
+void iniciar_planificacion_io()
+{
 
-      for(int i = 0; i < list_size(lista_interfaces);i++){
+  while (1)
+  {
 
-        interfaces_io* interfaz = list_get(lista_interfaces, i);
+    for (int i = 0; i < list_size(lista_interfaces); i++)
+    {
 
-        if(interfaz->estaLibre && queue_size(interfaz->procesos_bloqueados) != 0){ //si esta libre la interfaz y tenes instrucciones para ejecutar
+      interfaces_io *interfaz = list_get(lista_interfaces, i);
 
-            ejectuar_siguiente_instruccion_io(*interfaz);
-        }
+      if (interfaz->estaLibre && queue_size(interfaz->procesos_bloqueados) > 0 && interfaz->estaLibre)
+      { // si esta libre la interfaz y tenes instrucciones para ejecutar
 
+        printf("ejecute una instruccion de tipo io\n");
+
+        ejectuar_siguiente_instruccion_io(*interfaz);
+        interfaz->estaLibre = false;
       }
-
-      usleep(100000);
     }
+
+    usleep(100000);
+  }
 }
 
 void avisarDesalojo()
@@ -647,12 +697,12 @@ void nuevaListaRecursos(int pid)
   pidConRecursos_t *pidRecAux = malloc(sizeof(pidConRecursos_t));
   pidRecAux->pid = pid;
   pidRecAux->recursosTomados = list_create();
-  for(int i=0;i<nombresRecursos[i]!=NULL;i++)
+  for (int i = 0; i < nombresRecursos[i] != NULL; i++)
   {
     int *recurso_i = malloc(sizeof(int));
-    *recurso_i =0;
+    *recurso_i = 0;
     list_add(pidRecAux->recursosTomados, recurso_i);
-    //printf("recurso: %s, instancias usadas: %d\n", nombresRecursos[i], *recurso_i);
+    // printf("recurso: %s, instancias usadas: %d\n", nombresRecursos[i], *recurso_i);
   }
   list_add(listaPidsRecursos, pidRecAux);
 }
@@ -665,94 +715,110 @@ void iniciar_proceso(char *path)
   enviar_path_memoria(path, pcb->pid);
   list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
   nuevaListaRecursos(pcb->pid);
-  //mostrarInstanciasTomadas(pcb->pid);
+  // mostrarInstanciasTomadas(pcb->pid);
 }
 
 void liberarRecursosProceso(int *pid)
 {
   pidConRecursos_t *pidRec = encontrarPidRecursos(*pid);
-  for(int i=0;nombresRecursos[i]!=NULL;i++)
+  for (int i = 0; nombresRecursos[i] != NULL; i++)
   {
     int *recurso_i = list_get(pidRec->recursosTomados, i);
-    while(*recurso_i>0) //mientras haya instancias pedidas, simulo un signal para no repetir logica
+    while (*recurso_i > 0) // mientras haya instancias pedidas, simulo un signal para no repetir logica
     {
       atender_signal(nombresRecursos[i], pid);
-      recurso_i = list_get(pidRec->recursosTomados, i); //actualizo instancias_i
+      recurso_i = list_get(pidRec->recursosTomados, i); // actualizo instancias_i
     }
-    
   }
 }
 
-interfaces_io* encontrar_interfaz(char* nombre_buscado) {
-    for (int i = 0; i < list_size(lista_interfaces); i++) {
-        interfaces_io* elemento = list_get(lista_interfaces, i);
+interfaces_io *encontrar_interfaz(char *nombre_buscado)
+{
+  for (int i = 0; i < list_size(lista_interfaces); i++)
+  {
+    interfaces_io *elemento = list_get(lista_interfaces, i);
 
-        printf("###### nombre de la interfaz: %s\n", elemento->nombre_interfaz);
-        printf("###### tipo de la interfaz: %s\n", elemento->tipo_interfaz);
+    //printf("###### nombre de la interfaz: %s\n", elemento->nombre_interfaz);
+    //printf("###### tipo de la interfaz: %s\n", elemento->tipo_interfaz);
 
-        if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0){
-            return elemento;
-        }
+    if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0)
+    {
+      return elemento;
     }
-    return NULL; // No se encontró la interfaz con el nombre buscado
+  }
+  return NULL; // No se encontró la interfaz con el nombre buscado
 }
 
-int obtener_fd_interfaz(char* nombre_interfaz) {
-    interfaces_io* interfazADS = encontrar_interfaz(nombre_interfaz);
+int obtener_fd_interfaz(char *nombre_interfaz)
+{
+  interfaces_io *interfazADS = encontrar_interfaz(nombre_interfaz);
 
-    if (interfazADS == NULL) {
-        printf("Interfaz no encontrada: %s\n", nombre_interfaz);
-        return -1; // o algún valor de error apropiado
-    }
+  if (interfazADS == NULL)
+  {
+    printf("Interfaz no encontrada: %s\n", nombre_interfaz);
+    return -1; // o algún valor de error apropiado
+  }
 
-    printf("nombre de la interfaz: ######%s\n", interfazADS->nombre_interfaz);
-    printf("tipo de la interfaz:###### %s\n", interfazADS->tipo_interfaz);
-    return interfazADS->fd_interfaz;
+  printf("nombre de la interfaz: ######%s\n", interfazADS->nombre_interfaz);
+  printf("tipo de la interfaz:###### %s\n", interfazADS->tipo_interfaz);
+  return interfazADS->fd_interfaz;
 }
 
-bool admiteOperacionInterfaz(char* nombre_interfaz,char* tipo_instruccion){ //nombre = pepe, tipo_instruccion = gen_sleep, tipo_interfaz = GENERICA
+bool admiteOperacionInterfaz(char *nombre_interfaz, char *tipo_instruccion)
+{ // nombre = pepe, tipo_instruccion = gen_sleep, tipo_interfaz = GENERICA
 
-  interfaces_io* interfazEncontrada = encontrar_interfaz(nombre_interfaz);
+  interfaces_io *interfazEncontrada = encontrar_interfaz(nombre_interfaz);
 
-  char* tipoInterfaz = interfazEncontrada->tipo_interfaz;
+  char *tipoInterfaz = interfazEncontrada->tipo_interfaz;
 
-  if(strcmp(tipoInterfaz,"GENERICA") == 0){
+  if (strcmp(tipoInterfaz, "GENERICA") == 0)
+  {
 
-    if(strcmp(tipo_instruccion,"IO_GEN_SLEEP") == 0){
+    if (strcmp(tipo_instruccion, "IO_GEN_SLEEP") == 0)
+    {
       return true;
     }
-    else{
+    else
+    {
       return false;
     }
   }
-  if(strcmp(tipoInterfaz,"STDIN") == 0){
+  if (strcmp(tipoInterfaz, "STDIN") == 0)
+  {
 
-    if(strcmp(tipo_instruccion,"IO_STDIN_READ")){
+    if (strcmp(tipo_instruccion, "IO_STDIN_READ"))
+    {
       return true;
     }
-    else{
+    else
+    {
       return false;
     }
   }
-  if(strcmp(tipoInterfaz,"STDOUT") == 0){
+  if (strcmp(tipoInterfaz, "STDOUT") == 0)
+  {
 
-    if(strcmp(tipo_instruccion,"IO_STDOUT_WRITE")){
+    if (strcmp(tipo_instruccion, "IO_STDOUT_WRITE"))
+    {
       return true;
     }
-    else{
+    else
+    {
       return false;
     }
   }
-  if(strcmp(tipoInterfaz,"DIALFS") == 0){
+  if (strcmp(tipoInterfaz, "DIALFS") == 0)
+  {
 
-    if(strcmp(tipo_instruccion,"IO_FS_CREATE") || strcmp(tipo_instruccion,"IO_FS_DELETE") || strcmp(tipo_instruccion,"IO_FS_TRUNCATE") || strcmp(tipo_instruccion,"IO_FS_WRITE") || strcmp(tipo_instruccion,"IO_FS_READ")){
+    if (strcmp(tipo_instruccion, "IO_FS_CREATE") || strcmp(tipo_instruccion, "IO_FS_DELETE") || strcmp(tipo_instruccion, "IO_FS_TRUNCATE") || strcmp(tipo_instruccion, "IO_FS_WRITE") || strcmp(tipo_instruccion, "IO_FS_READ"))
+    {
       return true;
     }
-    else{
+    else
+    {
       return false;
     }
   }
 
   return false;
-
 }

@@ -19,6 +19,14 @@ void atender_interfaz_kernel(int *arg){
 			printf("RECIBI EL MENSAJEEEEEEEEEEEEEEEEEE\n"); 
 
             break;
+		case ENVIAR_IO_GEN_SLEEP:
+            un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+			int unidades_trabajo = extraer_int_del_buffer(un_buffer);
+
+			printf("mande a dormir a la io\n");
+
+			usleep(unidades_trabajo * TIEMPO_UNIDAD_TRABAJO * 1000);
+
 		case -1:
 
 			control_key = 0;

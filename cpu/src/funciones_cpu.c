@@ -540,28 +540,94 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
     t_buffer *buffer_IOKernel = crear_buffer();
     buffer_IOKernel->size = 0;
     buffer_IOKernel->stream = NULL;
+
     cargar_string_al_buffer(buffer_IOKernel, nombreInterfaz);
     cargar_int_al_buffer(buffer_IOKernel, uniTraba);
-    t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IOGEN, buffer_IOKernel);
+
+    t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IO_GEN_SLEEP, buffer_IOKernel);
     enviar_paquete(paquete_IOKernel, fd_kernel_dispatch);
     destruir_paquete(paquete_IOKernel);
 }
 
 // void ioSTDINRead(param1, param2, param3);
 
-void io_stdout_write(char *interfaz, char *direccionLogica, char *tamanio)
+void io_stdout_write(char *nombreInterfaz, char *direccionLogica, char *tamanio)
 {
     // por algun motivo write es leer
     // IO_STDOUT_WRITE MONITOR EAX AX
     uint32_t *dl = get_registry(direccionLogica);
     uint32_t *tam = get_registry(tamanio);
 
-    // Imprimir los valores de los registros dereferenciados directamente
-    printf("la dl value es: %u\n", *dl);
-    printf("el tamanio value es: %u\n", *tam);
+    // printf("la dl value es: %u\n", *dl);
+    // printf("el tamanio value es: %u\n", *tam);
+    // leerStringMemoria((int)(*dl), (int)(*tam));
 
-    // Convertir los valores a tipo int y llamar a la función
-    leerStringMemoria((int)(*dl), (int)(*tam));
+    t_buffer *buffer_IOKernel = crear_buffer();
+    buffer_IOKernel->size = 0;
+    buffer_IOKernel->stream = NULL;
+
+    cargar_string_al_buffer(buffer_IOKernel, nombreInterfaz);
+    cargar_int_al_buffer(buffer_IOKernel, (int)(*tam));
+
+    int df;
+
+    for (uint32_t i = 0; i < *tam; i++)
+    {
+
+        df = traducir_dl((int)(*dl)); // obtengo todas las df que voy a necesitar para escribir en un futuro
+        cargar_int_al_buffer(buffer_IOKernel, df);
+    }
+
+    t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IO_STDOUT_WRITE, buffer_IOKernel);
+    enviar_paquete(paquete_IOKernel, fd_kernel_dispatch);
+    destruir_paquete(paquete_IOKernel);
+}
+
+void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_tamanio)
+{
+
+    uint32_t *dl = get_registry(registro_direccion);
+    uint32_t *tam = get_registry(registro_tamanio);
+
+    int direccion_logica = (int)(*dl);
+
+    int desplazamiento_en_pagina = direccion_logica % tamanio_pagina;          // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
+
+    int cantDireccionesNecesarias = obtener_cant_direcciones(direccion_logica, (int)(*tam), bytes_restantes_en_pagina);
+
+    t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+    cargar_string_al_buffer(buffer, nombreInterfaz);
+    cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
+    cargar_int_al_buffer(buffer, (int)(*tam));
+    cargar_int_al_buffer(buffer, cantDireccionesNecesarias);
+
+    int flag = 0;
+
+    for (int i = 0; i < cantDireccionesNecesarias; i++)
+    {
+        int df = traducir_dl(direccion_logica);
+        cargar_int_al_buffer(buffer, df);
+
+        if (flag == 0)
+        {
+            direccion_logica = direccion_logica + bytes_restantes_en_pagina;
+            flag = 1;
+        }
+        else
+        {
+            direccion_logica = direccion_logica + tamanio_pagina;
+        }
+
+        printf("carge un int al buffer\n");
+    }
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_STDIN_READ, buffer);
+    enviar_paquete(paquete, fd_memoria);
+    destruir_paquete(paquete);
 }
 
 // faltan las demas
@@ -609,7 +675,8 @@ nombre_instruccion str_to_instruction(const char *instr)
     return INVALID_INSTRUCTION; // Si la instrucción no es válida
 }
 
-void establecerVariablesNecesarias(char* typeInstruccion,char* nameInterfaz){
+void establecerVariablesNecesarias(char *typeInstruccion, char *nameInterfaz)
+{
 
     tipo_instruccion = typeInstruccion;
     nombre_interfaz = nameInterfaz;
@@ -680,32 +747,31 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     case IO_GEN_SLEEP:
         ioGenSleep(param1, param2);
         log_info(cpu_logger, "PID: %d - Ejecutando: %s - <<%s, %s>>", pcb->pid, instruccion, param1, param2);
-        establecerVariablesNecesarias("IO_GEN_SLEEP",param1);
+        establecerVariablesNecesarias("IO_GEN_SLEEP", param1);
         break;
     case IO_STDIN_READ:
-        // ioSTDINRead(param1, param2, param3);
-        
-        establecerVariablesNecesarias("IO_STDIN_READ",param1);
+        ioSTDINRead(param1, param2, param3);
+        establecerVariablesNecesarias("IO_STDIN_READ", param1);
         break;
     case IO_STDOUT_WRITE:
         io_stdout_write(param1, param2, param3);
         log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
-        establecerVariablesNecesarias("IO_STDOUT_WRITE",param1);
+        establecerVariablesNecesarias("IO_STDOUT_WRITE", param1);
         break;
     case IO_FS_CREATE:
-        establecerVariablesNecesarias("IO_FS_CREATE",param1);
+        establecerVariablesNecesarias("IO_FS_CREATE", param1);
         break;
     case IO_FS_DELETE:
-        establecerVariablesNecesarias("IO_FS_DELETE",param1);
+        establecerVariablesNecesarias("IO_FS_DELETE", param1);
         break;
     case IO_FS_TRUNCATE:
-        establecerVariablesNecesarias("IO_FS_TRUNCATE",param1);
+        establecerVariablesNecesarias("IO_FS_TRUNCATE", param1);
         break;
     case IO_FS_WRITE:
-        establecerVariablesNecesarias("IO_FS_WRITE",param1);
+        establecerVariablesNecesarias("IO_FS_WRITE", param1);
         break;
     case IO_FS_READ:
-        establecerVariablesNecesarias("IO_FS_READ",param1);
+        establecerVariablesNecesarias("IO_FS_READ", param1);
         break;
     case EXIT:
         nombre_interfaz = param1;
@@ -911,7 +977,7 @@ int traducir_dl(int direccionLogica)
 
     log_debug(cpu_log_debug, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pcb_ejecucion.pid, num_pag, marco);
 
-    int sizeTLB = queue_size(cola_tlb);
+    // int sizeTLB = queue_size(cola_tlb);
 
     return (marco * tamanio_pagina + desplazamiento);
 }
@@ -990,18 +1056,43 @@ void devolverPCBKernelSenial()
     }
 }
 
-void devolverPCBKernel_exit_o_bloqueado(){
+void devolverPCBKernel_exit_o_bloqueado()
+{
 
-    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion); //te da un buffer ya con el pcb cargado
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion); // te da un buffer ya con el pcb cargado
 
-    cargar_string_al_buffer(buffer,nombre_interfaz);
-    cargar_string_al_buffer(buffer,tipo_instruccion);
+    cargar_string_al_buffer(buffer, nombre_interfaz);
+    cargar_string_al_buffer(buffer, tipo_instruccion);
 
     t_paquete *paquete = crear_super_paquete(INSTRUCCION_TIPO_IO, buffer);
     enviar_paquete(paquete, fd_kernel_dispatch);
     destruir_paquete(paquete);
 
-    printf("desaloje al proceso al ejectuar una instruccion de tipo IO\n"); 
+    printf("desaloje al proceso al ejectuar una instruccion de tipo IO\n");
+}
+
+bool instruccion_es_tipo_io(char *instruccion_actual)
+{
+    char instr[20], nombre_interfazXD[20];
+
+    sscanf(instruccion_actual, "%s %s ", instr, nombre_interfazXD);
+
+    nombre_interfaz = malloc(strlen(nombre_interfazXD) + 1);
+    tipo_instruccion = malloc(strlen(instr) + 1);
+
+    // Copiar las cadenas a las variables globales
+    strcpy(nombre_interfaz, nombre_interfazXD);
+    strcpy(tipo_instruccion, instr);
+
+    printf("el nombre de la interfaz: %s\n",nombre_interfazXD);
+    printf("la instruccion es: %s\n", instr);
+
+    if(strcmp(instr,"IO_GEN_SLEEP") == 0 || strcmp(instr,"IO_STDIN_READ") == 0 || strcmp(instr,"IO_STDOUT_WRITE") == 0 || strcmp(instr,"IO_FS_CREATE") == 0 || strcmp(instr,"IO_FS_DELETE") == 0 || strcmp(instr,"IO_FS_TRUNCATE") == 0 || strcmp(instr,"IO_FS_WRITE") == 0 || strcmp(instr,"IO_FS_READ") == 0){
+        return true;
+    }
+    else{
+        return false;
+    }
 }
 
 void procesar_instruccion()
@@ -1021,6 +1112,12 @@ void procesar_instruccion()
         sem_wait(&wait_instruccion);
 
         printf("se ejecuto la instruccion\n");
+
+        if (instruccion_es_tipo_io(instruccion_actual))
+        {
+            devolverPCBKernel_exit_o_bloqueado();
+        }
+
         ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
 
         sem_wait(&wait_instruccion);
@@ -1037,21 +1134,20 @@ void procesar_instruccion()
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
 
-    if (ejecute_instruccion_tipo_io)
-    {
-        devolverPCBKernel_exit_o_bloqueado();
+    if(terminaPorSenial){ //verificar si esta bien
+
+        devolverPCBKernelSenial();
     }
-    else
-    {
-        if (!terminaPorSenial)
-        {
+    else{
+        if(!ejecute_instruccion_tipo_io){
+
             devolverPCBKernel();
         }
-        else
-        {
-            devolverPCBKernelSenial();
-        }
     }
+        
+
+            
+        
 
     printf("termino de ejecutar\n");
 }

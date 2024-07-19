@@ -468,6 +468,12 @@ int main()
 	// free(direccionConfigInterCrear);
 	free(nombreInterACrear);
 
+	while(1){
+
+		sleep(2);
+		printf("estoy despierta\n");
+	}
+
 	log_info(io_logger, "Fin de Entrada/Salida");
 
 	return 0;
