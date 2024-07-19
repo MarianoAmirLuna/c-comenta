@@ -715,24 +715,29 @@ void liberarRecursosProceso(int *pid)
   }
 }
 
-interfaces_io* encontrar_interfaz(char* nombre_buscado){
-  
+interfaces_io* encontrar_interfaz(char* nombre_buscado) {
     for (int i = 0; i < list_size(lista_interfaces); i++) {
-
         interfaces_io* elemento = list_get(lista_interfaces, i);
 
-        printf("nombre: %d\n",elemento->nombre_interfaz);
+        printf("###### nombre de la interfaz: %s\n", elemento->nombre_interfaz);
+        printf("###### tipo de la interfaz: %s\n", elemento->tipo_interfaz);
 
-        //if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0) {
-          //  return elemento;
-        //}
+        if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0) {
+            return elemento;
+        }
     }
     return NULL; // No se encontró la interfaz con el nombre buscado
 }
 
-int obtener_fd_interfaz(char* nombre_interfaz){
+int obtener_fd_interfaz(char* nombre_interfaz) {
+    interfaces_io* interfazADS = encontrar_interfaz(nombre_interfaz);
 
-  interfaces_io* interfaz = encontrar_interfaz(nombre_interfaz);
+    if (interfazADS == NULL) {
+        printf("Interfaz no encontrada: %s\n", nombre_interfaz);
+        return -1; // o algún valor de error apropiado
+    }
 
-  return interfaz->fd_interfaz;
+    printf("nombre de la interfaz: ######%s\n", interfazADS->nombre_interfaz);
+    printf("tipo de la interfaz:###### %s\n", interfazADS->tipo_interfaz);
+    return interfazADS->fd_interfaz;
 }

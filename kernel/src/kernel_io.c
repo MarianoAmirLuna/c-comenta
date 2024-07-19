@@ -40,7 +40,7 @@ void atender_creacion_interfaz(int *arg)
 
 			printf("el tamanio de la list interfaces: %d\n",size);
 
-            free(nueva_interfaz);
+
 
 			break;
 		case -1:

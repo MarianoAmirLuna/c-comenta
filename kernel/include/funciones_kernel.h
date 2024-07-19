@@ -22,6 +22,7 @@ void atender_wait(char*, int*);
 void liberarRecursosProceso(int *);
 void estado_instancias();
 interfaces_io* encontrar_interfaz(char* nombre_buscado);
+int obtener_fd_interfaz(char* nombre_interfaz);
 
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;
