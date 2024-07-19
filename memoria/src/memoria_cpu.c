@@ -451,7 +451,6 @@ void resize(t_buffer *un_buffer)
 
 void buscarMarco(t_buffer *un_buffer)
 {
-
 	int num_pag = extraer_int_del_buffer(un_buffer);
 	int pid = extraer_int_del_buffer(un_buffer);
 	t_buffer *a_enviar = crear_buffer();
@@ -500,7 +499,6 @@ void obtenerCortesDePagina(t_list *lista, int tamanio_a_escribir, int restante_p
 
 	while (tamanio_a_escribir > 0)
 	{
-
 		if (tamanio_a_escribir <= restante_pagina)
 		{
 			tamanio_a_escribir = 0; // no agrego nada a la lista y corto el while

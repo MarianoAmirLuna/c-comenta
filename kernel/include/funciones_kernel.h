@@ -23,6 +23,8 @@ void liberarRecursosProceso(int *);
 void estado_instancias();
 interfaces_io* encontrar_interfaz(char* nombre_buscado);
 int obtener_fd_interfaz(char* nombre_interfaz);
+bool admiteOperacionInterfaz(char* nombre_interfaz,char* tipo_interfaz);
+void iniciar_planificacion_io();
 
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;

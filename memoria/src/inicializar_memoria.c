@@ -5,6 +5,7 @@ void iniciar_listas(){
 	list_pcb = list_create();
 	listaTablaPaginas = list_create();
 	listaPaginas = list_create();
+	lista_interfaces = list_create();
 }
 
 void iniciar_logs(){

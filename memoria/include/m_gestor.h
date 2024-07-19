@@ -33,6 +33,7 @@ extern t_list* list_path_id;
 extern t_list* list_pcb;
 extern t_list* listaPaginas;
 extern t_list* listaTablaPaginas;
+extern t_list* lista_interfaces;
 extern int id_global;
 extern int id_global_pcb;
 

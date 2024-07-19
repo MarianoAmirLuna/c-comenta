@@ -378,13 +378,11 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 	fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
 	log_info(io_logger, "Conexion con kernel exitosa!");
 
-	//log_info(io_logger, "Creando conexión con Memoria");
-	//fd_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
-	//log_info(io_logger, "Conexion con memoria exitosa!");
+	log_info(io_logger, "Creando conexión con Memoria");
+	fd_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
+	log_info(io_logger, "Conexion con memoria exitosa!");
 
-	//pthread_t hilo_generica2; // planificador largo plazo
-	//pthread_create(&hilo_generica2, NULL, (void *)atender_interfaz_memoria, &fd_memoria);
-	//pthread_join(hilo_generica2,NULL);
+	//////////////////////////////////////////////////////////
 
 	t_buffer *a_enviar = crear_buffer();
 
@@ -398,11 +396,33 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
     enviar_paquete(un_paquete, fd_kernel);
     destruir_paquete(un_paquete);
 
-	printf("mande un buffer yei\n");
+	printf("mande un buffer a kernel\n");
 
-	pthread_t hilo_generica; // planificador largo plazo
+	////////////////////////////////////////////////////////////
+
+	t_buffer *a_enviar2 = crear_buffer();
+
+    a_enviar2->size = 0;
+    a_enviar2->stream = NULL;
+
+    cargar_string_al_buffer(a_enviar2, nombre_Interfaz);
+	cargar_string_al_buffer(a_enviar2,TIPO_INTERFAZ);
+
+    t_paquete *un_paquete2 = crear_super_paquete(CREAR_INTERFAZ, a_enviar2);
+    enviar_paquete(un_paquete2, fd_memoria);
+    destruir_paquete(un_paquete2);
+
+	printf("mande un buffer a memoria\n");
+
+	///////////////////////////////////////////////////////////
+
+	pthread_t hilo_generica; 
 	pthread_create(&hilo_generica, NULL, (void *)atender_interfaz_kernel, &fd_kernel);
-	pthread_join(hilo_generica,NULL);
+	pthread_detach(hilo_generica);
+
+	pthread_t hilo_generica2; // planificador largo plazo
+	pthread_create(&hilo_generica2, NULL, (void *)atender_interfaz_memoria, &fd_memoria);
+	pthread_join(hilo_generica2,NULL);
 
 }
 

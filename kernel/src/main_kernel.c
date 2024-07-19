@@ -22,9 +22,12 @@ int main(void)
 	fd_cpu_dispatch = iniciar_conexion(PUERTO_CPU_DISPATCH, "CPU-DISPATCH",kernel_log_debug);
 
 	pthread_t hilo_planificacion;
-	//printf("llega aca\n");
 	pthread_create(&hilo_planificacion, NULL, (void*)iniciar_planificacion, NULL);
 	pthread_detach(hilo_planificacion);
+
+    pthread_t hilo_planificacion_io;
+	pthread_create(&hilo_planificacion_io, NULL, (void*)iniciar_planificacion_io, NULL);
+	pthread_detach(hilo_planificacion_io);
 
 	pthread_t hilo_cpu_interrupt;
 	pthread_create(&hilo_cpu_interrupt, NULL, (void*)atender_kernel_interrupt, NULL);

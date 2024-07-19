@@ -57,6 +57,7 @@ typedef enum
 	DESALOJO_POR_SIGNAL,
 	LEER_CARACTER_MEMORIA,
 	RECIBIR_CARACTER,
+	INSTRUCCION_TIPO_IO,
 	
 	//////////////////
 	EJECUTAR_RESIZE,
@@ -133,7 +134,19 @@ typedef struct {
 	char* nombre_interfaz;
 	char* tipo_interfaz;
 	t_queue* procesos_bloqueados;
+	t_queue* instrucciones_ejecutar;
+	bool estaLibre;
 } interfaces_io;
+typedef struct {
+	char* nombre_interfaz;
+    int fd_interfaz;
+} interfaces_io_memoria;
+
+typedef struct{
+	char* nombre_instruccion;
+	char* nombre_archivo;
+	t_list* lista_enteros;
+} instruccion;
 
 typedef struct{
 	int pid;

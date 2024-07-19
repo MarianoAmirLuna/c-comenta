@@ -31,6 +31,8 @@ void atender_creacion_interfaz(int *arg)
             nueva_interfaz->nombre_interfaz = nombre_interfaz;
             nueva_interfaz->tipo_interfaz = tipo_interfaz;
 			nueva_interfaz->procesos_bloqueados = queue_create();
+			nueva_interfaz->instrucciones_ejecutar = queue_create();
+			nueva_interfaz->estaLibre = true;
 
             list_add(lista_interfaces, nueva_interfaz);
             

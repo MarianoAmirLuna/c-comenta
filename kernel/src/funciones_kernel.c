@@ -17,7 +17,6 @@ PCB *iniciar_PCB()
   pcb->pid = asignar_pid();
   pcb->program_counter = 0;
   pcb->quantum = config_get_int_value(config, "QUANTUM");
-  // p->b.pathTXT = path;
   pcb->registros_cpu.AX = 0;
   pcb->registros_cpu.BX = 0;
   pcb->registros_cpu.CX = 0;
@@ -414,7 +413,7 @@ void iniciar_bucle()
 void iniciar_planificacion()
 {
   listaPCBs = list_create();
-  listaPidsRecursos=list_create();
+  listaPidsRecursos= list_create();
   int flagCambioProceso = 0;
 
   // sleep(2);
@@ -425,6 +424,7 @@ void iniciar_planificacion()
   procesosREADY = list_create();
   listQPrimas = list_create();
   procesosSuspendidos = list_create();
+  procesosEXIT = list_create();
 
   lista_recursos_y_bloqueados = list_create();
 
@@ -436,59 +436,30 @@ void iniciar_planificacion()
   }
 
   iniciar_bucle();
+}
 
-  // dictQPrimas=dictionary_create();
+void ejectuar_siguiente_instruccion_io(interfaces_io interfaz){
 
-  /*
-  procesoEXEC=0;
-  int uno=1, dos=2, tres=3;
+  
+}
 
+void iniciar_planificacion_io(){
+    
+    while(1){
 
-  list_add(procesosNEW, &uno);
-  list_add(procesosNEW, &dos);
-  list_add(procesosNEW, &tres);
-  //printf("llega aca\n");
+      for(int i = 0; i < list_size(lista_interfaces);i++){
 
-  ciclo_planificacion();
-  estadoPlani();
-  suspenderProceso();
-  ciclo_planificacion();
-  estadoPlani();
-  sacarDeSuspension();
-  ciclo_planificacion();
-  estadoPlani();
-  for(int i=0;i<8;i++)
-  {
-    ciclo_planificacion();
-    estadoPlani();
-  }
-  printf("segunda suspension-------------------------\n");
-  suspenderProceso();
-  ciclo_planificacion();
-  estadoPlani();
-  sacarDeSuspension();
-  tipoPlanificacion=FIFO;
-  for(int i=0;i<13;i++)
-  {
-    ciclo_planificacion();
-    estadoPlani();
-  }
-  suspenderProceso();
-  ciclo_planificacion();
-  estadoPlani();
-  ciclo_planificacion();
-  estadoPlani();
+        interfaces_io* interfaz = list_get(lista_interfaces, i);
 
-  /*pidConQ *qPrimaUno = nuevoPidConQ(uno);
-  list_add(listQPrimas, qPrimaUno);
-  //printf("Q prima del uno: %d\n", ((pidConQ*)list_get(listQPrimas, 0))->qPrima);
-  printf("Q prima del uno: %d\n",buscarQPrima(1));
-  procesoEXEC=1;
-  suspenderProceso();
-  sacarDeSuspension();
-  imprimirLista(procesosREADY);
-  modificarQPrima(1, 9);
-  printf("Q prima del uno: %d\n",buscarQPrima(1));*/
+        if(interfaz->estaLibre && queue_size(interfaz->procesos_bloqueados) != 0){ //si esta libre la interfaz y tenes instrucciones para ejecutar
+
+            ejectuar_siguiente_instruccion_io(*interfaz);
+        }
+
+      }
+
+      usleep(100000);
+    }
 }
 
 void avisarDesalojo()
@@ -623,11 +594,6 @@ void ciclo_planificacion()
   default:
     break;
   }
-  // if(flagCambioProceso)
-  //{
-  // mandarNuevoPCB();
-  // flagCambioProceso=0;
-  //}
 }
 
 bool condition_id_igual_n(void *elemento)
@@ -660,7 +626,7 @@ void mandarNuevoPCB()
   // printf("mande un pcb\n");
 
   /*BORRAR DESPUES*/
-
+  /*
   int fdXD = obtener_fd_interfaz("MONITOR");
 
   t_buffer *buffer_pid = crear_buffer();
@@ -671,7 +637,7 @@ void mandarNuevoPCB()
 
   t_paquete *paquete_pid = crear_super_paquete(HABLAR_CON_IO, buffer_pid);
   enviar_paquete(paquete_pid, fdXD);
-  destruir_paquete(paquete_pid);
+  destruir_paquete(paquete_pid);*/
 }
 
 void nuevaListaRecursos(int pid)
@@ -722,7 +688,7 @@ interfaces_io* encontrar_interfaz(char* nombre_buscado) {
         printf("###### nombre de la interfaz: %s\n", elemento->nombre_interfaz);
         printf("###### tipo de la interfaz: %s\n", elemento->tipo_interfaz);
 
-        if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0) {
+        if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0){
             return elemento;
         }
     }
@@ -740,4 +706,51 @@ int obtener_fd_interfaz(char* nombre_interfaz) {
     printf("nombre de la interfaz: ######%s\n", interfazADS->nombre_interfaz);
     printf("tipo de la interfaz:###### %s\n", interfazADS->tipo_interfaz);
     return interfazADS->fd_interfaz;
+}
+
+bool admiteOperacionInterfaz(char* nombre_interfaz,char* tipo_instruccion){ //nombre = pepe, tipo_instruccion = gen_sleep, tipo_interfaz = GENERICA
+
+  interfaces_io* interfazEncontrada = encontrar_interfaz(nombre_interfaz);
+
+  char* tipoInterfaz = interfazEncontrada->tipo_interfaz;
+
+  if(strcmp(tipoInterfaz,"GENERICA") == 0){
+
+    if(strcmp(tipo_instruccion,"IO_GEN_SLEEP") == 0){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  if(strcmp(tipoInterfaz,"STDIN") == 0){
+
+    if(strcmp(tipo_instruccion,"IO_STDIN_READ")){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  if(strcmp(tipoInterfaz,"STDOUT") == 0){
+
+    if(strcmp(tipo_instruccion,"IO_STDOUT_WRITE")){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  if(strcmp(tipoInterfaz,"DIALFS") == 0){
+
+    if(strcmp(tipo_instruccion,"IO_FS_CREATE") || strcmp(tipo_instruccion,"IO_FS_DELETE") || strcmp(tipo_instruccion,"IO_FS_TRUNCATE") || strcmp(tipo_instruccion,"IO_FS_WRITE") || strcmp(tipo_instruccion,"IO_FS_READ")){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+
+  return false;
+
 }

@@ -812,7 +812,6 @@ int list_index_of(t_list *self, void *data)
 
 t_buffer *cargar_pcb_buffer(PCB pcb)
 {
-
 	t_buffer *buffer = crear_buffer();
 
 	buffer->size = 0;

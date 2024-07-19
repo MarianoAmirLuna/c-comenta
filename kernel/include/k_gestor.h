@@ -51,6 +51,7 @@ extern pthread_mutex_t mutexExec;
 //extern pthread_mutex_t modificarLista;
 
 extern t_list *procesosNEW;
+extern t_list *procesosEXIT;
 extern t_list *procesosREADY;
 extern t_list *procesosReadyConQ;
 extern t_list *procesosSuspendidos;

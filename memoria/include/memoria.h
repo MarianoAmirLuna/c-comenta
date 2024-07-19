@@ -30,6 +30,7 @@ t_list* list_path_id;
 t_list* list_pcb;
 t_list* listaPaginas;
 t_list* listaTablaPaginas;
+t_list* lista_interfaces;
 int id_global;
 int id_global_pcb;
 void* memoriaPrincipal;

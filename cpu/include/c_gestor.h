@@ -52,6 +52,8 @@ extern bool terminarPorExit;
 extern bool terminaPorSenial;
 extern int waitOSignal;
 extern uint8_t caracterGlobal;
-
+extern bool ejecute_instruccion_tipo_io;
+extern char* nombre_interfaz;
+extern char* tipo_instruccion;
 
 #endif

@@ -51,5 +51,8 @@ int pagina_global;
 bool terminarPorExit;
 bool terminaPorSenial;
 uint8_t caracterGlobal;
+bool ejecute_instruccion_tipo_io;
+char* nombre_interfaz;
+char* tipo_instruccion;
 
 #endif

@@ -57,8 +57,8 @@ void atender_kernel_dispatch()
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
 
-			//list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
-			
+			// list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
+
 			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
 			atender_wait(nombre_recurso_wait, &(pcb_devuelto_por_wait->pid));
 			break;
@@ -74,10 +74,34 @@ void atender_kernel_dispatch()
 			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			atender_signal(nombre_recurso_signal, &(pcb_devuelto_por_signal->pid));
 			break;
+		case INSTRUCCION_TIPO_IO: // significa que el proceso fue desalojado al ejecutar una instruccion de tipo io
 
+			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			PCB *pcb_devuelto2 = atender_recibir_pcb(un_buffer);
+			char *nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			char* tipo_instruccion = extraer_string_del_buffer(un_buffer);
+
+			interfaces_io *interfaz = encontrar_interfaz(nombre_interfaz);
+			list_add(listaPCBs, pcb_devuelto2);
+
+			if (interfaz == NULL) //si es NULL no la encuentra en la lista por lo tanto esta desconectada
+			{
+				list_add(procesosEXIT,&(pcb_devuelto2->pid));
+			}
+			else{
+				if(!admiteOperacionInterfaz(nombre_interfaz,tipo_instruccion)){
+
+					list_add(procesosEXIT,&(pcb_devuelto2->pid));
+				}
+				else{
+					queue_push(interfaz->procesos_bloqueados,&(pcb_devuelto2->pid)); //agrego el pid a la queue de bloqueados de dicha interfaz
+				}
+			}
+
+			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
-			//control_key = 0;
+			// control_key = 0;
 			break;
 		default:
 			log_warning(logger, "Operacion desconocida de KERNEL - Dispatch");

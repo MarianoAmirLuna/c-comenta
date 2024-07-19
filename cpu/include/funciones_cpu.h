@@ -43,5 +43,7 @@ void io_stdout_write(char* interfaz,char* direccionLogica,char* tamanio);
 void leerStringMemoria(int direccionLogica, int tamanio);
 int is_8bit_register(char *registro);
 void leerCaracterMemoria(int direccionLogica);
+void devolverPCBKernel_exit_o_bloqueado();
+void establecerVariablesNecesarias(char* tipoInterfaz,char* nombreInterfaz);
 
 #endif

@@ -59,7 +59,8 @@ uint32_t *get_registry(char *registro)
     }
 }
 
-int is_8bit_register(char *registro) {
+int is_8bit_register(char *registro)
+{
     // Supongamos que los registros de 8 bits tienen un nombre específico que podemos identificar
     return strcmp(registro, "AX") == 0 || strcmp(registro, "BX") == 0 || strcmp(registro, "CX") == 0 || strcmp(registro, "DX") == 0;
 }
@@ -67,12 +68,15 @@ int is_8bit_register(char *registro) {
 void _set(char *registro, char *valor)
 {
     /*uint32_t *destino = get_registry(registro);
-    *destino = atoi(valor);*/
-   if (is_8bit_register(registro)) {
+     *destino = atoi(valor);*/
+    if (is_8bit_register(registro))
+    {
         // Obtener el puntero al registro de 8 bits
         uint8_t *destino8 = (uint8_t *)get_registry(registro);
         *destino8 = (uint8_t)atoi(valor);
-    } else {
+    }
+    else
+    {
         // Obtener el puntero al registro de 32 bits
         uint32_t *destino32 = get_registry(registro);
         *destino32 = (uint32_t)atoi(valor);
@@ -157,7 +161,6 @@ void _mov_in(char *registroDatos, char *registroDireccion)
     int *dirLogicaDelDato = (int *)direccionLogicaDelDato;
 
     hacerMovIn(*dirLogicaDelDato, tamanioDatoALeer, registroDatos);
-
 }
 
 void mandarDatoAEscribir(int direccion_logica, int direccion_fisica, int segundaDF, void *queEscribir, int bytes_a_escribir, int seEscribe2paginas, int tamanioRestantePagina)
@@ -285,20 +288,23 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
 void _mov_out(char *registroDireccion, char *registroDatos)
 {
 
-   // Obtengo el valor de los registros y se los paso a hacerMovOut
+    // Obtengo el valor de los registros y se los paso a hacerMovOut
     void *direccionLogica = (void *)get_registry(registroDireccion);
     void *dato = (void *)get_registry(registroDatos);
 
     int tamanioDato = conocerTamanioDeLosRegistros(registroDatos);
-    
+
     // Determinar el tamaño del registro de direccionLogica
     int tamanioDireccionLogica = conocerTamanioDeLosRegistros(registroDireccion);
 
     // Convertir el puntero de direccionLogica al tipo adecuado
-    if (tamanioDireccionLogica == sizeof(uint8_t)) {
+    if (tamanioDireccionLogica == sizeof(uint8_t))
+    {
         uint8_t *dirLogic = (uint8_t *)direccionLogica;
         hacerMovOut(*dirLogic, dato, tamanioDato);
-    } else {
+    }
+    else
+    {
         uint32_t *dirLogic = (uint32_t *)direccionLogica;
         hacerMovOut(*dirLogic, dato, tamanioDato);
     }
@@ -436,7 +442,8 @@ int obtener_cant_direcciones(int direccionLogica, int tamanioAEscribir, int byte
     return cont;
 }
 
-void leerCaracterMemoria(int direccionLogica){
+void leerCaracterMemoria(int direccionLogica)
+{
 
     int df = traducir_dl(direccionLogica);
 
@@ -446,7 +453,7 @@ void leerCaracterMemoria(int direccionLogica){
 
     cargar_int_al_buffer(buffer, df);
 
-    printf("la direccion fisica: %d\n",df);
+    printf("la direccion fisica: %d\n", df);
 
     t_paquete *paquete = crear_super_paquete(LEER_CARACTER_MEMORIA, buffer);
     enviar_paquete(paquete, fd_memoria);
@@ -548,7 +555,7 @@ void io_stdout_write(char *interfaz, char *direccionLogica, char *tamanio)
     // IO_STDOUT_WRITE MONITOR EAX AX
     uint32_t *dl = get_registry(direccionLogica);
     uint32_t *tam = get_registry(tamanio);
-    
+
     // Imprimir los valores de los registros dereferenciados directamente
     printf("la dl value es: %u\n", *dl);
     printf("el tamanio value es: %u\n", *tam);
@@ -600,6 +607,15 @@ nombre_instruccion str_to_instruction(const char *instr)
     if (strcmp(instr, "EXIT") == 0)
         return EXIT;
     return INVALID_INSTRUCTION; // Si la instrucción no es válida
+}
+
+void establecerVariablesNecesarias(char* typeInstruccion,char* nameInterfaz){
+
+    tipo_instruccion = typeInstruccion;
+    nombre_interfaz = nameInterfaz;
+
+    ejecute_instruccion_tipo_io = true;
+    sem_post(&wait_instruccion);
 }
 
 void ejecutar_instruccion(char *instruccion, PCB *pcb)
@@ -664,37 +680,41 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     case IO_GEN_SLEEP:
         ioGenSleep(param1, param2);
         log_info(cpu_logger, "PID: %d - Ejecutando: %s - <<%s, %s>>", pcb->pid, instruccion, param1, param2);
+        establecerVariablesNecesarias("IO_GEN_SLEEP",param1);
         break;
     case IO_STDIN_READ:
         // ioSTDINRead(param1, param2, param3);
+        
+        establecerVariablesNecesarias("IO_STDIN_READ",param1);
         break;
     case IO_STDOUT_WRITE:
         io_stdout_write(param1, param2, param3);
         log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
-        sem_post(&wait_instruccion);
+        establecerVariablesNecesarias("IO_STDOUT_WRITE",param1);
         break;
     case IO_FS_CREATE:
-
+        establecerVariablesNecesarias("IO_FS_CREATE",param1);
         break;
     case IO_FS_DELETE:
-
+        establecerVariablesNecesarias("IO_FS_DELETE",param1);
         break;
     case IO_FS_TRUNCATE:
-
+        establecerVariablesNecesarias("IO_FS_TRUNCATE",param1);
         break;
     case IO_FS_WRITE:
-
+        establecerVariablesNecesarias("IO_FS_WRITE",param1);
         break;
     case IO_FS_READ:
-
+        establecerVariablesNecesarias("IO_FS_READ",param1);
         break;
     case EXIT:
+        nombre_interfaz = param1;
         terminarPorExit = true;
         log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         sem_post(&wait_instruccion);
         break;
     case INVALID_INSTRUCTION:
-
+        printf("aprende a escribir\n");
         break;
     }
 }
@@ -706,7 +726,7 @@ void solicitar_instruccion(int pid, int program_counter)
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
-    //printf("el pid en solicitar_instruccion es: %d\n", pid);
+    // printf("el pid en solicitar_instruccion es: %d\n", pid);
     printf("el program counter en solicitar instrucciones: %d\n", program_counter);
     log_trace(cpu_log_debug, "PID: %d - FETCH - Program Counter: %d", pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
@@ -810,7 +830,6 @@ lineaTLB *inicializarLineaTLB(int pid, int pagina, int marco)
 
 void actualizarPrioridadesTLB(lineaTLB lineaTL)
 {
-
     int index = list_index_of(cola_tlb->elements, &lineaTL); // obtengo el index del que quiero borrar
 
     lineaTLB *lineaRemovida = list_remove(cola_tlb->elements, index); // lo borro
@@ -833,10 +852,6 @@ void agregarPaginaTLB(int pid, int pagina, int marco)
         lineaTLB *lineaABorrar = queue_pop(cola_tlb);
         free(lineaABorrar);
         queue_push(cola_tlb, lineaTL);
-
-        lineaTLB *linea1 = list_get(cola_tlb->elements, 0);
-
-        // printf("pagina 1: %d\n",linea1->pagina);
     }
 }
 
@@ -858,7 +873,7 @@ int buscarMarcoTLB(int pid, int pagina)
         log_warning(cpu_log_debug, "PID: %d - TLB MISS - Pagina: %d", pid, pagina);
         return -1;
     }
-    
+
     log_trace(cpu_log_debug, "PID: %d - TLB HIT - Pagina: %d", pid, pagina);
 
     if (strcmp(ALGORITMO_TLB, "LRU") == 0)
@@ -975,6 +990,20 @@ void devolverPCBKernelSenial()
     }
 }
 
+void devolverPCBKernel_exit_o_bloqueado(){
+
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion); //te da un buffer ya con el pcb cargado
+
+    cargar_string_al_buffer(buffer,nombre_interfaz);
+    cargar_string_al_buffer(buffer,tipo_instruccion);
+
+    t_paquete *paquete = crear_super_paquete(INSTRUCCION_TIPO_IO, buffer);
+    enviar_paquete(paquete, fd_kernel_dispatch);
+    destruir_paquete(paquete);
+
+    printf("desaloje al proceso al ejectuar una instruccion de tipo IO\n"); 
+}
+
 void procesar_instruccion()
 {
 
@@ -983,8 +1012,9 @@ void procesar_instruccion()
     terminarPorExit = false;
     terminaPorSenial = false;
     cambioContexto = false;
+    ejecute_instruccion_tipo_io = false;
 
-    while (!terminarPorExit && !cambioContexto && !terminaPorSenial)
+    while (!terminarPorExit && !cambioContexto && !terminaPorSenial && !ejecute_instruccion_tipo_io)
     {
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
@@ -995,7 +1025,7 @@ void procesar_instruccion()
 
         sem_wait(&wait_instruccion);
 
-        //printf("el PID: %d\n", pcb_ejecucion.pid);
+        // printf("el PID: %d\n", pcb_ejecucion.pid);
         printf("Estado de los registros:\n");
         printf("AX: %d, BX: %d, CX: %d, DX: %d\n", pcb_ejecucion.registros_cpu.AX, pcb_ejecucion.registros_cpu.BX, pcb_ejecucion.registros_cpu.CX, pcb_ejecucion.registros_cpu.DX);
         printf("EAX: %u, EBX: %u, ECX: %u, EDX: %u\n", pcb_ejecucion.registros_cpu.EAX, pcb_ejecucion.registros_cpu.EBX, pcb_ejecucion.registros_cpu.ECX, pcb_ejecucion.registros_cpu.EDX);
@@ -1007,13 +1037,20 @@ void procesar_instruccion()
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
 
-    if (!terminaPorSenial)
+    if (ejecute_instruccion_tipo_io)
     {
-        devolverPCBKernel();
+        devolverPCBKernel_exit_o_bloqueado();
     }
     else
     {
-        devolverPCBKernelSenial();
+        if (!terminaPorSenial)
+        {
+            devolverPCBKernel();
+        }
+        else
+        {
+            devolverPCBKernelSenial();
+        }
     }
 
     printf("termino de ejecutar\n");
