@@ -462,7 +462,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDIN_READ") == 0)
   {
-    for(int i=0;i<list_size(instruccionXD->lista_enteros);i++)
+    for(int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
     {
       int *numerin = list_get(instruccionXD->lista_enteros, i);
       cargar_int_al_buffer(buffer, *numerin);
@@ -508,7 +508,7 @@ void iniciar_planificacion_io()
 
       interfaces_io *interfaz = list_get(lista_interfaces, i);
 
-      if (interfaz->estaLibre && queue_size(interfaz->procesos_bloqueados) > 0 && interfaz->estaLibre)
+      if (interfaz->estaLibre && queue_size(interfaz->instrucciones_ejecutar) > 0 )
       { // si esta libre la interfaz y tenes instrucciones para ejecutar
 
         printf("ejecute una instruccion de tipo io\n");

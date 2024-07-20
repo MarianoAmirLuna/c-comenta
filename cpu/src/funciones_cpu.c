@@ -288,6 +288,12 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
 void _mov_out(char *registroDireccion, char *registroDatos)
 {
 
+    if (primeraSolicitudTamanioDePagina)
+    {
+        solicitarTamanioPagina();
+        primeraSolicitudTamanioDePagina = false;
+    }
+
     // Obtengo el valor de los registros y se los paso a hacerMovOut
     void *direccionLogica = (void *)get_registry(registroDireccion);
     void *dato = (void *)get_registry(registroDatos);
@@ -551,30 +557,44 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
 
 // void ioSTDINRead(param1, param2, param3);
 
+int obtenerValorRegistro(char* registro){
+
+    void *dato = (void *)get_registry(registro);
+
+    int registroDevolver;
+
+    if (is_8bit_register(registro)) {
+        registroDevolver = *((uint8_t *)dato);
+    } else {
+        registroDevolver = *((uint32_t *)dato);
+    }
+
+    return registroDevolver;
+}
+
+
 void io_stdout_write(char *nombreInterfaz, char *direccionLogica, char *tamanio)
 {
-    // por algun motivo write es leer
-    // IO_STDOUT_WRITE MONITOR EAX AX
-    uint32_t *dl = get_registry(direccionLogica);
-    uint32_t *tam = get_registry(tamanio);
 
-    // printf("la dl value es: %u\n", *dl);
-    // printf("el tamanio value es: %u\n", *tam);
-    // leerStringMemoria((int)(*dl), (int)(*tam));
+    int dirLogicaDelDato = obtenerValorRegistro(direccionLogica);
+    int tamanioDato = obtenerValorRegistro(tamanio);
 
     t_buffer *buffer_IOKernel = crear_buffer();
     buffer_IOKernel->size = 0;
     buffer_IOKernel->stream = NULL;
 
+    printf("la dl es: %d\n",dirLogicaDelDato);
+    printf("el tamanio es: %d\n",tamanioDato);
+
     cargar_string_al_buffer(buffer_IOKernel, nombreInterfaz);
-    cargar_int_al_buffer(buffer_IOKernel, (int)(*tam));
+    cargar_int_al_buffer(buffer_IOKernel, tamanioDato);
 
     int df;
 
-    for (uint32_t i = 0; i < *tam; i++)
+    for (int i = 0; i < tamanioDato; i++)
     {
 
-        df = traducir_dl((int)(*dl)); // obtengo todas las df que voy a necesitar para escribir en un futuro
+        df = traducir_dl(dirLogicaDelDato); // obtengo todas las df que voy a necesitar para escribir en un futuro
         cargar_int_al_buffer(buffer_IOKernel, df);
     }
 
@@ -585,16 +605,22 @@ void io_stdout_write(char *nombreInterfaz, char *direccionLogica, char *tamanio)
 
 void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_tamanio)
 {
+    if (primeraSolicitudTamanioDePagina)
+    {
+        solicitarTamanioPagina();
+        primeraSolicitudTamanioDePagina = false;
+    }
 
-    uint32_t *dl = get_registry(registro_direccion);
-    uint32_t *tam = get_registry(registro_tamanio);
+    int dirLogicaDelDato = obtenerValorRegistro(registro_direccion);
+    int tamanioDato = obtenerValorRegistro(registro_tamanio);
 
-    int direccion_logica = (int)(*dl);
+    printf("la dl es: %d\n",dirLogicaDelDato);
+    printf("el tamanio es: %d\n",tamanioDato);
 
-    int desplazamiento_en_pagina = direccion_logica % tamanio_pagina;          // offset
+    int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
 
-    int cantDireccionesNecesarias = obtener_cant_direcciones(direccion_logica, (int)(*tam), bytes_restantes_en_pagina);
+    int cantDireccionesNecesarias = obtener_cant_direcciones(dirLogicaDelDato, tamanioDato, bytes_restantes_en_pagina);
 
     t_buffer *buffer = crear_buffer();
     buffer->size = 0;
@@ -602,24 +628,27 @@ void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_
 
     cargar_string_al_buffer(buffer, nombreInterfaz);
     cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
-    cargar_int_al_buffer(buffer, (int)(*tam));
+    cargar_int_al_buffer(buffer, tamanioDato);
     cargar_int_al_buffer(buffer, cantDireccionesNecesarias);
 
     int flag = 0;
 
     for (int i = 0; i < cantDireccionesNecesarias; i++)
     {
-        int df = traducir_dl(direccion_logica);
+        int df = traducir_dl(dirLogicaDelDato);
+
+        printf("direccion fisica: %d\n",df);
+
         cargar_int_al_buffer(buffer, df);
 
         if (flag == 0)
         {
-            direccion_logica = direccion_logica + bytes_restantes_en_pagina;
+            dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
             flag = 1;
         }
         else
         {
-            direccion_logica = direccion_logica + tamanio_pagina;
+            dirLogicaDelDato = dirLogicaDelDato + tamanio_pagina;
         }
 
         printf("carge un int al buffer\n");
@@ -1145,9 +1174,5 @@ void procesar_instruccion()
         }
     }
         
-
-            
-        
-
     printf("termino de ejecutar\n");
 }

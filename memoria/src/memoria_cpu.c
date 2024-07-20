@@ -554,7 +554,7 @@ void escribirMemoria(t_buffer *un_buffer)
 
 	int df = extraer_int_del_buffer(un_buffer);
 
-	while (cantIteraciones <= tamanioAEscribir)
+	while (cantIteraciones < tamanioAEscribir)
 	{
 
 		if (necesitoNuevaDF(cortesPagina, cantIteraciones))

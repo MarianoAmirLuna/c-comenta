@@ -36,16 +36,21 @@ void atender_interfaz_kernel(int *arg){
 			int tamanio_escribir_read = extraer_int_del_buffer(un_buffer);
 			int cant_direcciones_read = extraer_int_del_buffer(un_buffer);
 			char *input_usuario = readline("input >");
+
 			t_buffer *buffer = crear_buffer();
     		buffer->size = 0;
     		buffer->stream = NULL;
+
 			cargar_string_al_buffer(buffer, input_usuario);
 			cargar_int_al_buffer(buffer, tamanio_restante_pag_read);
 			cargar_int_al_buffer(buffer, tamanio_escribir_read);
-			cargar_int_al_buffer(buffer, cant_direcciones_read);
+
+			int numero;
+
 			for(int i=0;i<cant_direcciones_read;i++)
 			{
-				cargar_int_al_buffer(buffer, extraer_int_del_buffer(un_buffer));
+				numero = extraer_int_del_buffer(un_buffer);
+				cargar_int_al_buffer(buffer, numero);
 			}
 
 			t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);

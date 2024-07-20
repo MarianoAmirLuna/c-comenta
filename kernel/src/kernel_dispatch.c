@@ -153,6 +153,10 @@ void atender_kernel_dispatch()
 			*tamanio_escribir = extraer_int_del_buffer(un_buffer);
 			*cant_direcciones = extraer_int_del_buffer(un_buffer);
 
+			printf("restante escribir: %d\n",*tamanio_restante_pag);
+			printf("tamanio_escribir: %d\n",*tamanio_escribir);
+			printf("cant direcciones: %d\n",*cant_direcciones);
+
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz3 = encontrar_interfaz(nombre_interfaz);
@@ -168,14 +172,17 @@ void atender_kernel_dispatch()
 				list_add(instruccionXD2->lista_enteros, tamanio_escribir);
 				list_add(instruccionXD2->lista_enteros, cant_direcciones);
 
-				for (int i = 0; i < cant_direcciones; i++)
+				for (int i = 0; i < *cant_direcciones; i++)
 				{
 					int *df_p = malloc(sizeof(int));
 					*df_p = extraer_int_del_buffer(un_buffer);
+
+					printf("la df es: %d\n",*df_p);
 					list_add(instruccionXD2->lista_enteros, df_p);
 				}
 
 				queue_push(interfaz3->instrucciones_ejecutar, instruccionXD2);
+				printf("lo agrege a la queue\n");
 			}
 
 			break;
