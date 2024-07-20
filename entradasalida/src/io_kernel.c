@@ -1,5 +1,7 @@
 #include "../include/io_kernel.h"
 #include <utils/shared.h>
+#include <readline/readline.h>
+#include <commons/string.h>
 
 void atender_interfaz_kernel(int *arg){
     int fd_entradasalida_kernel = *arg;
@@ -26,6 +28,31 @@ void atender_interfaz_kernel(int *arg){
 			printf("mande a dormir a la io\n");
 
 			usleep(unidades_trabajo * TIEMPO_UNIDAD_TRABAJO * 1000);
+		break;
+
+		case ENVIAR_IO_STDIN_READ:
+			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+			int tamanio_restante_pag_read = extraer_int_del_buffer(un_buffer);
+			int tamanio_escribir_read = extraer_int_del_buffer(un_buffer);
+			int cant_direcciones_read = extraer_int_del_buffer(un_buffer);
+			char *input_usuario = readline("input >");
+			t_buffer *buffer = crear_buffer();
+    		buffer->size = 0;
+    		buffer->stream = NULL;
+			cargar_string_al_buffer(buffer, input_usuario);
+			cargar_int_al_buffer(buffer, tamanio_restante_pag_read);
+			cargar_int_al_buffer(buffer, tamanio_escribir_read);
+			cargar_int_al_buffer(buffer, cant_direcciones_read);
+			for(int i=0;i<cant_direcciones_read;i++)
+			{
+				cargar_int_al_buffer(buffer, extraer_int_del_buffer(un_buffer));
+			}
+
+			t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
+    		enviar_paquete(paquete, fd_memoria);
+    		destruir_paquete(paquete);
+			
+		break;
 
 		case -1:
 

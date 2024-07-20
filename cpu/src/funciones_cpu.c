@@ -626,7 +626,7 @@ void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_STDIN_READ, buffer);
-    enviar_paquete(paquete, fd_memoria);
+    enviar_paquete(paquete, fd_kernel_dispatch);
     destruir_paquete(paquete);
 }
 

@@ -462,6 +462,14 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDIN_READ") == 0)
   {
+    for(int i=0;i<list_size(instruccionXD->lista_enteros);i++)
+    {
+      int *numerin = list_get(instruccionXD->lista_enteros, i);
+      cargar_int_al_buffer(buffer, *numerin);
+    }
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_STDIN_READ, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDOUT_WRITE") == 0)

@@ -127,7 +127,7 @@ void atender_kernel_dispatch()
 			printf("el nombre de la insterfaz es: %s\n", nombre_interfaz);
 			printf("las unidades de trabajo son: %d\n", *unidades_trabajo);
 
-			if (interfaz2 != NULL && admiteOperacionInterfaz(nombre_interfaz, tipo_instruccion))
+			if (interfaz2 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_GEN_SLEEP"))
 			{
 
 				instruccion *instruccionXD = (instruccion *)malloc(sizeof(instruccion));
@@ -145,15 +145,43 @@ void atender_kernel_dispatch()
 		case ENVIAR_IO_STDIN_READ:
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			nombre_interfaz = extraer_string_del_buffer(un_buffer);
-			int tamanio_restante_pag = extraer_int_del_buffer(un_buffer);
-			int tamanio_escribir = extraer_int_del_buffer(un_buffer);
-			int cant_direcciones = extraer_int_del_buffer(un_buffer);
+			int *tamanio_restante_pag = malloc(sizeof(int));
+			int *tamanio_escribir = malloc(sizeof(int));
+			int *cant_direcciones = malloc(sizeof(int));
 
-			for (int i = 0; i < cant_direcciones; i++)
+			*tamanio_restante_pag = extraer_int_del_buffer(un_buffer);
+			*tamanio_escribir = extraer_int_del_buffer(un_buffer);
+			*cant_direcciones = extraer_int_del_buffer(un_buffer);
+
+			estaCPULibre = true;
+			sem_post(&esperar_devolucion_pcb);
+			interfaces_io *interfaz3 = encontrar_interfaz(nombre_interfaz);
+
+			if (interfaz3 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_STDIN_READ"))
 			{
+				instruccion *instruccionXD2 = (instruccion *)malloc(sizeof(instruccion));
+				instruccionXD2->nombre_instruccion = "IO_STDIN_READ";
+				instruccionXD2->nombre_archivo = "";
+				instruccionXD2->lista_enteros = list_create();
+
+				list_add(instruccionXD2->lista_enteros, tamanio_restante_pag);
+				list_add(instruccionXD2->lista_enteros, tamanio_escribir);
+				list_add(instruccionXD2->lista_enteros, cant_direcciones);
+
+				for (int i = 0; i < cant_direcciones; i++)
+				{
+					int *df_p = malloc(sizeof(int));
+					*df_p = extraer_int_del_buffer(un_buffer);
+					list_add(instruccionXD2->lista_enteros, df_p);
+				}
+
+				queue_push(interfaz3->instrucciones_ejecutar, instruccionXD2);
 			}
 
 			break;
+
+
+
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			// control_key = 0;

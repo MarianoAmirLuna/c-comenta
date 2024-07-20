@@ -1,5 +1,6 @@
 #include "../include/memoria_io.h"
 #include <utils/shared.h>
+#include "../include/memoria_cpu.h"
 
 void atender_creacion_interfaz(int *arg)
 {
@@ -37,6 +38,12 @@ void atender_creacion_interfaz(int *arg)
 			printf("el tamanio de la list interfaces: %d\n",size);
 
 			break;
+
+		case ESCRIBIR_MEMORIA:
+			un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
+			escribirMemoria(un_buffer);
+			break;
+
 		case -1:
 			printf("Desconexion de KERNEL - IO");
 			control_key = 0;
