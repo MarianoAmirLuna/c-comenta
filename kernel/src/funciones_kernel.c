@@ -474,6 +474,17 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDOUT_WRITE") == 0)
   {
+    for(int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
+    {
+      int *numerito = list_get(instruccionXD->lista_enteros, i);
+      cargar_int_al_buffer(buffer, *numerito);
+    }
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_STDOUT_WRITE, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
+
+    printf("mande el paquete a kernel en write\n");
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_CREATE") == 0)

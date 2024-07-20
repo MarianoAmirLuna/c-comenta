@@ -19,6 +19,8 @@ extern t_config* io_config;
 extern int fd_memoria;
 extern int fd_kernel;
 extern t_bitarray* bitarray_bloques;
+extern char *nombreInterACrear;
+extern char *direccionConfigInterCrear;
 
 extern char* TIPO_INTERFAZ;
 extern char* IP_MEMORIA;
@@ -30,6 +32,7 @@ extern char* PATH_BASE_DIALFS;
 extern int BLOCK_SIZE;
 extern int BLOCK_COUNT;
 extern int RETRASO_COMPACTACION;
+
 
 
 #endif

@@ -578,7 +578,6 @@ void escribirMemoria(t_buffer *un_buffer)
 
 void leer_caracter(int df)
 {
-
 	uint8_t datoLeido;
 
 	memcpy(&datoLeido, memoriaPrincipal + df, 1);

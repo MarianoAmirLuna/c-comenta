@@ -5,7 +5,8 @@
 #include <stdio.h>
 #include <commons/log.h>
 #include <commons/config.h>
-#include<commons/bitarray.h>
+#include <commons/bitarray.h>
+#include "utils/shared.h"
 #include<semaphore.h>
 #include <stdint.h>
 

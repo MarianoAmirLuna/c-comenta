@@ -14,6 +14,8 @@ t_bitarray* bitarray_bloques;
 
 int fd_memoria;
 int fd_kernel;
+char *nombreInterACrear;
+char *direccionConfigInterCrear;
 
 
 char* TIPO_INTERFAZ; //Los nombres de las variables estan repetidos generando problemas, por eso los comento, capaz haya que eliminar la creacion de un config inicial y estas variables

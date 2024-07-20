@@ -186,9 +186,41 @@ void atender_kernel_dispatch()
 			}
 
 			break;
+        case ENVIAR_IO_STDOUT_WRITE:
 
+		    un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			int *tamanio_escribir2 = malloc(sizeof(int));
+			*tamanio_escribir2 = extraer_int_del_buffer(un_buffer);
 
+            estaCPULibre = true;
+			sem_post(&esperar_devolucion_pcb);
+			interfaces_io *interfaz4 = encontrar_interfaz(nombre_interfaz);
 
+			if (interfaz4 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_STDOUT_WRITE"))
+			{
+				instruccion *instruccionXD3 = (instruccion *)malloc(sizeof(instruccion));
+
+				instruccionXD3->nombre_instruccion = "IO_STDOUT_WRITE";
+				instruccionXD3->nombre_archivo = "";
+				instruccionXD3->lista_enteros = list_create();
+
+				list_add(instruccionXD3->lista_enteros, tamanio_escribir2);
+
+				for (int i = 0; i < *tamanio_escribir2; i++)
+				{
+					int *direccion_fisica_p = malloc(sizeof(int));
+					*direccion_fisica_p = extraer_int_del_buffer(un_buffer);
+
+					printf("la df es: %d\n", *direccion_fisica_p);
+					list_add(instruccionXD3->lista_enteros, direccion_fisica_p);
+				}
+
+				queue_push(interfaz4->instrucciones_ejecutar, instruccionXD3);
+				printf("lo agrege a la queue\n");
+			}
+
+            break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			// control_key = 0;

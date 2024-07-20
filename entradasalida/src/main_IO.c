@@ -432,9 +432,6 @@ int main()
 
 	log_info(io_logger, "Inicializando Entrada/Salida");
 
-	char *nombreInterACrear;
-	char *direccionConfigInterCrear;
-
 	do
 	{
 		log_info(io_logger, "Escriba el nombre de la interfaz");

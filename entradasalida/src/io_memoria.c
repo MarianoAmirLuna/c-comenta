@@ -21,6 +21,12 @@ void atender_interfaz_memoria(int *arg)
 			printf("logre recibir el mensaje de la lista de memoria\n");
 
             break;
+		case DEVOLVER_STRING_STDOUT:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
+			char* mensajeFINAL = extraer_string_del_buffer(un_buffer);
+
+			printf("mensaje obtenido: %s\n",mensajeFINAL);
+			break;
 		case -1:
 
 			control_key = 0;

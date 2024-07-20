@@ -573,11 +573,11 @@ int obtenerValorRegistro(char* registro){
 }
 
 
-void io_stdout_write(char *nombreInterfaz, char *direccionLogica, char *tamanio)
+void io_stdout_write(char *nombreInterfaz, char *registro_direccionLogica, char *registro_tamanio)
 {
 
-    int dirLogicaDelDato = obtenerValorRegistro(direccionLogica);
-    int tamanioDato = obtenerValorRegistro(tamanio);
+    int dirLogicaDelDato = obtenerValorRegistro(registro_direccionLogica);
+    int tamanioDato = obtenerValorRegistro(registro_tamanio);
 
     t_buffer *buffer_IOKernel = crear_buffer();
     buffer_IOKernel->size = 0;
@@ -596,6 +596,7 @@ void io_stdout_write(char *nombreInterfaz, char *direccionLogica, char *tamanio)
 
         df = traducir_dl(dirLogicaDelDato); // obtengo todas las df que voy a necesitar para escribir en un futuro
         cargar_int_al_buffer(buffer_IOKernel, df);
+        dirLogicaDelDato++;
     }
 
     t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IO_STDOUT_WRITE, buffer_IOKernel);
