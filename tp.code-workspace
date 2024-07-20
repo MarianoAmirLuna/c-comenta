@@ -16,7 +16,9 @@
 			"type_traits": "c",
 			"utility": "c",
 			"cstdlib": "c",
-			"fileSystem_io.C": "cpp"
+			"fileSystem_io.C": "cpp",
+			"random": "c",
+			"ratio": "c"
 		},
 		"C_Cpp.errorSquiggles": "disabled",
 	},
