@@ -901,7 +901,7 @@ void mandar_a_exit(int *pid_finalizado)
       int index = -1;
       index = list_index_of(interfaz->procesos_bloqueados->elements, &numero_a_buscar, comparar_enteros);
 
-      if(index != -1 && queue_size(interfaz->instrucciones_ejecutar)>0)
+      if(index > -1 && queue_size(interfaz->instrucciones_ejecutar) >= index)
       {
           list_remove(interfaz->instrucciones_ejecutar->elements, index);
       }

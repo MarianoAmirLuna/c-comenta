@@ -106,5 +106,4 @@ extern t_list *listaPidsRecursos;
 extern t_list *lista_recursos_y_bloqueados; //<--- ordenada igual que nombresRecursos, tiene elementos t_list
 
 extern sem_t sem_seguir_planificando;
-
 #endif
