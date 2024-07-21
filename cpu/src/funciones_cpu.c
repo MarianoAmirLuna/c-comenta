@@ -818,8 +818,36 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     }
 }
 
+bool contiene_numero(t_list *lista, int numero)
+{
+    int longitud = list_size(lista);
+    for (int i = 0; i < longitud; i++)
+    {
+        int *elemento = (int *)list_get(lista, i);
+        if (*elemento == numero)
+        {
+            return true; // El número está en la lista
+        }
+    }
+    return false; // El número no está en la lista
+}
+
 void solicitar_instruccion(int pid, int program_counter)
 {
+    bool tienePath = contiene_numero(procesosConPath,pid);
+
+    if(!tienePath){
+
+        while(1){
+            tienePath = contiene_numero(procesosConPath,pid);
+
+            if(tienePath){
+                break;
+            }
+            usleep(75000);
+        }
+    }
+
     t_buffer *a_enviar = crear_buffer();
 
     a_enviar->size = 0;

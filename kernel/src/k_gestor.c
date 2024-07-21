@@ -19,6 +19,7 @@ int seguirPlanificando=1;
 int ejecutandoProceso=0;
 sem_t sem_cpu_libre;
 sem_t esperar_devolucion_pcb;
+sem_t esperar_carga_path_memoria;
 t_dictionary *dictQPrimas;
 t_list* listaPCBs=NULL;
 int flagCambioProceso;

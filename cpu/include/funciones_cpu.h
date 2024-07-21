@@ -50,5 +50,6 @@ void solicitarTamanioPagina();
 bool instruccion_es_tipo_io(char *instruccion_actual);
 int obtenerValorRegistro(char* registro);
 int list_index_of(t_list *self, void *data, bool (*comp)(void *, void *));
+bool contiene_numero(t_list *lista, int numero);
 
 #endif

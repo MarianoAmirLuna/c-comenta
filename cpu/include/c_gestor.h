@@ -56,4 +56,6 @@ extern bool ejecute_instruccion_tipo_io;
 extern char* nombre_interfaz;
 extern char* tipo_instruccion;
 
+extern t_list* procesosConPath;
+
 #endif

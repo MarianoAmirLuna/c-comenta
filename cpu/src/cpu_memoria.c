@@ -122,6 +122,11 @@ void atender_cpu_memoria()
 			terminarPorExit = true;
 			sem_post(&wait_instruccion);
 			break;
+		case HABILITAR_PID:
+		    un_buffer = recibir_todo_el_buffer(fd_memoria);
+			int pid_habilita = extraer_int_del_buffer(un_buffer);
+			list_add(procesosConPath,pid_habilita);
+		    break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;

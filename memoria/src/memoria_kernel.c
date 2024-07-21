@@ -21,10 +21,21 @@ void atender_crear_proceso(t_buffer *un_buffer)
 
 	log_debug(memoria_log_debug, "PID: %d - Tamaño: %d", pid, tabla->cantMarcos);
 
-	list_add(list_path_id, path_con_id); // #ACAJOACO
+	list_add(list_path_id, path_con_id);
 	list_add(listaTablaPaginas, tabla);
 
 	usleep(RETARDO_RESPUESTA * 1000);
+
+	t_buffer *a_enviar = crear_buffer();
+
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_int_al_buffer(a_enviar, pid);    
+
+    t_paquete *un_paquete = crear_super_paquete(HABILITAR_PID, a_enviar);
+    enviar_paquete(un_paquete, fd_cpu);
+    destruir_paquete(un_paquete);
 }
 
 void atender_eliminar_proceso(t_buffer *un_buffer)

@@ -83,6 +83,7 @@ extern t_planificacion tipoPlanificacion;
 extern int seguirPlanificando;
 extern sem_t sem_cpu_libre;
 extern sem_t esperar_devolucion_pcb;
+extern sem_t esperar_carga_path_memoria;
 extern int ejecutandoProceso;
 
 extern t_list *listaPCBs;

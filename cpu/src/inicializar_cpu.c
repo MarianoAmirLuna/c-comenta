@@ -84,6 +84,7 @@ PCB iniciar_PCB()
 
 void iniciar_listas(){
 	cola_tlb = queue_create();
+	procesosConPath = list_create();
 }
 
 void iniciar_variables(){

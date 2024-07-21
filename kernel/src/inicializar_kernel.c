@@ -65,6 +65,7 @@ void iniciar_semaforos()
 	sem_init(&sem_cpu_libre, 1, 1);
 	sem_init(&esperar_devolucion_pcb, 1, 0);
 	sem_init(&sem_seguir_planificando, 1, 1);
+	sem_init(&esperar_carga_path_memoria,1,0);
 }
 
 void iniciar_recursos()

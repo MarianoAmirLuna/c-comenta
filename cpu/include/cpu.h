@@ -55,4 +55,6 @@ bool ejecute_instruccion_tipo_io;
 char* nombre_interfaz;
 char* tipo_instruccion;
 
+t_list* procesosConPath;
+
 #endif

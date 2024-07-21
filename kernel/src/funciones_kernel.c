@@ -58,6 +58,8 @@ void enviar_path_memoria(char *path, int pid)
   t_paquete *un_paquete = crear_super_paquete(CREAR_PROCESO_KM, a_enviar);
   enviar_paquete(un_paquete, fd_memoria);
   destruir_paquete(un_paquete);
+
+  sem_wait(&esperar_carga_path_memoria);
 }
 
 void enviar_pcb(PCB pcb, int socket_enviar)
@@ -741,6 +743,7 @@ void iniciar_proceso(char *path)
   printf("el pid es %d\n", pcb->pid);
   list_add(listaPCBs, pcb);
   enviar_path_memoria(path, pcb->pid);
+
   list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
   nuevaListaRecursos(pcb->pid);
   // mostrarInstanciasTomadas(pcb->pid);
