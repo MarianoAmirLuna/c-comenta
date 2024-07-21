@@ -9,5 +9,6 @@ bool _validacion_de_instruccion_de_consola(char* leido);
 void _atender_instruccion_validada(char* leido);
 void _f_iniciar_proceso(t_buffer* un_buffer);
 void iniciar_cpu();
+void listar_procesos_estado();
 
 #endif /* CONSOLA_H_ */

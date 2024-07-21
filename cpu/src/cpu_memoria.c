@@ -120,6 +120,7 @@ void atender_cpu_memoria()
 			int valorRandom = extraer_int_del_buffer(un_buffer);
 			log_error(cpu_log_debug, "OUT OF MEMORY");
 			terminarPorExit = true;
+			sem_post(&wait_instruccion);
 			break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");

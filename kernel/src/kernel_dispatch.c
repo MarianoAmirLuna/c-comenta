@@ -42,8 +42,9 @@ void atender_kernel_dispatch()
 			}
 			else
 			{ // ejecuto todas las instrucciones
-				// significa que termino todas sus intrucciones y tengo que liberar los recursos
-				finalizarProceso(pcb_devuelto->pid);
+				// significa que termino todas sus intrucciones y tengo que liberar los recursos y mandarlo a exit
+				list_add(procesosEXIT,&(pcb_devuelto->pid));
+				finalizarProceso(pcb_devuelto->pid); //agregar un poco mas de logica aca
 			}
 			break;
 		case ENVIAR_IOGEN:

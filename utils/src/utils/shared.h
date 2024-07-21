@@ -242,7 +242,7 @@ PCB* inicializar_PCB(int, int, int, uint8_t, uint8_t, uint8_t,
 
 PCB* atender_recibir_pcb(t_buffer* un_buffer);
 int contarInstrucciones(char *path);
-int list_index_of(t_list *self, void *data);
+//int list_index_of(t_list *self, void *data);
 t_buffer* cargar_pcb_buffer(PCB pcb);
 
 #endif /* UTILS_H_ */

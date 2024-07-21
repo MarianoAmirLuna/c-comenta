@@ -794,6 +794,7 @@ int contarInstrucciones(char *path)
 	return contador;
 }
 
+/*
 int list_index_of(t_list *self, void *data)
 {
 	int index = 0;
@@ -808,7 +809,7 @@ int list_index_of(t_list *self, void *data)
 		index++;
 	}
 	return -1; // Elemento no encontrado
-}
+}*/
 
 t_buffer *cargar_pcb_buffer(PCB pcb)
 {

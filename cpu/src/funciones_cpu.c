@@ -557,21 +557,24 @@ void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)
 
 // void ioSTDINRead(param1, param2, param3);
 
-int obtenerValorRegistro(char* registro){
+int obtenerValorRegistro(char *registro)
+{
 
     void *dato = (void *)get_registry(registro);
 
     int registroDevolver;
 
-    if (is_8bit_register(registro)) {
+    if (is_8bit_register(registro))
+    {
         registroDevolver = *((uint8_t *)dato);
-    } else {
+    }
+    else
+    {
         registroDevolver = *((uint32_t *)dato);
     }
 
     return registroDevolver;
 }
-
 
 void io_stdout_write(char *nombreInterfaz, char *registro_direccionLogica, char *registro_tamanio)
 {
@@ -583,8 +586,8 @@ void io_stdout_write(char *nombreInterfaz, char *registro_direccionLogica, char 
     buffer_IOKernel->size = 0;
     buffer_IOKernel->stream = NULL;
 
-    printf("la dl es: %d\n",dirLogicaDelDato);
-    printf("el tamanio es: %d\n",tamanioDato);
+    printf("la dl es: %d\n", dirLogicaDelDato);
+    printf("el tamanio es: %d\n", tamanioDato);
 
     cargar_string_al_buffer(buffer_IOKernel, nombreInterfaz);
     cargar_int_al_buffer(buffer_IOKernel, tamanioDato);
@@ -615,8 +618,8 @@ void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_
     int dirLogicaDelDato = obtenerValorRegistro(registro_direccion);
     int tamanioDato = obtenerValorRegistro(registro_tamanio);
 
-    printf("la dl es: %d\n",dirLogicaDelDato);
-    printf("el tamanio es: %d\n",tamanioDato);
+    printf("la dl es: %d\n", dirLogicaDelDato);
+    printf("el tamanio es: %d\n", tamanioDato);
 
     int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
@@ -638,7 +641,7 @@ void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_
     {
         int df = traducir_dl(dirLogicaDelDato);
 
-        printf("direccion fisica: %d\n",df);
+        printf("direccion fisica: %d\n", df);
 
         cargar_int_al_buffer(buffer, df);
 
@@ -923,12 +926,14 @@ lineaTLB *inicializarLineaTLB(int pid, int pagina, int marco)
 
     return lineaTL;
 }
-
+/*
 void actualizarPrioridadesTLB(lineaTLB lineaTL)
 {
     int index = list_index_of(cola_tlb->elements, &lineaTL); // obtengo el index del que quiero borrar
 
     lineaTLB *lineaRemovida = list_remove(cola_tlb->elements, index); // lo borro
+
+    printf("agrege al final por LRU la pag: %d\n",lineaRemovida->pagina);
 
     queue_push(cola_tlb, lineaRemovida); // lo vuelvo a agregar al final
 }
@@ -941,13 +946,16 @@ void agregarPaginaTLB(int pid, int pagina, int marco)
     { // si entra aca es porque no hay que hacer ningun reemplazo
         // printf("VOY A AGREGAR LA LINEA A LA COLA CON MARCO: %d\n",lineaTL->marco);
         queue_push(cola_tlb, lineaTL);
+        printf("agrege la pagina %d\n",lineaTL->pagina);
     }
     else
     { // significa que ya se lleno la TLB entonces hay que reemplazar una
 
         lineaTLB *lineaABorrar = queue_pop(cola_tlb);
         free(lineaABorrar);
+        printf("saque la pagina %d\n",lineaABorrar->pagina);
         queue_push(cola_tlb, lineaTL);
+        printf("agrege la pagina %d\n",lineaTL->pagina);
     }
 }
 
@@ -970,7 +978,7 @@ int buscarMarcoTLB(int pid, int pagina)
         return -1;
     }
 
-    log_trace(cpu_log_debug, "PID: %d - TLB HIT - Pagina: %d", pid, pagina);
+    log_warning(cpu_log_debug, "PID: %d - TLB HIT - Pagina: %d", pid, pagina);
 
     if (strcmp(ALGORITMO_TLB, "LRU") == 0)
     { // en caso de que sea LRU hay que actualizar la prioridad
@@ -997,7 +1005,6 @@ int traducir_dl(int direccionLogica)
 
     if (marco != -1)
     { // hubo un HIT
-
         return (marco * tamanio_pagina + desplazamiento);
     }
 
@@ -1008,6 +1015,115 @@ int traducir_dl(int direccionLogica)
     log_debug(cpu_log_debug, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pcb_ejecucion.pid, num_pag, marco);
 
     // int sizeTLB = queue_size(cola_tlb);
+
+    return (marco * tamanio_pagina + desplazamiento);
+}*/
+
+int list_index_of(t_list *self, void *data, bool (*comp)(void *, void *))
+{
+    int index = 0;
+    t_link_element *current = self->head;
+    while (current != NULL)
+    {
+        if (comp(current->data, data))
+        {
+            return index;
+        }
+        current = current->next;
+        index++;
+    }
+    return -1; // Elemento no encontrado
+}
+
+bool comparar_lineaTLB(void *a, void *b)
+{
+    lineaTLB *lineaA = (lineaTLB *)a;
+    lineaTLB *lineaB = (lineaTLB *)b;
+    return (lineaA->pid == lineaB->pid) && (lineaA->pagina == lineaB->pagina);
+}
+
+void actualizarPrioridadesTLB(lineaTLB *lineaTL)
+{
+    int index = list_index_of(cola_tlb->elements, lineaTL, comparar_lineaTLB); // Obtengo el índice del que quiero actualizar
+
+    if (index != -1) { // Verifica que el elemento esté en la lista
+        lineaTLB *lineaRemovida = list_remove(cola_tlb->elements, index); // Lo borro
+        printf("agrege al final por LRU la pag: %d\n", lineaRemovida->pagina);
+        queue_push(cola_tlb, lineaRemovida); // Lo vuelvo a agregar al final
+    }
+}
+
+void agregarPaginaTLB(int pid, int pagina, int marco)
+{
+    lineaTLB *lineaTL = inicializarLineaTLB(pid, pagina, marco);
+
+    if (queue_size(cola_tlb) < CANTIDAD_ENTRADAS_TLB)
+    { // Si entra acá es porque no hay que hacer ningún reemplazo
+        queue_push(cola_tlb, lineaTL);
+        printf("agrege la pagina %d\n", lineaTL->pagina);
+    }
+    else
+    { // Significa que ya se llenó la TLB entonces hay que reemplazar una
+        lineaTLB *lineaABorrar = queue_pop(cola_tlb); // Eliminar el elemento más antiguo (FIFO)
+        printf("saque la pagina %d\n", lineaABorrar->pagina);
+        free(lineaABorrar);
+        queue_push(cola_tlb, lineaTL);
+        printf("agrege la pagina %d\n", lineaTL->pagina);
+    }
+}
+
+bool condicion_id_pagina(void *elemento)
+{
+    lineaTLB *dato = (lineaTLB *)elemento;
+    return (dato->pid == id_global && dato->pagina == pagina_global);
+}
+
+int buscarMarcoTLB(int pid, int pagina)
+{
+    id_global = pid;
+    pagina_global = pagina;
+
+    lineaTLB *lineaTL = list_find(cola_tlb->elements, condicion_id_pagina);
+
+    if (lineaTL == NULL)
+    { // Se produce un MISS al no encontrarlo
+        log_warning(cpu_log_debug, "PID: %d - TLB MISS - Pagina: %d", pid, pagina);
+        return -1;
+    }
+
+    log_warning(cpu_log_debug, "PID: %d - TLB HIT - Pagina: %d", pid, pagina);
+
+    if (strcmp(ALGORITMO_TLB, "LRU") == 0)
+    { // En caso de que sea LRU hay que actualizar la prioridad
+        actualizarPrioridadesTLB(lineaTL);
+    }
+
+    return lineaTL->marco; // Encontró el marco y lo devuelve
+}
+
+int traducir_dl(int direccionLogica)
+{
+    if (primeraSolicitudTamanioDePagina) // Sirve para obtener el tamaño de página de memoria
+    {
+        solicitarTamanioPagina();
+        primeraSolicitudTamanioDePagina = false;
+    }
+
+    int num_pag = direccionLogica / tamanio_pagina;
+    int desplazamiento = direccionLogica % tamanio_pagina;
+
+    marco = buscarMarcoTLB(pcb_ejecucion.pid, num_pag);
+
+    if (marco != -1)
+    { // Hubo un HIT
+        return (marco * tamanio_pagina + desplazamiento);
+    }
+
+    enviar_pedido_marco(num_pag, pcb_ejecucion.pid); // En caso de un MISS busca en memoria
+
+    agregarPaginaTLB(pcb_ejecucion.pid, num_pag, marco); // Después del MISS se actualiza la TLB
+
+    log_debug(cpu_log_debug, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pcb_ejecucion.pid, num_pag, marco);
 
     return (marco * tamanio_pagina + desplazamiento);
 }
@@ -1114,13 +1230,15 @@ bool instruccion_es_tipo_io(char *instruccion_actual)
     strcpy(nombre_interfaz, nombre_interfazXD);
     strcpy(tipo_instruccion, instr);
 
-    printf("el nombre de la interfaz: %s\n",nombre_interfazXD);
+    printf("el nombre de la interfaz: %s\n", nombre_interfazXD);
     printf("la instruccion es: %s\n", instr);
 
-    if(strcmp(instr,"IO_GEN_SLEEP") == 0 || strcmp(instr,"IO_STDIN_READ") == 0 || strcmp(instr,"IO_STDOUT_WRITE") == 0 || strcmp(instr,"IO_FS_CREATE") == 0 || strcmp(instr,"IO_FS_DELETE") == 0 || strcmp(instr,"IO_FS_TRUNCATE") == 0 || strcmp(instr,"IO_FS_WRITE") == 0 || strcmp(instr,"IO_FS_READ") == 0){
+    if (strcmp(instr, "IO_GEN_SLEEP") == 0 || strcmp(instr, "IO_STDIN_READ") == 0 || strcmp(instr, "IO_STDOUT_WRITE") == 0 || strcmp(instr, "IO_FS_CREATE") == 0 || strcmp(instr, "IO_FS_DELETE") == 0 || strcmp(instr, "IO_FS_TRUNCATE") == 0 || strcmp(instr, "IO_FS_WRITE") == 0 || strcmp(instr, "IO_FS_READ") == 0)
+    {
         return true;
     }
-    else{
+    else
+    {
         return false;
     }
 }
@@ -1164,16 +1282,19 @@ void procesar_instruccion()
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
 
-    if(terminaPorSenial){ //verificar si esta bien
+    if (terminaPorSenial)
+    { // verificar si esta bien
 
         devolverPCBKernelSenial();
     }
-    else{
-        if(!ejecute_instruccion_tipo_io){
+    else
+    {
+        if (!ejecute_instruccion_tipo_io)
+        {
 
             devolverPCBKernel();
         }
     }
-        
+
     printf("termino de ejecutar\n");
 }

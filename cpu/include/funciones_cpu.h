@@ -30,7 +30,7 @@ int conocerTamanioDeLosRegistros(char *registro);
 int buscarMarcoTLB(int pid, int pagina);
 bool condicion_id_pagina(void *elemento);
 void agregarPaginaTLB(int pid,int pagina,int marco);
-void actualizarPrioridadesTLB(lineaTLB lineaTL);
+void actualizarPrioridadesTLB(lineaTLB* lineaTL);
 lineaTLB* inicializarLineaTLB(int pid, int pagina, int marco);
 void concat_uint8_to_string(char* str, uint8_t ch);
 int obtener_cant_direcciones(int direccionLogica,int tamanioAEscribir, int bytes_restantes_en_pagina);
@@ -49,5 +49,6 @@ void ioSTDINRead(char* interfaz,char* registro_direccion,char* registro_tamanio)
 void solicitarTamanioPagina();
 bool instruccion_es_tipo_io(char *instruccion_actual);
 int obtenerValorRegistro(char* registro);
+int list_index_of(t_list *self, void *data, bool (*comp)(void *, void *));
 
 #endif

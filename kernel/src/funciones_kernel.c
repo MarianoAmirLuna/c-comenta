@@ -28,9 +28,6 @@ PCB *iniciar_PCB()
   pcb->registros_cpu.SI = 0;
   pcb->registros_cpu.DI = 0;
 
-  // printf("El numero del pcb es: ");
-  // printf("%d\n", pcb.pid);
-
   return pcb;
 }
 
