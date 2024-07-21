@@ -359,7 +359,9 @@ void imprimirBitmapMemoriaPrincipal()
 {
 	bool estaOcupado;
 
-	for (int i = 0; i < 128; i++)
+	size_t numeroMax = bitarray_get_max_bit(frames_ocupados_ppal);
+
+	for (size_t i = 0; i < numeroMax; i++)
 	{
 		estaOcupado = bitarray_test_bit(frames_ocupados_ppal, i);
 		if (estaOcupado)

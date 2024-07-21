@@ -33,13 +33,6 @@ void atender_interfaz_kernel(int *arg)
 
 		switch (cod_op)
 		{
-		case HABLAR_CON_IO:
-
-			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
-			int xd = extraer_int_del_buffer(un_buffer);
-			printf("RECIBI EL MENSAJEEEEEEEEEEEEEEEEEE\n");
-
-			break;
 		case ENVIAR_IO_GEN_SLEEP:
 
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);

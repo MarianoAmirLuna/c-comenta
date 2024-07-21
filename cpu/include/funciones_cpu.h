@@ -48,5 +48,6 @@ void establecerVariablesNecesarias(char* tipoInterfaz,char* nombreInterfaz);
 void ioSTDINRead(char* interfaz,char* registro_direccion,char* registro_tamanio);
 void solicitarTamanioPagina();
 bool instruccion_es_tipo_io(char *instruccion_actual);
+int obtenerValorRegistro(char* registro);
 
 #endif
