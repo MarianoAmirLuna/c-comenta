@@ -4,5 +4,6 @@
 #include "k_gestor.h"
 
 void atender_creacion_interfaz();
+void desbloquear_el_proceso_de_la_iterfaz(char* nombre_interfaz);
 
 #endif

@@ -1,5 +1,6 @@
 #include "../include/io_memoria.h"
 #include <utils/shared.h>
+#include "../include/io_kernel.h"
 
 void atender_interfaz_memoria(int *arg)
 {
@@ -26,7 +27,16 @@ void atender_interfaz_memoria(int *arg)
 			char* mensajeFINAL = extraer_string_del_buffer(un_buffer);
 
 			printf("mensaje obtenido: %s\n",mensajeFINAL);
+
+			avisarKernelTerminoEjecutarIO();
+
 			break;
+		case LIBERAR_INTERFAZ:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
+			int inutil = extraer_int_del_buffer(un_buffer);
+            avisarKernelTerminoEjecutarIO();
+
+		    break;
 		case -1:
 
 			control_key = 0;

@@ -4,5 +4,6 @@
 #include "i_gestor.h"
 
 void atender_interfaz_kernel(int *arg);
+void avisarKernelTerminoEjecutarIO();
 
 #endif

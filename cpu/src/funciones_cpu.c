@@ -1088,7 +1088,7 @@ void devolverPCBKernelSenial()
 
 void devolverPCBKernel_exit_o_bloqueado()
 {
-
+    pcb_ejecucion.program_counter++;
     t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion); // te da un buffer ya con el pcb cargado
 
     cargar_string_al_buffer(buffer, nombre_interfaz);

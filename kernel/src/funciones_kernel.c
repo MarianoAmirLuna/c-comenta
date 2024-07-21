@@ -446,7 +446,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
   buffer->size = 0;
   buffer->stream = NULL;
 
-  instruccion *instruccionXD = queue_pop(interfaz.instrucciones_ejecutar);
+  instruccion *instruccionXD = queue_pop(interfaz.instrucciones_ejecutar); //saco la instruccion de la queue y la ejecuto
 
   if (strcmp(instruccionXD->nombre_instruccion, "IO_GEN_SLEEP") == 0)
   {

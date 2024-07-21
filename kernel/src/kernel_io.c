@@ -1,5 +1,22 @@
 #include "../include/kernel_io.h"
 #include <utils/shared.h>
+#include "../include/funciones_kernel.h"
+
+void desbloquear_el_proceso_de_la_iterfaz(char* nombre_interfaz){
+
+	interfaces_io* interfaz = encontrar_interfaz(nombre_interfaz);
+
+	//busco la interfaz en de la lista y lo mando al planificador otra vez
+	int* pid = malloc(sizeof(int));
+
+	pid = (int*)queue_pop(interfaz->procesos_bloqueados);
+
+	printf("el pid que fue liberado %d\n",*pid);
+
+	list_add(procesosREADY,pid);
+
+	interfaz->estaLibre = true;
+}
 
 void atender_creacion_interfaz(int *arg)
 {
@@ -41,8 +58,13 @@ void atender_creacion_interfaz(int *arg)
 			int size = list_size(lista_interfaces);
 
 			printf("el tamanio de la list interfaces: %d\n",size);
+		    break;
+		case LIBERAR_INTERFAZ:
 
-
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+			char* name_interfaz = extraer_string_del_buffer(un_buffer);
+			
+			desbloquear_el_proceso_de_la_iterfaz(name_interfaz);
 
 			break;
 		case -1:

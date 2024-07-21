@@ -2,6 +2,19 @@
 #include <utils/shared.h>
 #include "../include/memoria_cpu.h"
 
+void aviso_finalizacion_a_IO(int fd){
+
+	t_buffer *buffer = crear_buffer();
+	buffer->size = 0;
+	buffer->stream = NULL;
+
+	cargar_int_al_buffer(buffer,1);
+
+	t_paquete *paquete = crear_super_paquete(LIBERAR_INTERFAZ, buffer);
+	enviar_paquete(paquete, fd);
+	destruir_paquete(paquete);
+}
+
 int encontrar_fd_interfaz(char *nombre_buscado)
 {
 	for (int i = 0; i < list_size(lista_interfaces); i++)
@@ -101,15 +114,21 @@ void atender_creacion_interfaz(int *arg)
 
 			break;
 
-		case ESCRIBIR_MEMORIA:
+		case ESCRIBIR_MEMORIA_IO:
+
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
+			char* nombre_interfazXD = extraer_string_del_buffer(un_buffer);
+			int fd_interfazXD = encontrar_fd_interfaz(nombre_interfazXD);
 			escribirMemoria(un_buffer);
+            aviso_finalizacion_a_IO(fd_interfazXD);
+			
 			break;
 
 		case LEER_MEMORIA_PALABRA:
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
 			leerMemoria(un_buffer);
 
+            break;
 		case -1:
 			printf("Desconexion de KERNEL - IO");
 			control_key = 0;

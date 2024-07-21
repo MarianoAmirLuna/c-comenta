@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <commons/log.h>
 #include <commons/bitarray.h>
+#include <pthread.h>
 
 //Variables GLOBALES
 
@@ -32,6 +33,7 @@ extern char* PATH_BASE_DIALFS;
 extern int BLOCK_SIZE;
 extern int BLOCK_COUNT;
 extern int RETRASO_COMPACTACION;
+extern sem_t termino_ejecutar;
 
 
 

@@ -572,8 +572,6 @@ void escribirMemoria(t_buffer *un_buffer)
 	}
 
 	printf("cantidad de iteraciones: %d\n", cantIteraciones);
-
-	terminoInstruccionMemoria();
 }
 
 void leer_caracter(int df)
@@ -645,6 +643,7 @@ void atender_memoria_cpu()
 		case ESCRIBIR_MEMORIA:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			escribirMemoria(un_buffer);
+			terminoInstruccionMemoria();
 			break;
 		case LEER_CARACTER_MEMORIA:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);

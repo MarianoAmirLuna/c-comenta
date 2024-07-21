@@ -3,6 +3,23 @@
 #include <readline/readline.h>
 #include <commons/string.h>
 
+void avisarKernelTerminoEjecutarIO(){
+
+	t_buffer *buffer = crear_buffer();
+	buffer->size = 0;
+	buffer->stream = NULL;
+
+	cargar_string_al_buffer(buffer, nombreInterACrear);
+
+	printf("el nombre de la interfaz es: %s\n",nombreInterACrear);
+
+	t_paquete *paquete = crear_super_paquete(LIBERAR_INTERFAZ, buffer);
+	enviar_paquete(paquete, fd_kernel);
+	destruir_paquete(paquete);
+
+	printf("fui a liberar la interfaz\n");
+}
+
 void atender_interfaz_kernel(int *arg)
 {
 	int fd_entradasalida_kernel = *arg;
@@ -17,21 +34,27 @@ void atender_interfaz_kernel(int *arg)
 		switch (cod_op)
 		{
 		case HABLAR_CON_IO:
+
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 			int xd = extraer_int_del_buffer(un_buffer);
 			printf("RECIBI EL MENSAJEEEEEEEEEEEEEEEEEE\n");
 
 			break;
 		case ENVIAR_IO_GEN_SLEEP:
+
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 			int unidades_trabajo = extraer_int_del_buffer(un_buffer);
 
 			printf("mande a dormir a la io\n");
 
 			usleep(unidades_trabajo * TIEMPO_UNIDAD_TRABAJO * 1000);
+
+			avisarKernelTerminoEjecutarIO();
+
 			break;
 
 		case ENVIAR_IO_STDIN_READ:
+
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 			int tamanio_restante_pag_read = extraer_int_del_buffer(un_buffer);
 			int tamanio_escribir_read = extraer_int_del_buffer(un_buffer);
@@ -42,6 +65,7 @@ void atender_interfaz_kernel(int *arg)
 			buffer->size = 0;
 			buffer->stream = NULL;
 
+			cargar_string_al_buffer(buffer,nombreInterACrear); //hay que pasar esto asi desp memoria sabe a quien responderle
 			cargar_string_al_buffer(buffer, input_usuario);
 			cargar_int_al_buffer(buffer, tamanio_restante_pag_read);
 			cargar_int_al_buffer(buffer, tamanio_escribir_read);
@@ -54,9 +78,11 @@ void atender_interfaz_kernel(int *arg)
 				cargar_int_al_buffer(buffer, numero);
 			}
 
-			t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
+			t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA_IO, buffer);
 			enviar_paquete(paquete, fd_memoria);
 			destruir_paquete(paquete);
+
+			//Se libera la interfaz en io-memoria
 
 			break;
 
@@ -69,7 +95,7 @@ void atender_interfaz_kernel(int *arg)
 			buffer2->size = 0;
 			buffer2->stream = NULL;
 
-			cargar_string_al_buffer(buffer2,nombreInterACrear);
+			cargar_string_al_buffer(buffer2,nombreInterACrear); //hay que pasar esto asi desp memoria sabe a quien responderle
 			cargar_int_al_buffer(buffer2,tamanioXD);
 
 			for(int i = 0; i < tamanioXD; i++){
@@ -81,6 +107,8 @@ void atender_interfaz_kernel(int *arg)
 			t_paquete *paquete2 = crear_super_paquete(LEER_MEMORIA_PALABRA, buffer2);
 			enviar_paquete(paquete2, fd_memoria);
 			destruir_paquete(paquete2);
+
+			//Se libera la interfaz en io-memoria
 
 			break;
 

@@ -28,6 +28,7 @@ char* PATH_BASE_DIALFS;
 int BLOCK_SIZE;
 int BLOCK_COUNT;
 int RETRASO_COMPACTACION;
+sem_t termino_ejecutar;
 
 
 #endif

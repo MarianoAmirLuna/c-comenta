@@ -5,6 +5,11 @@ void inicializar_io(){
     iniciar_logs();
     iniciar_config_io();
     imprimir_config();
+	iniciar_semaforos();
+}
+
+void iniciar_semaforos(){
+	sem_init(&termino_ejecutar, 1, 0);
 }
 
 void iniciar_logs(){
