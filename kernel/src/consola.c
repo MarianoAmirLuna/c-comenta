@@ -2,6 +2,44 @@
 #include "../include/funciones_kernel.h"
 #include <commons/log.h>
 
+
+//REVISAR
+void ejecutar_script(char* argumentos){ 
+    ejecutar_archivo(argumentos);
+    printf("El script es: %s\n", argumentos);       
+}
+
+void ejecutar_archivo(const char* filePath) {
+    // Abrir el archivo y obtener las instrucciones
+    FILE* file = fopen(filePath, "r");
+    if (file == NULL) {
+        printf("No se pudo abrir el archivo de instrucciones.");
+        return;
+    }
+
+    char lineas[256];
+    while (fgets(lineas, sizeof(lineas), file) != NULL) {
+        lineas[strcspn(lineas, "\n")] = '\0'; // Eliminar el salto de línea
+        // Aquí puedes utilizar la variable "lineas" sin el salto de línea
+    
+        // Ejecutar cada instrucción en la consola
+        // Aquí puedes llamar a la función que ejecuta una instrucción en la consola
+        // Pasando la línea como parámetro
+        //mensaje_a_consola(linea);
+        if(_validacion_de_instruccion_de_consola(lineas))
+        {
+            _atender_instruccion_validada(lineas);
+        }
+    
+    }
+    
+    fclose(file);
+
+    // Terminar la función después de leer todas las líneas
+    
+}
+
+
 void iniciar_consola_interactiva()
 {
 
@@ -102,6 +140,10 @@ bool _validacion_de_instruccion_de_consola(char *leido)
     {
         resultado_validacion = true;
     }
+    else if(strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0)
+    {
+        resultado_validacion = true;
+    }
     else
     {
         // log_error(kernel_logger, "Comando no reconocido.");
@@ -159,6 +201,10 @@ void _atender_instruccion_validada(char *leido)
 
         listar_procesos_estado();
     }
+    else if(strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0)
+    {
+        ejecutar_archivo(comando_consola[1]);
+    }
     else
     {
         log_error(kernel_logger, "Comando no reconocido, pero que paso el filtro?");
@@ -166,3 +212,7 @@ void _atender_instruccion_validada(char *leido)
     }
     string_array_destroy(comando_consola);
 }
+
+
+ 
+
