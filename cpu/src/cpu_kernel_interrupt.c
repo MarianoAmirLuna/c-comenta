@@ -19,6 +19,14 @@ void atender_cpu_kernel_interrupt(){
 			cambioContexto = true;
 			printf("FUI DESALOJADOOOOOOOOOOOOOOOOOOOOOOOOOOOO F\n");
 		    break;
+
+		case AVISO_DESALOJO_FIN_PROCESO:
+			un_buffer = recibir_todo_el_buffer(fd_kernel_interrupt);
+			int pid_xd = extraer_int_del_buffer(un_buffer);
+			terminarPorExit = true;
+        	log_info(cpu_logger, "proceso de PID: %d - MOTIVO: finalizado por consola (Success)", pcb_ejecucion.pid);
+			break;
+
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de KERNEL - Interrupt");
 			control_key = 0;

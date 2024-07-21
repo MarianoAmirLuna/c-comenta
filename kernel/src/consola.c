@@ -134,6 +134,8 @@ void _atender_instruccion_validada(char *leido)
         *pidComando = atoi(comando_consola[1]);
         liberarRecursosProceso(pidComando);
 
+        mandar_a_exit(pidComando);
+        finalizarProceso(pidComando); 
         free(pidComando);
     }
     else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0)

@@ -542,6 +542,18 @@ void avisarDesalojo()
   destruir_paquete(paquete_pid);
 }
 
+void desalojoFinProceso()
+{
+  log_trace(kernel_log_debug, "PID: %d - Desalojado por finalizacion de proceso", estaEJecutando);
+  t_buffer *buffer = crear_buffer();
+  buffer->size = 0;
+  buffer->stream = NULL;
+  cargar_int_al_buffer(buffer, 0);
+  t_paquete *paquete_pid = crear_super_paquete(AVISO_DESALOJO_FIN_PROCESO, buffer);
+  enviar_paquete(paquete_pid, fd_cpu_interrupt);
+  destruir_paquete(paquete_pid);
+}
+
 void ciclo_plani_FIFO()
 {
   // printf("entre al fifo\n");
@@ -837,4 +849,70 @@ bool admiteOperacionInterfaz(char *nombre_interfaz, char *tipo_instruccion)
   }
 
   return false;
+}
+
+
+int list_index_of(t_list *self, void *data, bool (*comp)(void *, void *))
+{
+    int index = 0;
+    t_link_element *current = self->head;
+    while (current != NULL)
+    {
+        if (comp(current->data, data))
+        {
+            return index;
+        }
+        current = current->next;
+        index++;
+    }
+    return -1; // Elemento no encontrado
+}
+
+bool comparar_enteros(void *a, void *b)
+{
+    int *intA = (int *)a;
+    int *intB = (int *)b;
+    return (*intA == *intB);
+}
+
+void mandar_a_exit(int *pid_finalizado)
+{
+  if(estaEJecutando == *pid_finalizado)
+  {
+    estaEJecutando=0;
+    desalojoFinProceso();
+  }
+
+  bool seEncontroElPid =false;
+  seEncontroElPid = list_remove_element(procesosNEW, pid_finalizado);
+  seEncontroElPid = list_remove_element(procesosREADY, pid_finalizado);
+  seEncontroElPid = list_remove_element(procesosSuspendidos, pid_finalizado);
+
+  for(int i=0;nombresRecursos[i]!=NULL;i++) //mira los bloqueados por recursos
+  {
+    t_list *lista = list_get(lista_recursos_y_bloqueados, i);
+    seEncontroElPid = list_remove_element(lista, pid_finalizado);
+  }
+
+  for (int i = 0; i < list_size(lista_interfaces); i++) //mira los bloqueados por IO
+  {
+      interfaces_io *interfaz = list_get(lista_interfaces, i);
+      int numero_a_buscar = *pid_finalizado;
+      int index = -1;
+      index = list_index_of(interfaz->procesos_bloqueados->elements, &numero_a_buscar, comparar_enteros);
+
+      if(index != -1 && queue_size(interfaz->instrucciones_ejecutar)>0)
+      {
+          list_remove(interfaz->instrucciones_ejecutar->elements, index);
+      }
+
+      seEncontroElPid = list_remove_element(interfaz->procesos_bloqueados->elements, pid_finalizado);
+      
+  }
+  
+  if(seEncontroElPid)
+  {
+    list_add(procesosEXIT, pid_finalizado);
+  }
+  
 }
