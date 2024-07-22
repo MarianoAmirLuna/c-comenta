@@ -1,6 +1,6 @@
 #include "../include/k_gestor.h"
 
-t_planificacion tipoPlanificacion=FIFO;//PREGUNTAR LUCA
+t_planificacion tipoPlanificacion=RR;//PREGUNTAR LUCA
 
 t_list *procesosNEW=NULL;
 t_list *procesosREADY=NULL;
