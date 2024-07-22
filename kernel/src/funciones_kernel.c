@@ -661,7 +661,7 @@ void ciclo_plani_VRR()
 
 void ciclo_planificacion()
 {
-  switch (ALGORITMO_PLANIFICACION)
+  /*switch (ALGORITMO_PLANIFICACION)
   {
   case FIFO:
     // printf("CICLO FIFO\n");
@@ -675,6 +675,18 @@ void ciclo_planificacion()
     break;
   default:
     break;
+  }*/
+  if(strcmp(ALGORITMO_PLANIFICACION, "FIFO")==0)
+  {
+    ciclo_plani_FIFO();
+  }
+  else if(strcmp(ALGORITMO_PLANIFICACION, "RR")==0)
+  {
+    ciclo_plani_RR();
+  }
+  else if(strcmp(ALGORITMO_PLANIFICACION, "VRR")==0)
+  {
+    ciclo_plani_VRR();
   }
 }
 

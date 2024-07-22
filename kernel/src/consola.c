@@ -11,7 +11,7 @@ void ejecutar_script(char* argumentos){
 
 void ejecutar_archivo(const char* filePath) {
     // Abrir el archivo y obtener las instrucciones
-    FILE* file = fopen(filePath, "r");
+    FILE* file = fopen(filePath+1, "r");
     if (file == NULL) {
         printf("No se pudo abrir el archivo de instrucciones.");
         return;
@@ -175,9 +175,9 @@ void _atender_instruccion_validada(char *leido)
         int *pidComando = malloc(sizeof(int));
         *pidComando = atoi(comando_consola[1]);
         liberarRecursosProceso(pidComando);
-
+        finalizarProceso(*pidComando); 
         mandar_a_exit(pidComando);
-        finalizarProceso(pidComando); 
+        
         free(pidComando);
     }
     else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0)

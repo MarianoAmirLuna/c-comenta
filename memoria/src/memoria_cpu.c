@@ -7,7 +7,7 @@
 
 char *obtenerInstruccion(char *path, int programCounter)
 { // devuelve la instrucción que está en la fila que indica el program counter
-	FILE *archivo = fopen(path, "r");
+	FILE *archivo = fopen(path+1, "r");
 	if (archivo == NULL)
 	{
 		perror("Error al abrir el archivo");
