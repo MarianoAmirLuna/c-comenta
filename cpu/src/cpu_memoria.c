@@ -124,7 +124,8 @@ void atender_cpu_memoria()
 			break;
 		case HABILITAR_PID:
 		    un_buffer = recibir_todo_el_buffer(fd_memoria);
-			int pid_habilita = extraer_int_del_buffer(un_buffer);
+			int *pid_habilita = malloc(sizeof(int));
+			*pid_habilita = extraer_int_del_buffer(un_buffer);
 			list_add(procesosConPath,pid_habilita);
 		    break;
 		case -1:

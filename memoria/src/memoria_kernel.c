@@ -24,8 +24,6 @@ void atender_crear_proceso(t_buffer *un_buffer)
 	list_add(list_path_id, path_con_id);
 	list_add(listaTablaPaginas, tabla);
 
-	usleep(RETARDO_RESPUESTA * 1000);
-
 	t_buffer *a_enviar = crear_buffer();
 
     a_enviar->size = 0;
@@ -36,6 +34,7 @@ void atender_crear_proceso(t_buffer *un_buffer)
     t_paquete *un_paquete = crear_super_paquete(HABILITAR_PID, a_enviar);
     enviar_paquete(un_paquete, fd_cpu);
     destruir_paquete(un_paquete);
+	usleep(RETARDO_RESPUESTA * 1000);
 }
 
 void atender_eliminar_proceso(t_buffer *un_buffer)

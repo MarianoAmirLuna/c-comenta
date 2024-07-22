@@ -59,7 +59,7 @@ void enviar_path_memoria(char *path, int pid)
   enviar_paquete(un_paquete, fd_memoria);
   destruir_paquete(un_paquete);
 
-  sem_wait(&esperar_carga_path_memoria);
+  //sem_wait(&esperar_carga_path_memoria);
 }
 
 void enviar_pcb(PCB pcb, int socket_enviar)
@@ -144,7 +144,7 @@ pidConQ *nuevoPidConQ(int pid)
 {
   pidConQ *ret = malloc(sizeof(pidConQ));
   ret->pid = pid;
-  ret->qPrima = quantum;
+  ret->qPrima = QUANTUM;
   return ret;
 }
 
@@ -183,7 +183,7 @@ pidConQ *buscarPidConQ(int pid)
 void restaurarQPrima(int pid)
 {
   pidConQ *aux = buscarPidConQ(pid);
-  aux->qPrima = quantum;
+  aux->qPrima = QUANTUM;
 }
 
 void modificarQPrima(int pid, int nuevaQPrima)
@@ -195,8 +195,8 @@ void modificarQPrima(int pid, int nuevaQPrima)
 void suspenderProceso()
 {
   pidConQ *pidConQEXEC = buscarPidConQ(procesoEXEC);
-  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido;
-  pidConQEXEC->qPrima = qPrimaNueva == 0 ? quantum : qPrimaNueva;
+  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido*100;
+  pidConQEXEC->qPrima = qPrimaNueva == 0 ? QUANTUM : qPrimaNueva;
   int *aux = malloc(sizeof(int));
   *aux = procesoEXEC;
   list_add(procesosSuspendidos, aux);
@@ -207,8 +207,8 @@ void suspenderProceso()
 void bloquearPorRecurso(char *nombre) // FALTA PROBAR
 {
   pidConQ *pidConQEXEC = buscarPidConQ(estaEJecutando);
-  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido;
-  pidConQEXEC->qPrima = qPrimaNueva == 0 ? quantum : qPrimaNueva;
+  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido*100;
+  pidConQEXEC->qPrima = qPrimaNueva == 0 ? QUANTUM : qPrimaNueva;
 
   int i = 0;
   for (i = 0; strcmp(nombre, nombresRecursos[i]) != 0; i++)
@@ -589,7 +589,7 @@ void ciclo_plani_RR()
 {
   // printf("entre al rr\n");
   //  quantum++;
-  if (tiempoTranscurrido >= quantum && !estaCPULibre) // FIN DE QUANTUM
+  if (tiempoTranscurrido*100 >= quantum && !estaCPULibre) // FIN DE QUANTUM
   {
     tiempoTranscurrido = 0;
     avisarDesalojo();
@@ -626,7 +626,7 @@ void bloquearProceso()
 
 void ciclo_plani_VRR()
 {
-  if (tiempoTranscurrido >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
+  if (tiempoTranscurrido*100 >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
   {                                                                        // cuando se termino su qprima
     // printf("FIN DE QPRIMA\n");
     restaurarQPrima(estaEJecutando);
@@ -661,7 +661,7 @@ void ciclo_plani_VRR()
 
 void ciclo_planificacion()
 {
-  switch (tipoPlanificacion)
+  switch (ALGORITMO_PLANIFICACION)
   {
   case FIFO:
     // printf("CICLO FIFO\n");
