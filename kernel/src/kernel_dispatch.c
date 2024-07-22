@@ -40,7 +40,7 @@ void atender_kernel_dispatch()
 				list_add(listaPCBs, pcb_devuelto);
 				list_add(procesosREADY, &(pcb_devuelto->pid));
 			}
-			else
+			else if(contiene_numero(procesosEXIT,pcb_devuelto->pid))
 			{ // ejecuto todas las instrucciones
 				// significa que termino todas sus intrucciones y tengo que liberar los recursos y mandarlo a exit
 				list_add(procesosEXIT,&(pcb_devuelto->pid));

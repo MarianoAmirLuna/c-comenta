@@ -450,7 +450,6 @@ int obtener_cant_direcciones(int direccionLogica, int tamanioAEscribir, int byte
 
 void leerCaracterMemoria(int direccionLogica)
 {
-
     int df = traducir_dl(direccionLogica);
 
     t_buffer *buffer = crear_buffer();
@@ -468,38 +467,21 @@ void leerCaracterMemoria(int direccionLogica)
     sem_wait(&esperar_lectura_caracter);
 }
 
-void leerStringMemoria(int direccionLogica, int tamanio)
-{
-
-    char str[tamanio + 1]; // Inicializa el string como vacío
-    str[0] = '\0';
-
-    for (int i = 0; i < tamanio; i++)
-    {
-        leerCaracterMemoria(direccionLogica);
-        concat_uint8_to_string(str, caracterGlobal);
-        direccionLogica++;
-    }
-
-    printf("$$$$$ El string es: %s\n", str);
-}
-
 void _copy_string(char *tamanio)
 {
     int desplazamiento_en_pagina = (int)pcb_ejecucion.registros_cpu.DI % tamanio_pagina; // offset
-    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
 
     int tamanioAEscribir = atoi(tamanio);
 
     char str[tamanioAEscribir + 1]; // Inicializa el string como vacío
     str[0] = '\0';
-    pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.SI;
 
     for (int i = 0; i < tamanioAEscribir; i++)
     {
-        _mov_in("AUX1", "AUX2");
-        concat_uint8_to_string(str, pcb_ejecucion.registros_cpu.AUX1);
-        pcb_ejecucion.registros_cpu.AUX2++;
+        leerCaracterMemoria((int)pcb_ejecucion.registros_cpu.SI);
+        concat_uint8_to_string(str, caracterGlobal);
+        pcb_ejecucion.registros_cpu.SI++;
     }
 
     printf("$$$$$ El string es: %s\n", str);
@@ -514,22 +496,21 @@ void _copy_string(char *tamanio)
     cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
     cargar_int_al_buffer(buffer, tamanioAEscribir);
 
-    pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.DI;
     int flag = 0;
 
     for (int i = 0; i < cantDireccionesNecesarias; i++)
     {
-        int df = traducir_dl((int)pcb_ejecucion.registros_cpu.AUX2);
+        int df = traducir_dl((int)pcb_ejecucion.registros_cpu.DI);
         cargar_int_al_buffer(buffer, df);
 
         if (flag == 0)
         {
-            pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.AUX2 + bytes_restantes_en_pagina;
+            pcb_ejecucion.registros_cpu.DI = (int)pcb_ejecucion.registros_cpu.DI + bytes_restantes_en_pagina;
             flag = 1;
         }
         else
         {
-            pcb_ejecucion.registros_cpu.AUX2 = pcb_ejecucion.registros_cpu.AUX2 + tamanio_pagina;
+            pcb_ejecucion.registros_cpu.DI = (int)pcb_ejecucion.registros_cpu.DI + tamanio_pagina;
         }
         printf("carge un int al buffer\n");
     }
@@ -818,30 +799,19 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     }
 }
 
-bool contiene_numero(t_list *lista, int numero)
-{
-    int longitud = list_size(lista);
-    for (int i = 0; i < longitud; i++)
-    {
-        int *elemento = (int *)list_get(lista, i);
-        if (*elemento == numero)
-        {
-            return true; // El número está en la lista
-        }
-    }
-    return false; // El número no está en la lista
-}
-
 void solicitar_instruccion(int pid, int program_counter)
 {
-    bool tienePath = contiene_numero(procesosConPath,pid);
+    bool tienePath = contiene_numero(procesosConPath, pid);
 
-    if(!tienePath){
+    if (!tienePath)
+    {
 
-        while(1){
-            tienePath = contiene_numero(procesosConPath,pid);
+        while (1)
+        {
+            tienePath = contiene_numero(procesosConPath, pid);
 
-            if(tienePath){
+            if (tienePath)
+            {
                 break;
             }
             usleep(75000);
@@ -1074,7 +1044,8 @@ void actualizarPrioridadesTLB(lineaTLB *lineaTL)
 {
     int index = list_index_of(cola_tlb->elements, lineaTL, comparar_lineaTLB); // Obtengo el índice del que quiero actualizar
 
-    if (index != -1) { // Verifica que el elemento esté en la lista
+    if (index != -1)
+    {                                                                     // Verifica que el elemento esté en la lista
         lineaTLB *lineaRemovida = list_remove(cola_tlb->elements, index); // Lo borro
         printf("agrege al final por LRU la pag: %d\n", lineaRemovida->pagina);
         queue_push(cola_tlb, lineaRemovida); // Lo vuelvo a agregar al final
@@ -1091,7 +1062,7 @@ void agregarPaginaTLB(int pid, int pagina, int marco)
         printf("agrege la pagina %d\n", lineaTL->pagina);
     }
     else
-    { // Significa que ya se llenó la TLB entonces hay que reemplazar una
+    {                                                 // Significa que ya se llenó la TLB entonces hay que reemplazar una
         lineaTLB *lineaABorrar = queue_pop(cola_tlb); // Eliminar el elemento más antiguo (FIFO)
         printf("saque la pagina %d\n", lineaABorrar->pagina);
         free(lineaABorrar);
@@ -1140,16 +1111,22 @@ int traducir_dl(int direccionLogica)
     int num_pag = direccionLogica / tamanio_pagina;
     int desplazamiento = direccionLogica % tamanio_pagina;
 
-    marco = buscarMarcoTLB(pcb_ejecucion.pid, num_pag);
+    if (CANTIDAD_ENTRADAS_TLB > 0)
+    {
+        marco = buscarMarcoTLB(pcb_ejecucion.pid, num_pag);
 
-    if (marco != -1)
-    { // Hubo un HIT
-        return (marco * tamanio_pagina + desplazamiento);
+        if (marco != -1)
+        { // Hubo un HIT
+            return (marco * tamanio_pagina + desplazamiento);
+        }
     }
 
     enviar_pedido_marco(num_pag, pcb_ejecucion.pid); // En caso de un MISS busca en memoria
 
-    agregarPaginaTLB(pcb_ejecucion.pid, num_pag, marco); // Después del MISS se actualiza la TLB
+    if(CANTIDAD_ENTRADAS_TLB > 0){
+        
+        agregarPaginaTLB(pcb_ejecucion.pid, num_pag, marco); // Después del MISS se actualiza la TLB
+    }
 
     log_debug(cpu_log_debug, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pcb_ejecucion.pid, num_pag, marco);
 

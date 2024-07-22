@@ -246,5 +246,6 @@ PCB* atender_recibir_pcb(t_buffer* un_buffer);
 int contarInstrucciones(char *path);
 //int list_index_of(t_list *self, void *data);
 t_buffer* cargar_pcb_buffer(PCB pcb);
+bool contiene_numero(t_list *lista, int numero);
 
 #endif /* UTILS_H_ */

@@ -829,7 +829,7 @@ bool admiteOperacionInterfaz(char *nombre_interfaz, char *tipo_instruccion)
   if (strcmp(tipoInterfaz, "STDIN") == 0)
   {
 
-    if (strcmp(tipo_instruccion, "IO_STDIN_READ"))
+    if (strcmp(tipo_instruccion, "IO_STDIN_READ") == 0)
     {
       return true;
     }
@@ -841,7 +841,7 @@ bool admiteOperacionInterfaz(char *nombre_interfaz, char *tipo_instruccion)
   if (strcmp(tipoInterfaz, "STDOUT") == 0)
   {
 
-    if (strcmp(tipo_instruccion, "IO_STDOUT_WRITE"))
+    if (strcmp(tipo_instruccion, "IO_STDOUT_WRITE") == 0)
     {
       return true;
     }
@@ -853,7 +853,7 @@ bool admiteOperacionInterfaz(char *nombre_interfaz, char *tipo_instruccion)
   if (strcmp(tipoInterfaz, "DIALFS") == 0)
   {
 
-    if (strcmp(tipo_instruccion, "IO_FS_CREATE") || strcmp(tipo_instruccion, "IO_FS_DELETE") || strcmp(tipo_instruccion, "IO_FS_TRUNCATE") || strcmp(tipo_instruccion, "IO_FS_WRITE") || strcmp(tipo_instruccion, "IO_FS_READ"))
+    if (strcmp(tipo_instruccion, "IO_FS_CREATE") == 0|| strcmp(tipo_instruccion, "IO_FS_DELETE") == 0 || strcmp(tipo_instruccion, "IO_FS_TRUNCATE") == 0 || strcmp(tipo_instruccion, "IO_FS_WRITE") == 0 || strcmp(tipo_instruccion, "IO_FS_READ") == 0)
     {
       return true;
     }
@@ -898,16 +898,40 @@ void mandar_a_exit(int *pid_finalizado)
     desalojoFinProceso();
   }
 
-  bool seEncontroElPid =false;
+  bool seEncontroElPid = false;
+
   seEncontroElPid = list_remove_element(procesosNEW, pid_finalizado);
   seEncontroElPid = list_remove_element(procesosREADY, pid_finalizado);
-  seEncontroElPid = list_remove_element(procesosSuspendidos, pid_finalizado);
+  seEncontroElPid = list_remove_element(procesosSuspendidos, pid_finalizado); //CAMBIAR DESPUES
 
   for(int i=0;nombresRecursos[i]!=NULL;i++) //mira los bloqueados por recursos
   {
+    printf("el pid: %d\n",*pid_finalizado);
     t_list *lista = list_get(lista_recursos_y_bloqueados, i);
-    seEncontroElPid = list_remove_element(lista, pid_finalizado);
+    
+    for(int j = 0; j < list_size(lista); j++){
+
+      int *numeroSuerte = list_get(lista, j);
+
+      if(*numeroSuerte == *pid_finalizado){
+        list_remove(lista,j);
+        printf("elimine a un wachin\n");
+      }
+    }
   }
+/*
+  for(int i = 0; nombresRecursos[i] != NULL ; i++){
+
+        t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
+
+        log_debug(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
+
+        for(int j = 0; j < list_size(lista_donde_agregar); j++){
+
+            int* numeroXD = list_get(lista_donde_agregar,j);
+            log_debug(kernel_log_debug, "PID: %d", *numeroXD);
+        }
+    }*/
 
   for (int i = 0; i < list_size(lista_interfaces); i++) //mira los bloqueados por IO
   {
@@ -922,7 +946,6 @@ void mandar_a_exit(int *pid_finalizado)
       }
 
       seEncontroElPid = list_remove_element(interfaz->procesos_bloqueados->elements, pid_finalizado);
-      
   }
   
   if(seEncontroElPid)

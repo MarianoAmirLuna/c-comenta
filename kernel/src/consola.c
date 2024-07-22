@@ -89,6 +89,19 @@ void listar_procesos_estado()
         log_debug(kernel_log_debug, "PID: %d esta en EXIT", *pid);
     }
 
+    for(int i = 0; nombresRecursos[i] != NULL ; i++){
+
+        t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
+
+        log_debug(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
+
+        for(int j = 0; j < list_size(lista_donde_agregar); j++){
+
+            int* numeroXD = list_get(lista_donde_agregar,j);
+            log_debug(kernel_log_debug, "PID: %d", *numeroXD);
+        }
+    }
+
     for (int i = 0; i < list_size(lista_interfaces); i++)
     {
         interfaces_io *interfaz = list_get(lista_interfaces, i);
@@ -173,9 +186,10 @@ void _atender_instruccion_validada(char *leido)
     {
 
         int *pidComando = malloc(sizeof(int));
+
         *pidComando = atoi(comando_consola[1]);
-        liberarRecursosProceso(pidComando);
-        finalizarProceso(*pidComando); 
+        liberarRecursosProceso(pidComando); //deadlock
+        finalizarProceso(*pidComando);  //eliminar de la memoria
         mandar_a_exit(pidComando);
         
         free(pidComando);

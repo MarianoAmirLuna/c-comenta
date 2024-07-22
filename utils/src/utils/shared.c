@@ -834,3 +834,17 @@ t_buffer *cargar_pcb_buffer(PCB pcb)
 
 	return buffer;
 }
+
+bool contiene_numero(t_list *lista, int numero)
+{
+    int longitud = list_size(lista);
+    for (int i = 0; i < longitud; i++)
+    {
+        int *elemento = (int *)list_get(lista, i);
+        if (*elemento == numero)
+        {
+            return true; // El número está en la lista
+        }
+    }
+    return false; // El número no está en la lista
+}
