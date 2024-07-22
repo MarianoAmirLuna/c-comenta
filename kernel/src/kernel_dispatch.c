@@ -37,7 +37,6 @@ void atender_kernel_dispatch()
 
 			if (codigo == 1)
 			{ // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
-				list_add(listaPCBs, pcb_devuelto);
 				list_add(procesosREADY, &(pcb_devuelto->pid));
 			}
 			else if(contiene_numero(procesosEXIT,pcb_devuelto->pid))
@@ -47,7 +46,7 @@ void atender_kernel_dispatch()
 				finalizarProceso(pcb_devuelto->pid); //agregar un poco mas de logica aca
 			}
 			break;
-		case ENVIAR_IOGEN:
+		case ENVIAR_IOGEN: //creo que esta de mas
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			char *nombreInterfaz = extraer_string_del_buffer(un_buffer);
 			int unidadesTrabajo = extraer_int_del_buffer(un_buffer);

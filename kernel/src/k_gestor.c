@@ -1,6 +1,6 @@
 #include "../include/k_gestor.h"
 
-t_planificacion tipoPlanificacion=RR;//PREGUNTAR LUCA
+t_planificacion tipoPlanificacion;
 
 t_list *procesosNEW=NULL;
 t_list *procesosREADY=NULL;
@@ -13,7 +13,6 @@ pthread_mutex_t mutexExec = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t modificarLista = PTHREAD_MUTEX_INITIALIZER;
 int pidGlobal = 0;
 t_list *listQPrimas;
-int quantum = 60;
 int tiempoTranscurrido=0;
 int seguirPlanificando=1;
 int ejecutandoProceso=0;

@@ -1296,7 +1296,6 @@ void procesar_instruccion()
     {
         if (!ejecute_instruccion_tipo_io)
         {
-
             devolverPCBKernel();
         }
     }

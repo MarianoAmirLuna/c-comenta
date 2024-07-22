@@ -74,8 +74,6 @@ extern int estaEJecutando;
 
 extern int sem_planificacion;
 
-extern int quantum;
-
 extern int tiempoTranscurrido;
 
 extern t_planificacion tipoPlanificacion;

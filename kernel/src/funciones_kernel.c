@@ -415,20 +415,14 @@ void iniciar_planificacion()
   listaPCBs = list_create();
   listaPidsRecursos = list_create();
   int flagCambioProceso = 0;
-
-  // sleep(2);
-  // printf("llega adentro de iniciarPlani\n");
   procesosNEW = list_create();
-
-  // printf("entrando a ciclo plani\n");
   procesosREADY = list_create();
   listQPrimas = list_create();
   procesosSuspendidos = list_create();
   procesosEXIT = list_create();
 
   lista_recursos_y_bloqueados = list_create();
-
-  // Crear N listas y aÃ±adirlas a la lista de listas
+  
   for (int i = 0; i < cantidad_de_recursos; i++)
   {
     t_list *new_list = list_create();
@@ -589,7 +583,7 @@ void ciclo_plani_RR()
 {
   // printf("entre al rr\n");
   //  quantum++;
-  if (tiempoTranscurrido*100 >= quantum && !estaCPULibre) // FIN DE QUANTUM
+  if (tiempoTranscurrido*100 >= QUANTUM && !estaCPULibre) // FIN DE QUANTUM
   {
     tiempoTranscurrido = 0;
     avisarDesalojo();

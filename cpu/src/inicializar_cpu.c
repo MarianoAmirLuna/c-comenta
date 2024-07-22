@@ -67,7 +67,7 @@ PCB iniciar_PCB()
 
   pcb.pid = 0;
   pcb.program_counter = 1;
-  pcb.quantum = 3;
+  pcb.quantum = 0;
   pcb.registros_cpu.AX = 0;
   pcb.registros_cpu.BX = 0;
   pcb.registros_cpu.CX = 0;
