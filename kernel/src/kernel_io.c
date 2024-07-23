@@ -17,6 +17,7 @@ void desbloquear_el_proceso_de_la_iterfaz(char* nombre_interfaz){
 
 	interfaz->estaLibre = true;
 	sem_post(&nuevo_bucle);
+	sem_post(&ciclo_instruccion_io);
 }
 
 void atender_creacion_interfaz(int *arg)

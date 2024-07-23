@@ -67,6 +67,8 @@ void iniciar_semaforos()
 	sem_init(&esperar_carga_path_memoria, 1, 0);
 	sem_init(&nuevo_bucle,1,0);
 	sem_init(&contador_q,1,0);
+	sem_init(&ciclo_instruccion_io,1,0);
+	sem_init(&esperar_vuelva,1,0);
 
 	listaPCBs = list_create();
 	listaPidsRecursos = list_create();

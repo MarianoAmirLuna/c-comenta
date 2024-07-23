@@ -46,6 +46,7 @@ extern int contador_pcbs;
 
 extern pthread_mutex_t mutex_pid;
 extern pthread_mutex_t mutexExec;
+extern pthread_mutex_t lista_pcb_mutex;
 //extern pthread_mutex_t modificarLista;
 
 extern t_list *procesosNEW;
@@ -82,6 +83,9 @@ extern sem_t esperar_devolucion_pcb;
 extern sem_t esperar_carga_path_memoria;
 extern sem_t nuevo_bucle;
 extern sem_t contador_q;
+extern sem_t ciclo_instruccion_io;
+extern sem_t esperar_vuelva;
+
 extern int ejecutandoProceso;
 extern int quantum_global_reloj;
 
@@ -106,4 +110,9 @@ extern t_list *listaPidsRecursos;
 extern t_list *lista_recursos_y_bloqueados; //<--- ordenada igual que nombresRecursos, tiene elementos t_list
 
 extern sem_t sem_seguir_planificando;
+
+extern struct timespec start_time;
+extern struct timespec end_time;
+
+
 #endif

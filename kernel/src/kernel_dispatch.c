@@ -7,6 +7,7 @@ void atender_kernel_dispatch()
 	bool control_key = 1;
 	t_buffer *un_buffer;
 	char *nombre_interfaz;
+	int tiempo_q_prima;
 
 	while (control_key)
 	{
@@ -25,12 +26,19 @@ void atender_kernel_dispatch()
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
 			list_add(listaPCBs, pcb_devuelto);
+
 			int codigo = extraer_int_del_buffer(un_buffer);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
 			sem_post(&nuevo_bucle);
 			quantum_global_reloj = QUANTUM; 
             sem_post(&contador_q);
+			
+			detener_tiempo();
+			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time,end_time);
+			printf("el contador dio: %d\n",tiempo_q_prima);
+			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
+
 
 			if (codigo == 1)
 			{ // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
@@ -42,6 +50,7 @@ void atender_kernel_dispatch()
 				list_add(procesosEXIT,&(pcb_devuelto->pid));
 				finalizarProceso(pcb_devuelto->pid); //agregar un poco mas de logica aca
 			}
+			
 			break;
 		case DESALOJO_POR_WAIT:
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
@@ -52,6 +61,11 @@ void atender_kernel_dispatch()
 			sem_post(&nuevo_bucle);
 			quantum_global_reloj = QUANTUM; 
             sem_post(&contador_q);
+
+			detener_tiempo();
+			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time,end_time);
+			printf("el contador dio: %d\n",tiempo_q_prima);
+			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
 			// list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
 
@@ -70,12 +84,18 @@ void atender_kernel_dispatch()
 			quantum_global_reloj = QUANTUM; 
             sem_post(&contador_q);
 
+			detener_tiempo();
+			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time,end_time);
+			printf("el contador dio: %d\n",tiempo_q_prima);
+			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
+
 			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			atender_signal(nombre_recurso_signal, &(pcb_devuelto_por_signal->pid));
 			break;
 
-		case INSTRUCCION_TIPO_IO: // significa que el proceso fue desalojado al ejecutar una instruccion de tipo io
-
+		case INSTRUCCION_TIPO_IO: // significa que el proceso fue desalojado al ejecutar una instruccion de tipo io 
+            //TIENE QUE VER CON EL PCB NO LA INSTRUCCION
+			//TIENE QUE VER CON EL PCB NO LA INSTRUCCION
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_devuelto2 = atender_recibir_pcb(un_buffer);
 			nombre_interfaz = extraer_string_del_buffer(un_buffer);
@@ -85,6 +105,11 @@ void atender_kernel_dispatch()
 			sem_post(&nuevo_bucle);
 			quantum_global_reloj = QUANTUM; 
             sem_post(&contador_q);
+
+			detener_tiempo();
+			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time,end_time);
+			printf("el contador dio: %d\n",tiempo_q_prima);
+			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
 			printf("llego el pcb a cpu\n");
 			printf("el nombre de la interfaz: %s\n",nombre_interfaz);
@@ -139,6 +164,7 @@ void atender_kernel_dispatch()
 				list_add(instruccionXD->lista_enteros, unidades_trabajo);
 
 				queue_push(interfaz2->instrucciones_ejecutar,instruccionXD);
+				sem_post(&ciclo_instruccion_io);
 			}
 
 			break;
@@ -182,6 +208,7 @@ void atender_kernel_dispatch()
 				}
 
 				queue_push(interfaz3->instrucciones_ejecutar, instruccionXD2);
+				sem_post(&ciclo_instruccion_io);
 				printf("lo agrege a la queue\n");
 			}
 
@@ -217,6 +244,7 @@ void atender_kernel_dispatch()
 				}
 
 				queue_push(interfaz4->instrucciones_ejecutar, instruccionXD3);
+				sem_post(&ciclo_instruccion_io);
 				printf("lo agrege a la queue\n");
 			}
 

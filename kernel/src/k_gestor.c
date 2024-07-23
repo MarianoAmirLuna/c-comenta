@@ -10,6 +10,7 @@ t_list *procesosEXIT=NULL;
 
 int procesoEXEC = 0;
 pthread_mutex_t mutexExec = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t lista_pcb_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t modificarLista = PTHREAD_MUTEX_INITIALIZER;
 int pidGlobal = 0;
 t_list *listQPrimas;
@@ -21,6 +22,8 @@ sem_t esperar_devolucion_pcb;
 sem_t esperar_carga_path_memoria;
 sem_t contador_q;
 sem_t nuevo_bucle;
+sem_t ciclo_instruccion_io;
+sem_t esperar_vuelva;
 t_dictionary *dictQPrimas;
 t_list* listaPCBs=NULL;
 int flagCambioProceso;
@@ -34,4 +37,6 @@ t_list *listaPidsRecursos = NULL;
 sem_t sem_seguir_planificando;
 int estaEJecutando;
 int quantum_global_reloj;
+struct timespec start_time;
+struct timespec end_time;
 

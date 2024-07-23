@@ -168,7 +168,7 @@ int buscarQPrima(int pid)
   if (pidConQEncontrado == NULL)
   {
     // Maneja el caso en el que no se encuentra nada
-    return 10000000; // O cualquier valor que elijas para indicar que no se encontró nada
+    return 1000; // O cualquier valor que elijas para indicar que no se encontró nada
   }
 
   return pidConQEncontrado->qPrima;
@@ -204,11 +204,11 @@ void suspenderProceso()
   // printf("proceso suspendido: %d, qprima: %d \n", *aux, pidConQEXEC->qPrima);
 }
 
-void bloquearPorRecurso(char *nombre) // FALTA PROBAR
+void bloquearPorRecurso(char *nombre) //FALTA PROBAR
 {
-  pidConQ *pidConQEXEC = buscarPidConQ(estaEJecutando);
-  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido*100;
-  pidConQEXEC->qPrima = qPrimaNueva == 0 ? QUANTUM : qPrimaNueva;
+  pidConQ *pidConQEXEC = buscarPidConQ(estaEJecutando); //obtener el pid_qprima
+  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido*100; //obtengo el nuevo quantum
+  pidConQEXEC->qPrima = qPrimaNueva == 0 ? QUANTUM : qPrimaNueva; //en el caso de que sea 0, lo pongo en QUANTUM
 
   int i = 0;
   for (i = 0; strcmp(nombre, nombresRecursos[i]) != 0; i++)
@@ -351,7 +351,6 @@ void listaPidQ(t_list *l, t_list *pids){
   }
 }
 
-
 void imprimirListaPidQ(t_list *l){
   for(int i=0;i<list_size(l);i++){
     pidConQ *pq = list_get(l, i);
@@ -423,6 +422,14 @@ void iniciar_planificacion()
 
 int tiempo_transcurrido_milisegundos(struct timespec start, struct timespec end) {
     return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+}
+
+void iniciar_tiempo() {
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+}
+
+void detener_tiempo() {
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
 }
 
 void temporizadorQuantum(int quantum){
@@ -526,7 +533,8 @@ void iniciar_planificacion_io()
       }
     }
 
-    usleep(100000);
+    sem_wait(&ciclo_instruccion_io);
+    
   }
 }
 
@@ -624,14 +632,6 @@ void bloquearProceso()
 
 void ciclo_plani_VRR()
 {
-  if (tiempoTranscurrido*100 >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
-  {                                                                        // cuando se termino su qprima
-    // printf("FIN DE QPRIMA\n");
-    restaurarQPrima(estaEJecutando);
-    tiempoTranscurrido = 0;
-    avisarDesalojo();
-    sem_wait(&esperar_devolucion_pcb);
-  }
 
   while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
   { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
@@ -639,6 +639,15 @@ void ciclo_plani_VRR()
     pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
     list_add(listQPrimas, pqNuevo);
     list_add(procesosREADY, pidNuevo);
+  }
+
+  if (tiempoTranscurrido*100 >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
+  {                                                                        // cuando se termino su qprima
+    // printf("FIN DE QPRIMA\n");
+    restaurarQPrima(estaEJecutando);
+    tiempoTranscurrido = 0;
+    avisarDesalojo();
+    sem_wait(&esperar_devolucion_pcb);
   }
 
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
@@ -695,29 +704,14 @@ void mandarNuevoPCB()
   procesoEXEC = 0;
   estaCPULibre = false;
 
-  quantum_global_reloj = QUANTUM; 
+  quantum_global_reloj = QUANTUM;
   sem_post(&contador_q);
+  iniciar_tiempo(); //empiezo a contar por el tema de los q primas de VRR
 
   // pthread_mutex_lock(&modificarLista);
   list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
   list_remove_element(listaPCBs, (void *)pcb_a_enviar);
   // pthread_mutex_unlock(&modificarLista);
-
-  // printf("mande un pcb\n");
-
-  /*BORRAR DESPUES*/
-  /*
-  int fdXD = obtener_fd_interfaz("MONITOR");
-
-  t_buffer *buffer_pid = crear_buffer();
-  buffer_pid->size = 0;
-  buffer_pid->stream = NULL;
-
-  cargar_int_al_buffer(buffer_pid, 1);
-
-  t_paquete *paquete_pid = crear_super_paquete(HABLAR_CON_IO, buffer_pid);
-  enviar_paquete(paquete_pid, fdXD);
-  destruir_paquete(paquete_pid);*/
 }
 
 void nuevaListaRecursos(int pid)
@@ -739,7 +733,11 @@ void iniciar_proceso(char *path)
 {
   PCB *pcb = iniciar_PCB(path);
   printf("el pid es %d\n", pcb->pid);
+
+  pthread_mutex_lock(&lista_pcb_mutex);
   list_add(listaPCBs, pcb);
+  pthread_mutex_unlock(&lista_pcb_mutex);
+
   enviar_path_memoria(path, pcb->pid);
 
   list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
