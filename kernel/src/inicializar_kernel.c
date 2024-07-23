@@ -26,7 +26,6 @@ void inicializar_logs()
 		perror("Hay un error al iniciar el log.");
 		exit(EXIT_FAILURE);
 	}
-
 }
 
 void inicializar_configs()
@@ -65,7 +64,26 @@ void iniciar_semaforos()
 	sem_init(&sem_cpu_libre, 1, 1);
 	sem_init(&esperar_devolucion_pcb, 1, 0);
 	sem_init(&sem_seguir_planificando, 1, 1);
-	sem_init(&esperar_carga_path_memoria,1,0);
+	sem_init(&esperar_carga_path_memoria, 1, 0);
+	sem_init(&nuevo_bucle,1,0);
+	sem_init(&contador_q,1,0);
+
+	listaPCBs = list_create();
+	listaPidsRecursos = list_create();
+	int flagCambioProceso = 0;
+	procesosNEW = list_create();
+	procesosREADY = list_create();
+	listQPrimas = list_create();
+	procesosSuspendidos = list_create();
+	procesosEXIT = list_create();
+
+	lista_recursos_y_bloqueados = list_create();
+
+	for (int i = 0; i < cantidad_de_recursos; i++)
+	{
+		t_list *new_list = list_create();
+		list_add(lista_recursos_y_bloqueados, new_list);
+	}
 }
 
 void iniciar_recursos()
@@ -79,7 +97,7 @@ void iniciar_recursos()
 		int *instancia = malloc(sizeof(int));
 		*instancia = atoi(STR_InstanciasRecursos[i]);
 		list_add(instanciasRecursos, instancia);
-		//printf("Recurso: %s, cantidad: %d \n", nombresRecursos[i], *instancia);
+		// printf("Recurso: %s, cantidad: %d \n", nombresRecursos[i], *instancia);
 	}
 	estado_instancias();
 }

@@ -29,6 +29,10 @@ int main(void)
 	pthread_create(&hilo_planificacion_io, NULL, (void*)iniciar_planificacion_io, NULL);
 	pthread_detach(hilo_planificacion_io);
 
+	pthread_t hilo_temporizador;
+	pthread_create(&hilo_temporizador, NULL, (void*)temporizadorQuantum, NULL);
+	pthread_detach(hilo_temporizador);
+
 	pthread_t hilo_cpu_interrupt;
 	pthread_create(&hilo_cpu_interrupt, NULL, (void*)atender_kernel_interrupt, NULL);
 	pthread_detach(hilo_cpu_interrupt);

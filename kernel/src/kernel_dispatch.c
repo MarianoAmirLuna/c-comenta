@@ -19,13 +19,7 @@ void atender_kernel_dispatch()
 		case PAQUETE:
 			//
 			break;
-		case CONSULTA_PLANIFICACION:
-			ciclo_planificacion();
-			t_paquete *paquete_pid = crear_paquete();
-			agregar_a_paquete(paquete_pid, procesoEXEC, sizeof(int));
-			enviar_paquete(paquete_pid, fd_cpu_dispatch);
-			destruir_paquete(paquete_pid);
-			break;
+
 
 		case RECIBIR_PCB:
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
@@ -34,6 +28,9 @@ void atender_kernel_dispatch()
 			int codigo = extraer_int_del_buffer(un_buffer);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
+			sem_post(&nuevo_bucle);
+			quantum_global_reloj = QUANTUM; 
+            sem_post(&contador_q);
 
 			if (codigo == 1)
 			{ // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
@@ -46,18 +43,15 @@ void atender_kernel_dispatch()
 				finalizarProceso(pcb_devuelto->pid); //agregar un poco mas de logica aca
 			}
 			break;
-		case ENVIAR_IOGEN: //creo que esta de mas
-			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
-			char *nombreInterfaz = extraer_string_del_buffer(un_buffer);
-			int unidadesTrabajo = extraer_int_del_buffer(un_buffer);
-			break;
-
 		case DESALOJO_POR_WAIT:
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_devuelto_por_wait = atender_recibir_pcb(un_buffer);
 			list_add(listaPCBs, pcb_devuelto_por_wait);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
+			sem_post(&nuevo_bucle);
+			quantum_global_reloj = QUANTUM; 
+            sem_post(&contador_q);
 
 			// list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
 
@@ -70,8 +64,11 @@ void atender_kernel_dispatch()
 			PCB *pcb_devuelto_por_signal = atender_recibir_pcb(un_buffer);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
+			sem_post(&nuevo_bucle);
 			list_add(listaPCBs, pcb_devuelto_por_signal);
 			list_add(procesosREADY, &(pcb_devuelto_por_signal->pid));
+			quantum_global_reloj = QUANTUM; 
+            sem_post(&contador_q);
 
 			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			atender_signal(nombre_recurso_signal, &(pcb_devuelto_por_signal->pid));
@@ -85,6 +82,9 @@ void atender_kernel_dispatch()
 			char *tipo_instruccion = extraer_string_del_buffer(un_buffer);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
+			sem_post(&nuevo_bucle);
+			quantum_global_reloj = QUANTUM; 
+            sem_post(&contador_q);
 
 			printf("llego el pcb a cpu\n");
 			printf("el nombre de la interfaz: %s\n",nombre_interfaz);
@@ -121,7 +121,7 @@ void atender_kernel_dispatch()
 
 			*unidades_trabajo = extraer_int_del_buffer(un_buffer);
 			estaCPULibre = true;
-			sem_post(&esperar_devolucion_pcb);
+			//sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz2 = encontrar_interfaz(nombre_interfaz);
 
 			printf("el nombre de la insterfaz es: %s\n", nombre_interfaz);
@@ -158,7 +158,7 @@ void atender_kernel_dispatch()
 			printf("cant direcciones: %d\n",*cant_direcciones);
 
 			estaCPULibre = true;
-			sem_post(&esperar_devolucion_pcb);
+			//sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz3 = encontrar_interfaz(nombre_interfaz);
 
 			if (interfaz3 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_STDIN_READ"))
@@ -194,7 +194,7 @@ void atender_kernel_dispatch()
 			*tamanio_escribir2 = extraer_int_del_buffer(un_buffer);
 
             estaCPULibre = true;
-			sem_post(&esperar_devolucion_pcb);
+			//sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz4 = encontrar_interfaz(nombre_interfaz);
 
 			if (interfaz4 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_STDOUT_WRITE"))
@@ -221,6 +221,19 @@ void atender_kernel_dispatch()
 			}
 
             break;
+
+		case CONSULTA_PLANIFICACION:
+			ciclo_planificacion();
+			t_paquete *paquete_pid = crear_paquete();
+			agregar_a_paquete(paquete_pid, procesoEXEC, sizeof(int));
+			enviar_paquete(paquete_pid, fd_cpu_dispatch);
+			destruir_paquete(paquete_pid);
+			break;
+		case ENVIAR_IOGEN: //creo que esta de mas
+			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			char *nombreInterfaz = extraer_string_del_buffer(un_buffer);
+			int unidadesTrabajo = extraer_int_del_buffer(un_buffer);
+			break;
 		case -1:
 			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			// control_key = 0;

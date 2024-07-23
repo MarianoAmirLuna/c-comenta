@@ -19,6 +19,8 @@ int ejecutandoProceso=0;
 sem_t sem_cpu_libre;
 sem_t esperar_devolucion_pcb;
 sem_t esperar_carga_path_memoria;
+sem_t contador_q;
+sem_t nuevo_bucle;
 t_dictionary *dictQPrimas;
 t_list* listaPCBs=NULL;
 int flagCambioProceso;
@@ -31,4 +33,5 @@ bool estaCPULibre = true;
 t_list *listaPidsRecursos = NULL;
 sem_t sem_seguir_planificando;
 int estaEJecutando;
+int quantum_global_reloj;
 

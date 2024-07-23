@@ -5,14 +5,12 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <readline/readline.h>
-
 #include "utils/shared.h"
-
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/string.h>
 #include <commons/collections/queue.h>
-
+#include <time.h>
 typedef enum{
     FIFO,
     RR,
@@ -82,7 +80,10 @@ extern int seguirPlanificando;
 extern sem_t sem_cpu_libre;
 extern sem_t esperar_devolucion_pcb;
 extern sem_t esperar_carga_path_memoria;
+extern sem_t nuevo_bucle;
+extern sem_t contador_q;
 extern int ejecutandoProceso;
+extern int quantum_global_reloj;
 
 extern t_list *listaPCBs;
 

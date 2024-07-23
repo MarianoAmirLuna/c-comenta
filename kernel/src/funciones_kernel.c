@@ -168,7 +168,7 @@ int buscarQPrima(int pid)
   if (pidConQEncontrado == NULL)
   {
     // Maneja el caso en el que no se encuentra nada
-    return 1000000; // O cualquier valor que elijas para indicar que no se encontró nada
+    return 10000000; // O cualquier valor que elijas para indicar que no se encontró nada
   }
 
   return pidConQEncontrado->qPrima;
@@ -398,7 +398,7 @@ void estadoPlani()
   imprimirLista(procesosREADY);
   printf(" exec: %d \n", procesoEXEC);
 }
-
+/*
 void iniciar_bucle()
 {
   while (1)
@@ -408,28 +408,32 @@ void iniciar_bucle()
     sem_post(&sem_seguir_planificando);
     usleep(100000);
   }
-}
+}*/
 
 void iniciar_planificacion()
 {
-  listaPCBs = list_create();
-  listaPidsRecursos = list_create();
-  int flagCambioProceso = 0;
-  procesosNEW = list_create();
-  procesosREADY = list_create();
-  listQPrimas = list_create();
-  procesosSuspendidos = list_create();
-  procesosEXIT = list_create();
-
-  lista_recursos_y_bloqueados = list_create();
-  
-  for (int i = 0; i < cantidad_de_recursos; i++)
-  {
-    t_list *new_list = list_create();
-    list_add(lista_recursos_y_bloqueados, new_list);
+  while(1){
+    sem_wait(&nuevo_bucle);
+    printf("se hizo un bucle!!");
+    sem_wait(&sem_seguir_planificando);
+    ciclo_planificacion();
+    sem_post(&sem_seguir_planificando);
   }
+}
 
-  iniciar_bucle();
+int tiempo_transcurrido_milisegundos(struct timespec start, struct timespec end) {
+    return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+}
+
+void temporizadorQuantum(int quantum){
+
+    while(1){
+
+      sem_wait(&contador_q);
+      usleep(quantum_global_reloj * 1000);
+      tiempoTranscurrido = quantum_global_reloj * 1000;
+      sem_post(&nuevo_bucle);
+    }
 }
 
 void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
@@ -655,21 +659,6 @@ void ciclo_plani_VRR()
 
 void ciclo_planificacion()
 {
-  /*switch (ALGORITMO_PLANIFICACION)
-  {
-  case FIFO:
-    // printf("CICLO FIFO\n");
-    ciclo_plani_FIFO();
-    break;
-  case RR:
-    ciclo_plani_RR();
-    break;
-  case VRR:
-    ciclo_plani_VRR();
-    break;
-  default:
-    break;
-  }*/
   if(strcmp(ALGORITMO_PLANIFICACION, "FIFO")==0)
   {
     ciclo_plani_FIFO();
@@ -705,6 +694,9 @@ void mandarNuevoPCB()
   estaEJecutando = procesoEXEC;
   procesoEXEC = 0;
   estaCPULibre = false;
+
+  quantum_global_reloj = QUANTUM; 
+  sem_post(&contador_q);
 
   // pthread_mutex_lock(&modificarLista);
   list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
@@ -752,7 +744,8 @@ void iniciar_proceso(char *path)
 
   list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
   nuevaListaRecursos(pcb->pid);
-  // mostrarInstanciasTomadas(pcb->pid);
+  
+  sem_post(&nuevo_bucle);
 }
 
 void liberarRecursosProceso(int *pid)

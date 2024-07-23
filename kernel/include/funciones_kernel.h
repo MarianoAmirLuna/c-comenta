@@ -3,7 +3,6 @@
 
 #include "k_gestor.h"
 
-
 void iniciar_proceso(char* path);
 PCB* iniciar_PCB();
 void enviar_path_memoria(char*, int);
@@ -26,6 +25,8 @@ int obtener_fd_interfaz(char* nombre_interfaz);
 bool admiteOperacionInterfaz(char* nombre_interfaz,char* tipo_interfaz);
 void iniciar_planificacion_io();
 void mandar_a_exit(int*);
+void temporizadorQuantum(int quantum);
+int tiempo_transcurrido_milisegundos(struct timespec start, struct timespec end);
 
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;
