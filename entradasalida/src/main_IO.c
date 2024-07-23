@@ -162,7 +162,7 @@ void escribirCentinelaBLoquesDesdeHasta(char* PATH_bloques, int primerBloque,int
 		close(fd);
 		exit(EXIT_FAILURE);
 	}
-
+//primerBLoque=5, cantbloques=4, tamanioBLoque=16, i= 5* 16 =80 (posicion del primer byte del bloque 5), 
 	// Escribir '\0' desde el bloque primerBloque (inclusive) hasta el bloque cantBLoques (no inclusive)
 	for(int i = primerBloque * tamanioBLoques; i<cantBLoques * tamanioBLoques; i++){
 		map[i] = caracterCentinela;
@@ -246,8 +246,8 @@ void escribirCentinelaInicialBLoques(char *PATH_FS, int numPagina,int tamanioBLo
 	close(fd);
 }
 
-int hayBloquesOcupados(t_bitarray* bitarray_revisar,int bloqueInicial ,int cantBLoques){ //devuelve 1 si hay bloques ocupados a la hora de truncar (se debe compactar), sino devuelve 0
-	for(int i = bloqueInicial; i<cantBLoques;i++){
+int hayBloquesOcupados(t_bitarray* bitarray_revisar,int bloqueFinalInicial ,int bloqueFinalOcupar){ //devuelve 1 si hay bloques ocupados a la hora de truncar (se debe compactar), sino devuelve 0
+	for(int i = (bloqueFinalInicial+1); i<=bloqueFinalOcupar;i++){ 
 		if(bitarray_test_bit(bitarray_revisar,i) == 1){
 			return 1;
 		}
@@ -256,7 +256,7 @@ int hayBloquesOcupados(t_bitarray* bitarray_revisar,int bloqueInicial ,int cantB
 }
 
 void compactar(char* PATH_FS,char* nombre_ArchivoCompactar){
-
+printf("hello world");
 }
 
 void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamanioTruncar){
@@ -264,10 +264,10 @@ void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamani
 	log_info(io_logger, "Iniciando truncar del archivo %s", nombre_Archivo);
 
 	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
+
 	char *PATH_metadata = string_duplicate(PATH_FS);
 
 	char *direccionMetadata = string_from_format("/ %s", nombre_Archivo);
-
 	string_append(&PATH_metadata, direccionMetadata);
 
 	t_config *connfig_metadatos = config_create(PATH_metadata);
@@ -283,38 +283,69 @@ void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamani
 		return;
 	}
 
+	int tamanioBloque = config_get_int_value(config_interface,"BLOCK_SIZE");
 
-	int tamanioBloques = config_get_int_value(config_interface,"BLOCK_SIZE");
+	int tamanioArchivo = config_get_int_value(connfig_metadatos,"TAMANIO_ARCHIVO");
 
-	int bloquesOffsetFinal = bytesABloques(tamanioTruncar, tamanioBloques);
+	int bloqueInicial = config_get_int_value(connfig_metadatos,"BLOQUE_INICIAL");
 
-	int bloqueInicialArchivo = config_get_int_value(connfig_metadatos,"BLOQUE_INICIAL");
+	int tamanio_en_bloques_del_archivo = bytesABloques(tamanioArchivo, tamanioBloque); //(int)ceil((double)tamanioArchivo / (double)tamanioBloque);
 
-	int tamnioInicialArchivo = config_get_int_value(connfig_metadatos,"TAMANIO_ARCHIVO");
+	int bloque_Final_del_archivo= bloqueInicial + (tamanio_en_bloques_del_archivo - 1);
 
-	int bloquesOffsetInicial = bytesABloques(tamnioInicialArchivo, tamanioBloques);
+	int primer_bloque_a_reclamar = bloque_Final_del_archivo +1;
+
+	int nueva_cantidad_de_bloques = bytesABloques(tamanioTruncar, tamanioBloque);//(int)ceil((double)tamanioTruncar / (double)tamanioBloque);
+
+	int nuevo_Bloque_Final = bloqueInicial + (nueva_cantidad_de_bloques-1);
+//2-3-4-5 (4 bloques inciales), 6-7-8-9 (bloques a reclamar), cantidad_de_bloque_a_reclamar = 4, 4= 8 - 4, cantidad_de_bloques_a_reclamar = nueva_cantidad_de_bloques - tamanio_en_bloques_del_archivo
+	//int cantidad_de_bloques_a_reclamar = nueva_cantidad_de_bloques - tamanio_en_bloques_del_archivo;
 
 	char *PATH_bloques = string_duplicate(PATH_FS);
 	string_append(&PATH_bloques, "/ bloques.dat");
+	
+//BI=4, TI=0, TT=32, TB=16, quiero aumentar 2 bloques : 4-5 0 + 1
+	if(tamanioArchivo<tamanioBloque){ //Procedimiento para cuando un archivo inicialmente ocupa 1 solo bloque, osea, su bloque_incial es igual al bloque_final
+		primer_bloque_a_reclamar = bloqueInicial+1;
+		bloque_Final_del_archivo = bloqueInicial;
+	}
 
-	if(hayBloquesOcupados(mapped_bitarray,bloqueInicialArchivo,bloquesOffsetFinal)==1){
+
+	if(tamanio_en_bloques_del_archivo==nueva_cantidad_de_bloques){ //por ejemplo, los bloques miden 16, y quiero truncar del tamanio 23 a 32, la cantidad de bloques asignados al archivo sigue siendo 2 antes y despues de truncar
+		log_info(io_logger, "Los bloques que el archivo ocupa antes y despues de truncar son los mismos");
+		
+		bitarray_munmap(mapped_bitarray);
+
+		config_set_value(connfig_metadatos,"TAMANIO_ARCHIVO",string_itoa(tamanioTruncar));
+		config_save(connfig_metadatos);
+
+
+		log_info(io_logger, "FIN de truncar");
+		return;
+	}
+
+
+	if(hayBloquesOcupados(mapped_bitarray,bloque_Final_del_archivo,nuevo_Bloque_Final)==1){
+		log_info(io_logger, "Sin espacio contiguo suficiente, iniciando compactacion");
 		//compactar
 		bitarray_munmap(mapped_bitarray);
 
 
 	}else{
+		log_info(io_logger, "Hay espacio suficiente para truncar, procediendo con truncar");
 		//trunco sin problema
-		config_set_value(connfig_metadatos,"TAMANIO_ARCHIVO",tamanioTruncar);
+		config_set_value(connfig_metadatos,"TAMANIO_ARCHIVO",string_itoa(tamanioTruncar));
 		config_save(connfig_metadatos);
 
-		for(int i = bloquesOffsetInicial; i < bloquesOffsetFinal; i++){
+		for(int i = primer_bloque_a_reclamar; i <= nuevo_Bloque_Final; i++){
 			bitarray_set_bit(mapped_bitarray,i);
 		}
-		escribirCentinelaBLoquesDesdeHasta(PATH_bloques,bloquesOffsetInicial,bloquesOffsetFinal,tamanioBloques,'\0');
+		escribirCentinelaBLoquesDesdeHasta(PATH_bloques,primer_bloque_a_reclamar,(nuevo_Bloque_Final+1),tamanioBloque,'*'); //cambiar '*' a '\0'
 		bitarray_munmap(mapped_bitarray);
 
 	}
 
+	log_info(io_logger, "FIN de truncar");
 }
 
 void eliminarArchivo(char *nombre_Archivo, t_config *config_interface)
@@ -352,11 +383,20 @@ void eliminarArchivo(char *nombre_Archivo, t_config *config_interface)
 	else
 	{
 		int tamanioBloque = config_get_int_value(config_interface, "BLOCK_SIZE");
+//0-1-2 64 64/16 = 4 el archivo ocupa 4 bloques, osea, ocupa los bloque 2,3,4,5 .... 5= 2+3 = 2 + (4-1) bloqeu final = bloque inicial + (tamaño_en_bloques -1)
+		
+//bloque_inicial = 0,  el archivo mide 64, 64/16 = 4, el archivo mide 4 bloques: 0-1-2-3, bloque_final = 3, 3 = 0 + 3 = 0 + (4-1) ---> bloque_final = bloque_inicial + (tamanio_en_bloques-1)
 
-		int bloquesOffset = (int)ceil((double)tamnioArchivo / (double)tamanioBloque);
+		int tamanio_en_bloques_del_archivo = (int)ceil((double)tamnioArchivo / (double)tamanioBloque);
 
-		for (int i = bloqueInicial; i < bloquesOffset; i++)
+		int bloque_Final_del_archivo= bloqueInicial + (tamanio_en_bloques_del_archivo - 1);
+
+		//int bloquesOffset = (int)ceil((double)tamnioArchivo / (double)tamanioBloque);
+
+		for (int i = bloqueInicial; i <= bloque_Final_del_archivo; i++)
 		{
+//bloqueInicial=0, 64 bytes, 64/16 = 4, 0-1-2-3, bloque_Final_del_archivo=3, i=0, 0<=3,2<=3,3<=3
+//bloque_inicial = 2, 64 bytes, 64/16 = 4, 2-3-4-5, bloque_Final_del_archivo = 5, i=2, 2<=5,3<=5,4<=4,5<=5
 			bitarray_clean_bit(mapped_bitarray, i);
 		}
 	}
@@ -421,7 +461,7 @@ void crearArchivo(char *nombre_Archivo, t_config *config_interface)
 	// printf("voy a escribir los bloques\n");
 	// t_config* nuevoConfig = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
 	int tamanioBloque = config_get_int_value(config_interface,"BLOCK_SIZE");
-	escribirCentinelaInicialBLoques(PATH_FS, bloqueInicial, tamanioBloque, '\0');
+	escribirCentinelaInicialBLoques(PATH_FS, bloqueInicial, tamanioBloque, '0'); //cambiar '0' a '\0'
 
 	log_info(io_logger, "Fin creacion de archivo de metadata");
 }
@@ -497,25 +537,25 @@ void ejecutarInterfazDIALFS(char *nombre, t_config *config_interface)
 
 	log_info(io_logger, "Iniciando interfaz DIALFS");
 
-	/*
+	
 	char* PATH_FS = config_get_string_value(config_interface,"PATH_BASE_DIALFS");
 	char* PATH_bitmap = string_duplicate(PATH_FS);
 	string_append(&PATH_bitmap, "/ bitmap.dat");
 
 	struct stat buffer;
 	if (stat(PATH_bitmap, &buffer)!=0) { //me fijo si el file system ya esta creado, esto significaria que la interfaz se desconecto y se volvio a conectar
-	*/
+	
 
 	log_info(io_logger, "Generando archivos bloques.dat y bitmap.dat");
 	crearArchivosInicialesFS(config_interface);
 
-	/*
+	
 	}else{
 		log_info(io_logger, "La interfaz se ha reconectado");
 	}
-	*/
+	
 
-	char *comandoEjecutar = "IO_FS_CREATE";
+	char *comandoEjecutar = "IO_FS_TRUNCATE";
 
 	if (strcmp(comandoEjecutar, "IO_FS_CREATE") == 0)
 	{
@@ -524,11 +564,11 @@ void ejecutarInterfazDIALFS(char *nombre, t_config *config_interface)
 
 		char *nombre_Archivo = "pruebaFS.txt";
 
+		//crearArchivo(nombre_Archivo, config_interface);
+
+		//char* nombre_Archivo = "segundo.txt";
+
 		crearArchivo(nombre_Archivo, config_interface);
-
-		// nombre_Archivo = "segundo.txt";
-
-		// crearArchivo(nombre_Archivo, config_interface);
 	}
 	else if (strcmp(comandoEjecutar, "IO_FS_DELETE") == 0)
 	{
@@ -548,7 +588,7 @@ void ejecutarInterfazDIALFS(char *nombre, t_config *config_interface)
 
 		int tamanioTruncar = 32;
 		
-		truncarArchivo(nombre_Archivo, config_interface, tamnioTruncar);
+		truncarArchivo(nombre_Archivo, config_interface, tamanioTruncar);
 	}
 	else if (strcmp(comandoEjecutar, "IO_FS_WRITE") == 0)
 	{
