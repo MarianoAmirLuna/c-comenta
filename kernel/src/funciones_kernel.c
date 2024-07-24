@@ -731,7 +731,7 @@ bool condition_id_igual_n(void *elemento)
 PCB *buscarPCB(int pid)
 {
   pidGlobal = pid;
-  PCB *PCBEncontrado = list_find(listaPCBs, condition_id_igual_n);
+  PCB *PCBEncontrado = list_find(listaPCBs, condition_id_igual_n); 
   return PCBEncontrado;
 }
 
@@ -739,9 +739,13 @@ void mandarNuevoPCB()
 {
   // printf("mande un PCB\n");
   sem_wait(&esperar_termine_ejecutar_pcb_cpu);
+
+  pthread_mutex_lock(&proteger_mandar_pcb);
   PCB *pcb_a_enviar = buscarPCB(procesoEXEC); // Busco el pcb que le toca ejecutar en la cola
   enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
-  estaEJecutando = procesoEXEC;
+  estaEJecutando = pcb_a_enviar->pid;
+  pthread_mutex_unlock(&proteger_mandar_pcb);
+
   procesoEXEC = 0;
   estaCPULibre = false;
 
@@ -937,12 +941,12 @@ void mandar_a_exit(int *pid_finalizado)
 {
 
   //consultar_pid_cpu();
-  printf("esta ejecutando: %d\n", consulta_pid_ejecucion);
+  printf("esta ejecutando: %d\n", estaEJecutando);
   printf("pid finalizado: %d\n", *pid_finalizado);
 
-  if (consulta_pid_ejecucion == *pid_finalizado)
+  if (estaEJecutando == *pid_finalizado)
   {
-    estaEJecutando = 0;
+    //estaEJecutando = 0;
     printf("mande a desalojar el que esta ejecutando\n");
     desalojoFinProceso();
   }

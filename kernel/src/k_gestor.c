@@ -43,4 +43,5 @@ int consulta_pid_ejecucion;
 sem_t esperar_consulta_pid;
 sem_t esperar_termine_ejecutar_pcb_cpu;
 pthread_mutex_t proteger_lista_ready = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t proteger_mandar_pcb = PTHREAD_MUTEX_INITIALIZER;
 

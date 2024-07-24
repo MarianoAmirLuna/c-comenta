@@ -48,6 +48,7 @@ extern pthread_mutex_t mutex_pid;
 extern pthread_mutex_t mutexExec;
 extern pthread_mutex_t lista_pcb_mutex;
 extern pthread_mutex_t proteger_lista_ready;
+extern pthread_mutex_t proteger_mandar_pcb;
 //extern pthread_mutex_t modificarLista;
 
 extern t_list *procesosNEW;
