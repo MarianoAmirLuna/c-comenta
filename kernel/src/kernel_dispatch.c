@@ -18,7 +18,7 @@ void atender_kernel_dispatch()
 		case MENSAJE:
 			//
 			break;
-		case PAQUETE:
+		case PAQUETE: 
 			//
 			break;
 
@@ -30,7 +30,7 @@ void atender_kernel_dispatch()
 			int codigo = extraer_int_del_buffer(un_buffer);
             numero_hiloXD = extraer_int_del_buffer(un_buffer);
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
-
+			
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
 			sem_post(&nuevo_bucle);
@@ -42,8 +42,8 @@ void atender_kernel_dispatch()
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
 
 			// actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
-			printf("el contador dio: %d\n", tiempo_q_prima);
-			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
+			//printf("el contador dio: %d\n", tiempo_q_prima);
+			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
 			if (codigo == 1)
 			{ // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar

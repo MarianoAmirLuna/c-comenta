@@ -597,15 +597,16 @@ void ciclo_plani_FIFO()
     // mientras que haya cosas en new y el grado de multiprogramacion me lo permita, lo paso a ready
   }
   // printf("limpiada lista de new\n");
+  pthread_mutex_lock(&mutexExec);
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre) // si no hay ningun proceso en ejecucion, pone el primero de READY
   {
-    pthread_mutex_lock(&mutexExec);
+    
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
     // estaEJecutando = procesoEXEC;
-    pthread_mutex_unlock(&mutexExec);
     // avisarDesalojo();
   }
+  pthread_mutex_unlock(&mutexExec);
   // if(procesoEXEC==0) ejecutandoProceso=0;
   // else ejecutandoProceso=1;
 
@@ -637,14 +638,14 @@ void ciclo_plani_RR()
     list_add(procesosREADY, pidNuevo);
     pthread_mutex_unlock(&proteger_lista_ready);
   }
+  pthread_mutex_lock(&mutexExec);
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
   {
-    pthread_mutex_lock(&mutexExec);
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
     // estaEJecutando = procesoEXEC;
-    pthread_mutex_unlock(&mutexExec);
   }
+  pthread_mutex_unlock(&mutexExec);
 
   if (procesoEXEC != 0)
   {
@@ -685,14 +686,15 @@ void ciclo_plani_VRR()
     pthread_mutex_unlock(&proteger_lista_ready);
   }
 
+  pthread_mutex_lock(&mutexExec);
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
   {
-    pthread_mutex_lock(&mutexExec);
+    
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
     // estaEJecutando = procesoEXEC;
-    pthread_mutex_unlock(&mutexExec);
   }
+  pthread_mutex_unlock(&mutexExec);
 
   if (procesoEXEC != 0)
   {
@@ -746,6 +748,10 @@ void *contador_tiempos(void *arg)
   if (contiene_numero(lista_id_hilos, args->id))//si la lista contiene el numero mando la interrupcion
   {
     avisarDesalojo(args->pid);
+    printf("aviso un desalojo\n");
+  }
+  else{
+    printf("NOOO aviso un desalojo\n"); 
   }
 }
 

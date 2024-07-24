@@ -855,9 +855,9 @@ void removerNumeroLista(t_list* lista,int numero){
 
 		int* numeroXD = list_get(lista,i);
 
-		if(*numeroXD = numero){
+		if(*numeroXD == numero){
 			list_remove(lista,i);
-			printf("removi el elemento %d\n",numero);
+			printf("removi el elemento AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%d\n",numero);
 		}
 	}
 }
