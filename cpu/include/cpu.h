@@ -56,6 +56,7 @@ char* nombre_interfaz;
 char* tipo_instruccion;
 
 t_list* procesosConPath;
+int numeroID_hilo;
 
 
 #endif

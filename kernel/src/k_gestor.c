@@ -7,6 +7,7 @@ t_list *procesosREADY=NULL;
 t_list *procesosSuspendidos=NULL;
 t_list* lista_interfaces=NULL;
 t_list *procesosEXIT=NULL;
+t_list *lista_id_hilos;
 
 int procesoEXEC = 0;
 pthread_mutex_t mutexExec = PTHREAD_MUTEX_INITIALIZER;
@@ -17,6 +18,7 @@ t_list *listQPrimas;
 int tiempoTranscurrido=0;
 int seguirPlanificando=1;
 int ejecutandoProceso=0;
+int contador_hilos = 0;
 sem_t sem_cpu_libre;
 sem_t esperar_devolucion_pcb;
 sem_t esperar_carga_path_memoria;

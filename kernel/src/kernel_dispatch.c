@@ -8,6 +8,7 @@ void atender_kernel_dispatch()
 	t_buffer *un_buffer;
 	char *nombre_interfaz;
 	int tiempo_q_prima;
+	int numero_hiloXD;
 
 	while (control_key)
 	{
@@ -27,6 +28,9 @@ void atender_kernel_dispatch()
 			list_add(listaPCBs, pcb_devuelto);
 
 			int codigo = extraer_int_del_buffer(un_buffer);
+            numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			removerNumeroLista(lista_id_hilos,numero_hiloXD);
+
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
 			sem_post(&nuevo_bucle);
@@ -66,6 +70,8 @@ void atender_kernel_dispatch()
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
+			numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			removerNumeroLista(lista_id_hilos,numero_hiloXD);
 
 			detener_tiempo();
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
@@ -90,6 +96,8 @@ void atender_kernel_dispatch()
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
+			numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			removerNumeroLista(lista_id_hilos,numero_hiloXD);
 
 			detener_tiempo();
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
@@ -114,6 +122,8 @@ void atender_kernel_dispatch()
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
+			numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			removerNumeroLista(lista_id_hilos,numero_hiloXD);
 
 			detener_tiempo();
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);

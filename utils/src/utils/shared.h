@@ -155,6 +155,11 @@ typedef struct {
 	bool estaLibre;
 } interfaces_io;
 typedef struct {
+    int id;
+    pid_t pid;
+    int tiempo;
+} thread_args;
+typedef struct {
 	char* nombre_interfaz;
     int fd_interfaz;
 } interfaces_io_memoria;
@@ -248,5 +253,6 @@ int contarInstrucciones(char *path);
 //int list_index_of(t_list *self, void *data);
 t_buffer* cargar_pcb_buffer(PCB pcb);
 bool contiene_numero(t_list *lista, int numero);
+void removerNumeroLista(t_list* lista,int numero);
 
 #endif /* UTILS_H_ */

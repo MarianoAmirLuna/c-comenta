@@ -26,13 +26,14 @@ void atender_cpu_kernel_dispatch()
 			un_buffer = recibir_todo_el_buffer(fd_kernel_dispatch);
 			PCB *pcb = atender_recibir_pcb(un_buffer);
 			pcb_ejecucion = *pcb;
+			numeroID_hilo = extraer_choclo_del_buffer(un_buffer);
 			procesar_instruccion();
 			break;
 		//case CONSULTA_PID:
 		//	un_buffer = recibir_todo_el_buffer(fd_kernel_interrupt);
 		//	int inutil = extraer_int_del_buffer(un_buffer);
 		//	primeraSolicitudTamanioDePagina = true;
-
+            
 			break;
 		case -1:
 			log_trace(cpu_log_debug, "Desconexion de KERNEL - Dispatch");

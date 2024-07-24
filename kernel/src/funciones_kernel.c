@@ -62,7 +62,7 @@ void enviar_path_memoria(char *path, int pid)
   // sem_wait(&esperar_carga_path_memoria);
 }
 
-void enviar_pcb(PCB pcb, int socket_enviar)
+void enviar_pcb(PCB pcb, int socket_enviar,int numerillo)
 {
   t_buffer *a_enviar = crear_buffer();
 
@@ -82,6 +82,8 @@ void enviar_pcb(PCB pcb, int socket_enviar)
   cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.EDX);
   cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.SI);
   cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.DI);
+  cargar_int_al_buffer(a_enviar,numerillo);
+
 
   t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, a_enviar);
   enviar_paquete(un_paquete, socket_enviar);
@@ -298,7 +300,7 @@ void atender_wait(char *recurso, int *pid) // FALTA PROBAR
     list_add(procesosREADY, pid);
     pthread_mutex_unlock(&proteger_lista_ready);
     // mostrarInstanciasTomadas(pid);
-    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) + 1; 
+    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) + 1;
     // printf("Instancias disponibles, se tomo el recurso\n");
   }
   else
@@ -340,9 +342,8 @@ void atender_signal(char *recurso, int *pid) // FALTA PROBAR
   else
   {
     pthread_mutex_lock(&proteger_lista_ready);
-		list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
-		pthread_mutex_unlock(&proteger_lista_ready);
-    
+    list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
+    pthread_mutex_unlock(&proteger_lista_ready);
   }
   // estado_instancias();
   // mostrarInstanciasTomadas(*pid);
@@ -453,18 +454,16 @@ void detener_tiempo()
   clock_gettime(CLOCK_MONOTONIC, &end_time);
 }
 
-void temporizadorQuantum(int quantum)
+/*void temporizadorQuantum(int quantum)
 {
-
   while (1)
   {
-
     sem_wait(&contador_q);
     usleep(quantum_global_reloj * 1000);
-    tiempoTranscurrido = quantum_global_reloj * 1000;
+    tiempoTranscurrido = quantum_global_reloj;
     sem_post(&nuevo_bucle);
   }
-}
+}*/
 
 void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 {
@@ -560,9 +559,9 @@ void iniciar_planificacion_io()
   }
 }
 
-void avisarDesalojo()
+void avisarDesalojo(int pid)
 {
-  log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", estaEJecutando);
+  log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pid);
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
@@ -610,7 +609,7 @@ void ciclo_plani_FIFO()
   // if(procesoEXEC==0) ejecutandoProceso=0;
   // else ejecutandoProceso=1;
 
-  if (procesoEXEC != 0)
+  if (procesoEXEC != 0) //FINALIZAR_PROCESO 4
   {
     if (estaCPULibre)
     {
@@ -626,7 +625,7 @@ void ciclo_plani_RR()
   if (tiempoTranscurrido * 100 >= QUANTUM && !estaCPULibre) // FIN DE QUANTUM
   {
     tiempoTranscurrido = 0;
-    avisarDesalojo();
+    avisarDesalojo(estaEJecutando);
     sem_wait(&esperar_devolucion_pcb);
   }
   while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION) // si hay procesos en new y los podes pasar a ready pasalos
@@ -672,7 +671,7 @@ void ciclo_plani_VRR()
     // printf("FIN DE QPRIMA\n");
     restaurarQPrima(estaEJecutando);
     tiempoTranscurrido = 0;
-    avisarDesalojo();
+    avisarDesalojo(estaEJecutando);
     sem_wait(&esperar_devolucion_pcb);
   }
 
@@ -731,8 +730,23 @@ bool condition_id_igual_n(void *elemento)
 PCB *buscarPCB(int pid)
 {
   pidGlobal = pid;
-  PCB *PCBEncontrado = list_find(listaPCBs, condition_id_igual_n); 
+  PCB *PCBEncontrado = list_find(listaPCBs, condition_id_igual_n);
   return PCBEncontrado;
+}
+
+void *contador_tiempos(void *arg)
+{
+
+  thread_args *args = (thread_args *)arg;
+
+  usleep(args->tiempo * 1000);
+  
+  printf("la id es: %d\n",args->id);
+
+  if (contiene_numero(lista_id_hilos, args->id))//si la lista contiene el numero mando la interrupcion
+  {
+    avisarDesalojo(args->pid);
+  }
 }
 
 void mandarNuevoPCB()
@@ -742,21 +756,36 @@ void mandarNuevoPCB()
 
   pthread_mutex_lock(&proteger_mandar_pcb);
   PCB *pcb_a_enviar = buscarPCB(procesoEXEC); // Busco el pcb que le toca ejecutar en la cola
-  enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
+  enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch,contador_hilos); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
   estaEJecutando = pcb_a_enviar->pid;
   pthread_mutex_unlock(&proteger_mandar_pcb);
 
   procesoEXEC = 0;
   estaCPULibre = false;
 
-  quantum_global_reloj = QUANTUM;
-  sem_post(&contador_q);
+  // quantum_global_reloj = QUANTUM;
+  // sem_post(&contador_q);
   iniciar_tiempo(); // empiezo a contar por el tema de los q primas de VRR
+
+  thread_args *args = malloc(sizeof(thread_args));
+  args->id = contador_hilos;
+  args->pid = pcb_a_enviar->pid;
+  args->tiempo = QUANTUM; // ADAPTAR A VRR
+
+  int *numerillo = malloc(sizeof(int));
+  *numerillo = contador_hilos;
+
+  list_add(lista_id_hilos, numerillo);
+
+  pthread_t threadXD;
+  pthread_create(&threadXD, NULL, contador_tiempos, args);
+  pthread_detach(threadXD);
 
   // pthread_mutex_lock(&modificarLista);
   list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
   list_remove_element(listaPCBs, (void *)pcb_a_enviar);
   // pthread_mutex_unlock(&modificarLista);
+  contador_hilos++;
 }
 
 void nuevaListaRecursos(int pid)
@@ -933,20 +962,20 @@ void consultar_pid_cpu()
   destruir_paquete(un_paquete);
 
   printf("toy esperando\n");
-  //sem_wait(&esperar_consulta_pid);
+  // sem_wait(&esperar_consulta_pid);
   printf("pase el semaforo\n");
 }
 
 void mandar_a_exit(int *pid_finalizado)
 {
 
-  //consultar_pid_cpu();
+  // consultar_pid_cpu();
   printf("esta ejecutando: %d\n", estaEJecutando);
   printf("pid finalizado: %d\n", *pid_finalizado);
 
   if (estaEJecutando == *pid_finalizado)
   {
-    //estaEJecutando = 0;
+    // estaEJecutando = 0;
     printf("mande a desalojar el que esta ejecutando\n");
     desalojoFinProceso();
   }
@@ -976,8 +1005,9 @@ void mandar_a_exit(int *pid_finalizado)
 
     if (*numerito == *pid_finalizado)
     {
-
+      pthread_mutex_lock(&proteger_lista_ready);
       numero_desalojado = list_remove(procesosREADY, i);
+      pthread_mutex_unlock(&proteger_lista_ready);
       printf("elimine a un wachin de ready\n");
     }
   }

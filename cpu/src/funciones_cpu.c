@@ -10,6 +10,7 @@
 #include <inttypes.h>
 #include <string.h>
 
+
 bool es4bytes(char *registro)
 {
 
@@ -1193,6 +1194,7 @@ void devolverPCBKernelSenial()
     // printf("el recurso: %s\n", recurso);
 
     cargar_string_al_buffer(buffer, recurso);
+    cargar_int_al_buffer(buffer,numeroID_hilo);
 
     if (strcmp(instr, "WAIT") == 0)
     {
@@ -1215,6 +1217,7 @@ void devolverPCBKernel_exit_o_bloqueado()
 
     cargar_string_al_buffer(buffer, nombre_interfaz);
     cargar_string_al_buffer(buffer, tipo_instruccion);
+    cargar_int_al_buffer(buffer,numeroID_hilo);
 
     t_paquete *paquete = crear_super_paquete(INSTRUCCION_TIPO_IO, buffer);
     enviar_paquete(paquete, fd_kernel_dispatch);
@@ -1253,6 +1256,7 @@ void devolverPCBKernelCambioContexto()
 {
     t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
     cargar_int_al_buffer(buffer, 1); // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
+    cargar_int_al_buffer(buffer,numeroID_hilo);
     t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, buffer);
     enviar_paquete(un_paquete, fd_kernel_dispatch);
     destruir_paquete(un_paquete);
@@ -1262,6 +1266,7 @@ void devolverPCBKernelEXit()
 {
     t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
     cargar_int_al_buffer(buffer, 2); // si se queda sin instrucciones va un 2
+    cargar_int_al_buffer(buffer,numeroID_hilo);
     t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, buffer);
     enviar_paquete(un_paquete, fd_kernel_dispatch);
     destruir_paquete(un_paquete);
@@ -1314,7 +1319,7 @@ void procesar_instruccion()
 
     if (terminarPorExit) // si termina por wait o signal
     {        
-        devolverPCBKernelEXit();         // verificar si esta bien
+        devolverPCBKernelEXit();         //verificar si esta bien
     }
     else
     {

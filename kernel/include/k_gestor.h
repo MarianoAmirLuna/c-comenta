@@ -57,6 +57,7 @@ extern t_list *procesosREADY;
 extern t_list *procesosReadyConQ;
 extern t_list *procesosSuspendidos;
 extern t_list *lista_interfaces;
+extern t_list *lista_id_hilos;
 
 typedef struct{
     int pid;
@@ -64,6 +65,7 @@ typedef struct{
 } pidConQ;
 
 extern int procesoEXEC;
+extern int contador_hilos;
 //extern pidConQ pidQEXEC;
 //extern pidConQ PidQREADY;
 

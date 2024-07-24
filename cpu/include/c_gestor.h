@@ -57,6 +57,7 @@ extern char* nombre_interfaz;
 extern char* tipo_instruccion;
 
 extern t_list* procesosConPath;
+extern int numeroID_hilo;
 
 
 #endif

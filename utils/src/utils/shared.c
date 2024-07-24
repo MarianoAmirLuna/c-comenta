@@ -848,3 +848,16 @@ bool contiene_numero(t_list *lista, int numero)
     }
     return false; // El número no está en la lista
 }
+
+void removerNumeroLista(t_list* lista,int numero){
+
+	for(int i = 0; i < list_size(lista); i++){
+
+		int* numeroXD = list_get(lista,i);
+
+		if(*numeroXD = numero){
+			list_remove(lista,i);
+			printf("removi el elemento %d\n",numero);
+		}
+	}
+}
