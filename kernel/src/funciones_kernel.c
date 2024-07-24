@@ -62,7 +62,7 @@ void enviar_path_memoria(char *path, int pid)
   // sem_wait(&esperar_carga_path_memoria);
 }
 
-void enviar_pcb(PCB pcb, int socket_enviar,int numerillo)
+void enviar_pcb(PCB pcb, int socket_enviar, int numerillo)
 {
   t_buffer *a_enviar = crear_buffer();
 
@@ -82,8 +82,7 @@ void enviar_pcb(PCB pcb, int socket_enviar,int numerillo)
   cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.EDX);
   cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.SI);
   cargar_uint32_al_buffer(a_enviar, pcb.registros_cpu.DI);
-  cargar_int_al_buffer(a_enviar,numerillo);
-
+  cargar_int_al_buffer(a_enviar, numerillo);
 
   t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, a_enviar);
   enviar_paquete(un_paquete, socket_enviar);
@@ -600,7 +599,7 @@ void ciclo_plani_FIFO()
   pthread_mutex_lock(&mutexExec);
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre) // si no hay ningun proceso en ejecucion, pone el primero de READY
   {
-    
+
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
     // estaEJecutando = procesoEXEC;
@@ -610,7 +609,7 @@ void ciclo_plani_FIFO()
   // if(procesoEXEC==0) ejecutandoProceso=0;
   // else ejecutandoProceso=1;
 
-  if (procesoEXEC != 0) //FINALIZAR_PROCESO 4
+  if (procesoEXEC != 0) // FINALIZAR_PROCESO 4
   {
     if (estaCPULibre)
     {
@@ -689,7 +688,7 @@ void ciclo_plani_VRR()
   pthread_mutex_lock(&mutexExec);
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
   {
-    
+
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
     // estaEJecutando = procesoEXEC;
@@ -742,16 +741,17 @@ void *contador_tiempos(void *arg)
   thread_args *args = (thread_args *)arg;
 
   usleep(args->tiempo * 1000);
-  
-  printf("la id es: %d\n",args->id);
 
-  if (contiene_numero(lista_id_hilos, args->id))//si la lista contiene el numero mando la interrupcion
+  printf("la id es: %d\n", args->id);
+
+  if (contiene_numero(lista_id_hilos, args->id)) // si la lista contiene el numero mando la interrupcion
   {
     avisarDesalojo(args->pid);
     printf("aviso un desalojo\n");
   }
-  else{
-    printf("NOOO aviso un desalojo\n"); 
+  else
+  {
+    printf("NOOO aviso un desalojo\n");
   }
 }
 
@@ -761,8 +761,8 @@ void mandarNuevoPCB()
   sem_wait(&esperar_termine_ejecutar_pcb_cpu);
 
   pthread_mutex_lock(&proteger_mandar_pcb);
-  PCB *pcb_a_enviar = buscarPCB(procesoEXEC); // Busco el pcb que le toca ejecutar en la cola
-  enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch,contador_hilos); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
+  PCB *pcb_a_enviar = buscarPCB(procesoEXEC);                 // Busco el pcb que le toca ejecutar en la cola
+  enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch, contador_hilos); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
   estaEJecutando = pcb_a_enviar->pid;
   pthread_mutex_unlock(&proteger_mandar_pcb);
 
@@ -773,19 +773,22 @@ void mandarNuevoPCB()
   // sem_post(&contador_q);
   iniciar_tiempo(); // empiezo a contar por el tema de los q primas de VRR
 
-  thread_args *args = malloc(sizeof(thread_args));
-  args->id = contador_hilos;
-  args->pid = pcb_a_enviar->pid;
-  args->tiempo = QUANTUM; // ADAPTAR A VRR
+  if (strcmp(ALGORITMO_PLANIFICACION, "RR") == 0 || strcmp(ALGORITMO_PLANIFICACION, "VRR") == 0)
+  {
+    thread_args *args = malloc(sizeof(thread_args));
+    args->id = contador_hilos;
+    args->pid = pcb_a_enviar->pid;
+    args->tiempo = QUANTUM; // ADAPTAR A VRR
 
-  int *numerillo = malloc(sizeof(int));
-  *numerillo = contador_hilos;
+    int *numerillo = malloc(sizeof(int));
+    *numerillo = contador_hilos;
 
-  list_add(lista_id_hilos, numerillo);
+    list_add(lista_id_hilos, numerillo);
 
-  pthread_t threadXD;
-  pthread_create(&threadXD, NULL, contador_tiempos, args);
-  pthread_detach(threadXD);
+    pthread_t threadXD;
+    pthread_create(&threadXD, NULL, contador_tiempos, args);
+    pthread_detach(threadXD);
+  }
 
   // pthread_mutex_lock(&modificarLista);
   list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
