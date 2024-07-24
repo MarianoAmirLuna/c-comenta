@@ -470,7 +470,7 @@ void leerCaracterMemoria(int direccionLogica)
 void _copy_string(char *tamanio)
 {
     int desplazamiento_en_pagina = (int)pcb_ejecucion.registros_cpu.DI % tamanio_pagina; // offset
-    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
 
     int tamanioAEscribir = atoi(tamanio);
 
@@ -1123,8 +1123,9 @@ int traducir_dl(int direccionLogica)
 
     enviar_pedido_marco(num_pag, pcb_ejecucion.pid); // En caso de un MISS busca en memoria
 
-    if(CANTIDAD_ENTRADAS_TLB > 0){
-        
+    if (CANTIDAD_ENTRADAS_TLB > 0)
+    {
+
         agregarPaginaTLB(pcb_ejecucion.pid, num_pag, marco); // Después del MISS se actualiza la TLB
     }
 
@@ -1135,8 +1136,26 @@ int traducir_dl(int direccionLogica)
 
 ////////////////////////////////////////////////////
 
-int obtener_cantidad_instrucciones(int pid)
+void obtener_cantidad_instrucciones(int pid)
 {
+
+    bool tienePath = contiene_numero(procesosConPath, pid);
+
+    if (!tienePath)
+    {
+
+        while (1)
+        {
+            tienePath = contiene_numero(procesosConPath, pid);
+
+            if (tienePath)
+            {
+                break;
+            }
+            usleep(75000);
+        }
+    }
+
     t_buffer *a_enviar = crear_buffer();
 
     a_enviar->size = 0;
@@ -1159,24 +1178,6 @@ void _wait(char *recurso)
 void _signal(char *recurso)
 {
     terminaPorSenial = true;
-}
-
-void devolverPCBKernel()
-{
-    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
-
-    if (cambioContexto)
-    {
-        cargar_int_al_buffer(buffer, 1); // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
-    }
-    else
-    {
-        cargar_int_al_buffer(buffer, 2); // si se queda sin instrucciones va un 2
-    }
-
-    t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, buffer);
-    enviar_paquete(un_paquete, fd_kernel_dispatch);
-    destruir_paquete(un_paquete);
 }
 
 void devolverPCBKernelSenial()
@@ -1248,25 +1249,49 @@ bool instruccion_es_tipo_io(char *instruccion_actual)
     }
 }
 
+void devolverPCBKernelCambioContexto()
+{
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
+    cargar_int_al_buffer(buffer, 1); // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
+    t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, buffer);
+    enviar_paquete(un_paquete, fd_kernel_dispatch);
+    destruir_paquete(un_paquete);
+}
+
+void devolverPCBKernelEXit()
+{
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
+    cargar_int_al_buffer(buffer, 2); // si se queda sin instrucciones va un 2
+    t_paquete *un_paquete = crear_super_paquete(RECIBIR_PCB, buffer);
+    enviar_paquete(un_paquete, fd_kernel_dispatch);
+    destruir_paquete(un_paquete);
+}
+
 void procesar_instruccion()
 {
-
     printf("la cantidad de instrucciones son: %d\n", cantInstucciones);
 
     terminarPorExit = false;
     terminaPorSenial = false;
     cambioContexto = false;
     ejecute_instruccion_tipo_io = false;
+    obtener_cantidad_instrucciones(pcb_ejecucion.pid);
 
     while (!terminarPorExit && !cambioContexto && !terminaPorSenial && !ejecute_instruccion_tipo_io)
     {
+
+        if(cantInstucciones == pcb_ejecucion.program_counter){
+            terminarPorExit = true;
+            break;
+        }
+
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
         sem_wait(&wait_instruccion);
 
         printf("se ejecuto la instruccion\n");
 
-        if (instruccion_es_tipo_io(instruccion_actual))
+        if (instruccion_es_tipo_io(instruccion_actual)) // si se ejecuta algo de tipo io y lo desaloja
         {
             devolverPCBKernel_exit_o_bloqueado();
         }
@@ -1287,16 +1312,22 @@ void procesar_instruccion()
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
 
-    if (terminaPorSenial)
-    { // verificar si esta bien
-
-        devolverPCBKernelSenial();
+    if (terminarPorExit) // si termina por wait o signal
+    {        
+        devolverPCBKernelEXit();         // verificar si esta bien
     }
     else
     {
-        if (!ejecute_instruccion_tipo_io)
+        if (terminaPorSenial)
         {
-            devolverPCBKernel();
+             devolverPCBKernelSenial();
+        }
+        else
+        {
+            if (cambioContexto)
+            {
+                devolverPCBKernelCambioContexto();
+            }
         }
     }
 

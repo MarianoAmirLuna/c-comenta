@@ -77,6 +77,8 @@ void devolver_instruccion(t_buffer *un_buffer)
 
 	char *instruccion = obtenerInstruccion(path_instruccion, program_counter);
 
+	usleep(RETARDO_RESPUESTA * 1000);
+
 	// printf("la instruccion es: %s\n",instruccion);
 
 	cargar_string_al_buffer(a_enviar, instruccion);
@@ -477,11 +479,15 @@ void buscarMarco(t_buffer *un_buffer)
 
 void obtenerCantInstrucciones(int pid)
 {
-	id_global = pid;
+	pthread_mutex_t proteger_contador = PTHREAD_MUTEX_INITIALIZER;
+	
+	pthread_mutex_lock(&proteger_contador);
+    id_global = pid;
 
 	path_conID *elemento_lista = list_find(list_path_id, condition_id_igual_n);
 
 	int cantInstrucciones = contarInstrucciones(elemento_lista->path);
+    pthread_mutex_unlock(&proteger_contador);
 
 	t_buffer *a_enviar = crear_buffer();
 

@@ -60,6 +60,7 @@ typedef enum
 	RECIBIR_CARACTER,
 	INSTRUCCION_TIPO_IO,
 	HABILITAR_PID,
+	CONSULTA_PID,
 	
 	//////////////////
 	EJECUTAR_RESIZE,

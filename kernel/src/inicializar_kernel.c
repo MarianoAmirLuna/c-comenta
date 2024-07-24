@@ -69,6 +69,7 @@ void iniciar_semaforos()
 	sem_init(&contador_q,1,0);
 	sem_init(&ciclo_instruccion_io,1,0);
 	sem_init(&esperar_vuelva,1,0);
+	sem_init(&esperar_termine_ejecutar_pcb_cpu,1,1);
 
 	listaPCBs = list_create();
 	listaPidsRecursos = list_create();

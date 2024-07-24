@@ -59,7 +59,7 @@ void enviar_path_memoria(char *path, int pid)
   enviar_paquete(un_paquete, fd_memoria);
   destruir_paquete(un_paquete);
 
-  //sem_wait(&esperar_carga_path_memoria);
+  // sem_wait(&esperar_carga_path_memoria);
 }
 
 void enviar_pcb(PCB pcb, int socket_enviar)
@@ -125,6 +125,7 @@ void enviar_pid_a_cpu(int pid)
   destruir_paquete(paquete_pid);
 }
 
+/*
 void planificacion()
 {
   while (seguirPlanificando)
@@ -133,12 +134,12 @@ void planificacion()
     ciclo_planificacion();
     if (ejecutandoProceso)
     {
-      enviar_pid_a_cpu(procesoEXEC);
+      enviar_pid_a_cpu(procesoEXEC); //CREO QUE ESTA AL PEDO
     }
     else
       sem_post(&sem_cpu_libre);
   }
-}
+}*/
 
 pidConQ *nuevoPidConQ(int pid)
 {
@@ -195,7 +196,7 @@ void modificarQPrima(int pid, int nuevaQPrima)
 void suspenderProceso()
 {
   pidConQ *pidConQEXEC = buscarPidConQ(procesoEXEC);
-  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido*100;
+  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido;
   pidConQEXEC->qPrima = qPrimaNueva == 0 ? QUANTUM : qPrimaNueva;
   int *aux = malloc(sizeof(int));
   *aux = procesoEXEC;
@@ -204,11 +205,20 @@ void suspenderProceso()
   // printf("proceso suspendido: %d, qprima: %d \n", *aux, pidConQEXEC->qPrima);
 }
 
-void bloquearPorRecurso(char *nombre) //FALTA PROBAR
+void actualizarQPrimaProceso(int pid, int tiempo)
+{ // le resta el tiempo al quantum del proceso
+
+  pidConQ *pidConQEXEC = buscarPidConQ(pid);                      // obtener el pid_qprima
+  int qPrimaNueva = pidConQEXEC->qPrima - tiempo;                 // obtengo el nuevo quantum
+  pidConQEXEC->qPrima = qPrimaNueva <= 0 ? QUANTUM : qPrimaNueva; // en el caso de que sea 0, lo pongo en QUANTUM
+  printf("el nuevo tiempo es: \n", pidConQEXEC->qPrima);
+}
+
+void bloquearPorRecurso(char *nombre) // FALTA PROBAR
 {
-  pidConQ *pidConQEXEC = buscarPidConQ(estaEJecutando); //obtener el pid_qprima
-  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido*100; //obtengo el nuevo quantum
-  pidConQEXEC->qPrima = qPrimaNueva == 0 ? QUANTUM : qPrimaNueva; //en el caso de que sea 0, lo pongo en QUANTUM
+  pidConQ *pidConQEXEC = buscarPidConQ(estaEJecutando);           // obtener el pid_qprima
+  int qPrimaNueva = pidConQEXEC->qPrima - tiempoTranscurrido;     // obtengo el nuevo quantum
+  pidConQEXEC->qPrima = qPrimaNueva == 0 ? QUANTUM : qPrimaNueva; // en el caso de que sea 0, lo pongo en QUANTUM
 
   int i = 0;
   for (i = 0; strcmp(nombre, nombresRecursos[i]) != 0; i++)
@@ -284,9 +294,11 @@ void atender_wait(char *recurso, int *pid) // FALTA PROBAR
   {
     *instancias = (*instancias) - 1;
     // printf("hay instancias disponibles \n");
+    pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pid);
+    pthread_mutex_unlock(&proteger_lista_ready);
     // mostrarInstanciasTomadas(pid);
-    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) + 1;
+    *instanciasPedidasRecurso = (*instanciasPedidasRecurso) + 1; 
     // printf("Instancias disponibles, se tomo el recurso\n");
   }
   else
@@ -327,7 +339,10 @@ void atender_signal(char *recurso, int *pid) // FALTA PROBAR
   }
   else
   {
-    list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
+    pthread_mutex_lock(&proteger_lista_ready);
+		list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
+		pthread_mutex_unlock(&proteger_lista_ready);
+    
   }
   // estado_instancias();
   // mostrarInstanciasTomadas(*pid);
@@ -340,7 +355,9 @@ void sacarDeSuspension()
   int *aux = list_remove(procesosSuspendidos, 0);
   // if(aux==NULL) printf("no anda el get");
   // else printf("el get devuelve %d", *aux);
+  pthread_mutex_lock(&proteger_lista_ready);
   list_add(procesosREADY, aux);
+  pthread_mutex_unlock(&proteger_lista_ready);
   // printf("proceso sacado de suspension: %d \n", *aux);
 }
 
@@ -411,36 +428,42 @@ void iniciar_bucle()
 
 void iniciar_planificacion()
 {
-  while(1){
+  while (1)
+  {
     sem_wait(&nuevo_bucle);
-    printf("se hizo un bucle!!");
+    // printf("se hizo un bucle!!");
     sem_wait(&sem_seguir_planificando);
     ciclo_planificacion();
     sem_post(&sem_seguir_planificando);
   }
 }
 
-int tiempo_transcurrido_milisegundos(struct timespec start, struct timespec end) {
-    return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+int tiempo_transcurrido_milisegundos(struct timespec start, struct timespec end)
+{
+  return (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
 }
 
-void iniciar_tiempo() {
-    clock_gettime(CLOCK_MONOTONIC, &start_time);
+void iniciar_tiempo()
+{
+  clock_gettime(CLOCK_MONOTONIC, &start_time);
 }
 
-void detener_tiempo() {
-    clock_gettime(CLOCK_MONOTONIC, &end_time);
+void detener_tiempo()
+{
+  clock_gettime(CLOCK_MONOTONIC, &end_time);
 }
 
-void temporizadorQuantum(int quantum){
+void temporizadorQuantum(int quantum)
+{
 
-    while(1){
+  while (1)
+  {
 
-      sem_wait(&contador_q);
-      usleep(quantum_global_reloj * 1000);
-      tiempoTranscurrido = quantum_global_reloj * 1000;
-      sem_post(&nuevo_bucle);
-    }
+    sem_wait(&contador_q);
+    usleep(quantum_global_reloj * 1000);
+    tiempoTranscurrido = quantum_global_reloj * 1000;
+    sem_post(&nuevo_bucle);
+  }
 }
 
 void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
@@ -450,13 +473,13 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
   buffer->size = 0;
   buffer->stream = NULL;
 
-  instruccion *instruccionXD = queue_pop(interfaz.instrucciones_ejecutar); //saco la instruccion de la queue y la ejecuto
+  instruccion *instruccionXD = queue_pop(interfaz.instrucciones_ejecutar); // saco la instruccion de la queue y la ejecuto
 
   if (strcmp(instruccionXD->nombre_instruccion, "IO_GEN_SLEEP") == 0)
   {
     printf("voy a ejecutar un gen_sleep\n");
-    
-    int* unidades_trabajo = list_get(instruccionXD->lista_enteros, 0);
+
+    int *unidades_trabajo = list_get(instruccionXD->lista_enteros, 0);
 
     cargar_int_al_buffer(buffer, *unidades_trabajo);
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_GEN_SLEEP, buffer);
@@ -466,7 +489,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDIN_READ") == 0)
   {
-    for(int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
+    for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
     {
       int *numerin = list_get(instruccionXD->lista_enteros, i);
       cargar_int_al_buffer(buffer, *numerin);
@@ -478,7 +501,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_STDOUT_WRITE") == 0)
   {
-    for(int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
+    for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
     {
       int *numerito = list_get(instruccionXD->lista_enteros, i);
       cargar_int_al_buffer(buffer, *numerito);
@@ -523,7 +546,7 @@ void iniciar_planificacion_io()
 
       interfaces_io *interfaz = list_get(lista_interfaces, i);
 
-      if (interfaz->estaLibre && queue_size(interfaz->instrucciones_ejecutar) > 0 )
+      if (interfaz->estaLibre && queue_size(interfaz->instrucciones_ejecutar) > 0)
       { // si esta libre la interfaz y tenes instrucciones para ejecutar
 
         printf("ejecute una instruccion de tipo io\n");
@@ -534,7 +557,6 @@ void iniciar_planificacion_io()
     }
 
     sem_wait(&ciclo_instruccion_io);
-    
   }
 }
 
@@ -570,7 +592,9 @@ void ciclo_plani_FIFO()
     int *pidNuevo = list_remove(procesosNEW, 0);
     pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
     list_add(listQPrimas, pqNuevo);
+    pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pidNuevo);
+    pthread_mutex_unlock(&proteger_lista_ready);
     // mientras que haya cosas en new y el grado de multiprogramacion me lo permita, lo paso a ready
   }
   // printf("limpiada lista de new\n");
@@ -579,6 +603,7 @@ void ciclo_plani_FIFO()
     pthread_mutex_lock(&mutexExec);
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
+    // estaEJecutando = procesoEXEC;
     pthread_mutex_unlock(&mutexExec);
     // avisarDesalojo();
   }
@@ -587,7 +612,10 @@ void ciclo_plani_FIFO()
 
   if (procesoEXEC != 0)
   {
-    mandarNuevoPCB();
+    if (estaCPULibre)
+    {
+      mandarNuevoPCB();
+    }
   }
 }
 
@@ -595,7 +623,7 @@ void ciclo_plani_RR()
 {
   // printf("entre al rr\n");
   //  quantum++;
-  if (tiempoTranscurrido*100 >= QUANTUM && !estaCPULibre) // FIN DE QUANTUM
+  if (tiempoTranscurrido * 100 >= QUANTUM && !estaCPULibre) // FIN DE QUANTUM
   {
     tiempoTranscurrido = 0;
     avisarDesalojo();
@@ -606,19 +634,25 @@ void ciclo_plani_RR()
     int *pidNuevo = list_remove(procesosNEW, 0);
     pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
     list_add(listQPrimas, pqNuevo);
+    pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pidNuevo);
+    pthread_mutex_unlock(&proteger_lista_ready);
   }
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
   {
     pthread_mutex_lock(&mutexExec);
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
+    // estaEJecutando = procesoEXEC;
     pthread_mutex_unlock(&mutexExec);
   }
 
   if (procesoEXEC != 0)
   {
-    mandarNuevoPCB();
+    if (estaCPULibre)
+    {
+      mandarNuevoPCB();
+    }
   }
 
   tiempoTranscurrido++;
@@ -633,16 +667,8 @@ void bloquearProceso()
 void ciclo_plani_VRR()
 {
 
-  while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
-  { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
-    int *pidNuevo = list_remove(procesosNEW, 0);
-    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
-    list_add(listQPrimas, pqNuevo);
-    list_add(procesosREADY, pidNuevo);
-  }
-
-  if (tiempoTranscurrido*100 >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
-  {                                                                        // cuando se termino su qprima
+  if (tiempoTranscurrido * 100 >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
+  {                                                                              // cuando se termino su qprima
     // printf("FIN DE QPRIMA\n");
     restaurarQPrima(estaEJecutando);
     tiempoTranscurrido = 0;
@@ -650,17 +676,31 @@ void ciclo_plani_VRR()
     sem_wait(&esperar_devolucion_pcb);
   }
 
+  while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
+  { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+    int *pidNuevo = list_remove(procesosNEW, 0);
+    pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
+    list_add(listQPrimas, pqNuevo);
+    pthread_mutex_lock(&proteger_lista_ready);
+    list_add(procesosREADY, pidNuevo);
+    pthread_mutex_unlock(&proteger_lista_ready);
+  }
+
   if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
   {
     pthread_mutex_lock(&mutexExec);
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
+    // estaEJecutando = procesoEXEC;
     pthread_mutex_unlock(&mutexExec);
   }
 
   if (procesoEXEC != 0)
   {
-    mandarNuevoPCB();
+    if (estaCPULibre)
+    {
+      mandarNuevoPCB();
+    }
   }
 
   tiempoTranscurrido++;
@@ -668,15 +708,15 @@ void ciclo_plani_VRR()
 
 void ciclo_planificacion()
 {
-  if(strcmp(ALGORITMO_PLANIFICACION, "FIFO")==0)
+  if (strcmp(ALGORITMO_PLANIFICACION, "FIFO") == 0)
   {
     ciclo_plani_FIFO();
   }
-  else if(strcmp(ALGORITMO_PLANIFICACION, "RR")==0)
+  else if (strcmp(ALGORITMO_PLANIFICACION, "RR") == 0)
   {
     ciclo_plani_RR();
   }
-  else if(strcmp(ALGORITMO_PLANIFICACION, "VRR")==0)
+  else if (strcmp(ALGORITMO_PLANIFICACION, "VRR") == 0)
   {
     ciclo_plani_VRR();
   }
@@ -698,6 +738,7 @@ PCB *buscarPCB(int pid)
 void mandarNuevoPCB()
 {
   // printf("mande un PCB\n");
+  sem_wait(&esperar_termine_ejecutar_pcb_cpu);
   PCB *pcb_a_enviar = buscarPCB(procesoEXEC); // Busco el pcb que le toca ejecutar en la cola
   enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
   estaEJecutando = procesoEXEC;
@@ -706,7 +747,7 @@ void mandarNuevoPCB()
 
   quantum_global_reloj = QUANTUM;
   sem_post(&contador_q);
-  iniciar_tiempo(); //empiezo a contar por el tema de los q primas de VRR
+  iniciar_tiempo(); // empiezo a contar por el tema de los q primas de VRR
 
   // pthread_mutex_lock(&modificarLista);
   list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
@@ -742,7 +783,7 @@ void iniciar_proceso(char *path)
 
   list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
   nuevaListaRecursos(pcb->pid);
-  
+
   sem_post(&nuevo_bucle);
 }
 
@@ -766,8 +807,8 @@ interfaces_io *encontrar_interfaz(char *nombre_buscado)
   {
     interfaces_io *elemento = list_get(lista_interfaces, i);
 
-    //printf("###### nombre de la interfaz: %s\n", elemento->nombre_interfaz);
-    //printf("###### tipo de la interfaz: %s\n", elemento->tipo_interfaz);
+    // printf("###### nombre de la interfaz: %s\n", elemento->nombre_interfaz);
+    // printf("###### tipo de la interfaz: %s\n", elemento->tipo_interfaz);
 
     if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0)
     {
@@ -838,7 +879,7 @@ bool admiteOperacionInterfaz(char *nombre_interfaz, char *tipo_instruccion)
   if (strcmp(tipoInterfaz, "DIALFS") == 0)
   {
 
-    if (strcmp(tipo_instruccion, "IO_FS_CREATE") == 0|| strcmp(tipo_instruccion, "IO_FS_DELETE") == 0 || strcmp(tipo_instruccion, "IO_FS_TRUNCATE") == 0 || strcmp(tipo_instruccion, "IO_FS_WRITE") == 0 || strcmp(tipo_instruccion, "IO_FS_READ") == 0)
+    if (strcmp(tipo_instruccion, "IO_FS_CREATE") == 0 || strcmp(tipo_instruccion, "IO_FS_DELETE") == 0 || strcmp(tipo_instruccion, "IO_FS_TRUNCATE") == 0 || strcmp(tipo_instruccion, "IO_FS_WRITE") == 0 || strcmp(tipo_instruccion, "IO_FS_READ") == 0)
     {
       return true;
     }
@@ -851,91 +892,152 @@ bool admiteOperacionInterfaz(char *nombre_interfaz, char *tipo_instruccion)
   return false;
 }
 
-
 int list_index_of(t_list *self, void *data, bool (*comp)(void *, void *))
 {
-    int index = 0;
-    t_link_element *current = self->head;
-    while (current != NULL)
+  int index = 0;
+  t_link_element *current = self->head;
+  while (current != NULL)
+  {
+    if (comp(current->data, data))
     {
-        if (comp(current->data, data))
-        {
-            return index;
-        }
-        current = current->next;
-        index++;
+      return index;
     }
-    return -1; // Elemento no encontrado
+    current = current->next;
+    index++;
+  }
+  return -1; // Elemento no encontrado
 }
 
 bool comparar_enteros(void *a, void *b)
 {
-    int *intA = (int *)a;
-    int *intB = (int *)b;
-    return (*intA == *intB);
+  int *intA = (int *)a;
+  int *intB = (int *)b;
+  return (*intA == *intB);
+}
+
+void consultar_pid_cpu()
+{
+  t_buffer *a_enviar = crear_buffer();
+
+  a_enviar->size = 0;
+  a_enviar->stream = NULL;
+
+  cargar_int_al_buffer(a_enviar, 0);
+
+  t_paquete *un_paquete = crear_super_paquete(CONSULTA_PID, a_enviar);
+  enviar_paquete(un_paquete, fd_cpu_dispatch);
+  destruir_paquete(un_paquete);
+
+  printf("toy esperando\n");
+  //sem_wait(&esperar_consulta_pid);
+  printf("pase el semaforo\n");
 }
 
 void mandar_a_exit(int *pid_finalizado)
 {
-  if(estaEJecutando == *pid_finalizado)
+
+  //consultar_pid_cpu();
+  printf("esta ejecutando: %d\n", consulta_pid_ejecucion);
+  printf("pid finalizado: %d\n", *pid_finalizado);
+
+  if (consulta_pid_ejecucion == *pid_finalizado)
   {
-    estaEJecutando=0;
+    estaEJecutando = 0;
+    printf("mande a desalojar el que esta ejecutando\n");
     desalojoFinProceso();
   }
 
   bool seEncontroElPid = false;
+  int *numero_desalojado = malloc(sizeof(int));
+  numero_desalojado = -1;
+  int *numerito;
 
-  seEncontroElPid = list_remove_element(procesosNEW, pid_finalizado);
-  seEncontroElPid = list_remove_element(procesosREADY, pid_finalizado);
-  seEncontroElPid = list_remove_element(procesosSuspendidos, pid_finalizado); //CAMBIAR DESPUES
+  for (int i = 0; i < list_size(procesosNEW); i++)
+  {
 
-  for(int i=0;nombresRecursos[i]!=NULL;i++) //mira los bloqueados por recursos
+    numerito = list_get(procesosNEW, i);
+
+    if (*numerito == *pid_finalizado)
+    {
+
+      numero_desalojado = list_remove(procesosNEW, i);
+      printf("elimine a un wachin de new\n");
+    }
+  }
+
+  for (int i = 0; i < list_size(procesosREADY); i++)
+  {
+
+    numerito = list_get(procesosREADY, i);
+
+    if (*numerito == *pid_finalizado)
+    {
+
+      numero_desalojado = list_remove(procesosREADY, i);
+      printf("elimine a un wachin de ready\n");
+    }
+  }
+
+  for (int i = 0; i < list_size(procesosSuspendidos); i++)
+  {
+
+    numerito = list_get(procesosSuspendidos, i);
+
+    if (*numerito == *pid_finalizado)
+    {
+
+      numero_desalojado = list_remove(procesosSuspendidos, i);
+      printf("elimine a un wachin de suspended\n");
+    }
+  }
+
+  /*for(int i=0;nombresRecursos[i]!=NULL;i++) //mira los bloqueados por recursos
   {
     printf("el pid: %d\n",*pid_finalizado);
-    t_list *lista = list_get(lista_recursos_y_bloqueados, i);
-    
+    t_list *lista = list_get(lista_recursos_y_bloqueados, i); //PREGUNTAR A LUCA ACA HAY UN SEGMENTATION
+
     for(int j = 0; j < list_size(lista); j++){
 
       int *numeroSuerte = list_get(lista, j);
 
       if(*numeroSuerte == *pid_finalizado){
-        list_remove(lista,j);
-        printf("elimine a un wachin\n");
+
+        numero_desalojado = list_remove(lista,j);
+        printf("elimine a un wachin del recurso\n");
       }
     }
-  }
-/*
-  for(int i = 0; nombresRecursos[i] != NULL ; i++){
+  }*/
+  /*
+    for(int i = 0; nombresRecursos[i] != NULL ; i++){
 
-        t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
+          t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
 
-        log_debug(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
+          log_debug(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
 
-        for(int j = 0; j < list_size(lista_donde_agregar); j++){
+          for(int j = 0; j < list_size(lista_donde_agregar); j++){
 
-            int* numeroXD = list_get(lista_donde_agregar,j);
-            log_debug(kernel_log_debug, "PID: %d", *numeroXD);
-        }
-    }*/
+              int* numeroXD = list_get(lista_donde_agregar,j);
+              log_debug(kernel_log_debug, "PID: %d", *numeroXD);
+          }
+      }*/
 
-  for (int i = 0; i < list_size(lista_interfaces); i++) //mira los bloqueados por IO
+  for (int i = 0; i < list_size(lista_interfaces); i++) // mira los bloqueados por IO
   {
-      interfaces_io *interfaz = list_get(lista_interfaces, i);
-      int numero_a_buscar = *pid_finalizado;
-      int index = -1;
-      index = list_index_of(interfaz->procesos_bloqueados->elements, &numero_a_buscar, comparar_enteros);
+    interfaces_io *interfaz = list_get(lista_interfaces, i);
+    int numero_a_buscar = *pid_finalizado;
+    int index = -1;
+    index = list_index_of(interfaz->procesos_bloqueados->elements, &numero_a_buscar, comparar_enteros);
 
-      if(index > -1 && queue_size(interfaz->instrucciones_ejecutar) >= index)
-      {
-          list_remove(interfaz->instrucciones_ejecutar->elements, index);
-      }
+    if (index > -1 && queue_size(interfaz->instrucciones_ejecutar) >= index)
+    {
+      list_remove(interfaz->instrucciones_ejecutar->elements, index);
+    }
 
-      seEncontroElPid = list_remove_element(interfaz->procesos_bloqueados->elements, pid_finalizado);
+    seEncontroElPid = list_remove_element(interfaz->procesos_bloqueados->elements, pid_finalizado);
   }
-  
-  if(seEncontroElPid)
+
+  if (numero_desalojado != -1)
   {
     list_add(procesosEXIT, pid_finalizado);
   }
-  
 }

@@ -9,6 +9,7 @@
 #include "utils/shared.h"
 #include<semaphore.h>
 #include <stdint.h>
+#include <pthread.h>
 
 extern t_log* memoria_logger;
 extern t_log* memoria_log_debug;

@@ -774,7 +774,7 @@ PCB *inicializar_PCB(int pid, int program_counter, int quantum, uint8_t ax, uint
 
 int contarInstrucciones(char *path)
 { // Le pasas un .txt y te dice cuantas instrucciones tiene
-	FILE *archivo = fopen(path, "r");
+	FILE *archivo = fopen(path+1, "r");
 	if (archivo == NULL)
 	{
 		perror("Error al abrir el archivo");
@@ -785,7 +785,7 @@ int contarInstrucciones(char *path)
 	char linea[256];
 
 	// Leer el archivo línea por línea y contar cada línea
-	while (fgets(linea, sizeof(linea), archivo))
+	while (fgets(linea, sizeof(linea), archivo)) 
 	{
 		contador++;
 	}

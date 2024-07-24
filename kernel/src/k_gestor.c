@@ -39,4 +39,8 @@ int estaEJecutando;
 int quantum_global_reloj;
 struct timespec start_time;
 struct timespec end_time;
+int consulta_pid_ejecucion;
+sem_t esperar_consulta_pid;
+sem_t esperar_termine_ejecutar_pcb_cpu;
+pthread_mutex_t proteger_lista_ready = PTHREAD_MUTEX_INITIALIZER;
 

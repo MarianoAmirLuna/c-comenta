@@ -215,7 +215,7 @@ void _atender_instruccion_validada(char *leido)
 
         listar_procesos_estado();
     }
-    else if(strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0)
+    else if(strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0) 
     {
         ejecutar_archivo(comando_consola[1]);
     }

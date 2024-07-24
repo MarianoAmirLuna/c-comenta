@@ -27,6 +27,7 @@ void iniciar_planificacion_io();
 void mandar_a_exit(int*);
 void temporizadorQuantum(int quantum);
 int tiempo_transcurrido_milisegundos(struct timespec start, struct timespec end);
+void actualizarQPrimaProceso(int pid,int tiempo);
 
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;
