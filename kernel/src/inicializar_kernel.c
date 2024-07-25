@@ -80,6 +80,7 @@ void iniciar_semaforos()
 	procesosSuspendidos = list_create();
 	procesosEXIT = list_create();
     lista_id_hilos = list_create();
+	procesos_READY_priori = list_create();
 
 	lista_recursos_y_bloqueados = list_create();
 

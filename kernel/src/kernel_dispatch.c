@@ -33,17 +33,12 @@ void atender_kernel_dispatch()
 			
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
-			sem_post(&nuevo_bucle);
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
 
 			detener_tiempo();
-			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
-
-			// actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
-			//printf("el contador dio: %d\n", tiempo_q_prima);
-			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
+			//log_trace(kernel_log_debug, "PID: %d - Desalojado por ", pcb_devuelto->pid);
 
 			if (codigo == 1)
 			{ // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
@@ -52,12 +47,13 @@ void atender_kernel_dispatch()
 				list_add(procesosREADY, &(pcb_devuelto->pid));
 				pthread_mutex_unlock(&proteger_lista_ready);
 			}
-			else if (contiene_numero(procesosEXIT, pcb_devuelto->pid))
+			else
 			{ // ejecuto todas las instrucciones
 				// significa que termino todas sus intrucciones y tengo que liberar los recursos y mandarlo a exit
 				list_add(procesosEXIT, &(pcb_devuelto->pid));
-				finalizarProceso(pcb_devuelto->pid); // agregar un poco mas de logica aca
+				//finalizarProceso(pcb_devuelto->pid); // agregar un poco mas de logica aca
 			}
+			sem_post(&nuevo_bucle);
 
 			break;
 		case DESALOJO_POR_WAIT:
@@ -66,7 +62,6 @@ void atender_kernel_dispatch()
 			list_add(listaPCBs, pcb_devuelto_por_wait);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
-			sem_post(&nuevo_bucle);
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
@@ -76,13 +71,14 @@ void atender_kernel_dispatch()
 			detener_tiempo();
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
 			// actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
-			printf("el contador dio: %d\n", tiempo_q_prima);
-			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
+			//printf("el contador dio: %d\n", tiempo_q_prima);
+			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
 			// list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
 
 			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
 			atender_wait(nombre_recurso_wait, &(pcb_devuelto_por_wait->pid));
+			sem_post(&nuevo_bucle);
 			break;
 
 		case DESALOJO_POR_SIGNAL:
@@ -90,7 +86,6 @@ void atender_kernel_dispatch()
 			PCB *pcb_devuelto_por_signal = atender_recibir_pcb(un_buffer);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
-			sem_post(&nuevo_bucle);
 			list_add(listaPCBs, pcb_devuelto_por_signal);
 			list_add(procesosREADY, &(pcb_devuelto_por_signal->pid));
 			quantum_global_reloj = QUANTUM;
@@ -102,11 +97,12 @@ void atender_kernel_dispatch()
 			detener_tiempo();
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
 			// actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
-			printf("el contador dio: %d\n", tiempo_q_prima);
-			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
+			//printf("el contador dio: %d\n", tiempo_q_prima);
+			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
 			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			atender_signal(nombre_recurso_signal, &(pcb_devuelto_por_signal->pid));
+			sem_post(&nuevo_bucle);
 			break;
 
 		case INSTRUCCION_TIPO_IO: // significa que el proceso fue desalojado al ejecutar una instruccion de tipo io
@@ -118,7 +114,6 @@ void atender_kernel_dispatch()
 			char *tipo_instruccion = extraer_string_del_buffer(un_buffer);
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
-			sem_post(&nuevo_bucle);
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
@@ -126,13 +121,16 @@ void atender_kernel_dispatch()
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
 
 			detener_tiempo();
-			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
-			// actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
-			printf("el contador dio: %d\n", tiempo_q_prima);
-			printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
-			printf("llego el pcb a cpu\n");
-			printf("el nombre de la interfaz: %s\n", nombre_interfaz);
+			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
+			actualizarQPrimaProceso(pcb_devuelto->pid,tiempo_q_prima);
+			//log_trace(kernel_log_debug, "PID: %d - Desalojado por IO", pcb_devuelto2->pid);
+
+			//printf("el contador dio: %d\n", tiempo_q_prima);
+			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
+
+			//printf("llego el pcb a cpu\n");
+			//printf("el nombre de la interfaz: %s\n", nombre_interfaz);
 
 			interfaces_io *interfaz = encontrar_interfaz(nombre_interfaz);
 			list_add(listaPCBs, pcb_devuelto2);
@@ -156,6 +154,7 @@ void atender_kernel_dispatch()
 					queue_push(interfaz->procesos_bloqueados, &(pcb_devuelto2->pid)); // agrego el pid a la queue de bloqueados de dicha interfaz
 				}
 			}
+			sem_post(&nuevo_bucle);
 
 			break;
 

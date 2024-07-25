@@ -90,9 +90,7 @@ void atender_cpu_memoria()
 		case RECIBIR_MARCO:
 
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
-
 			marco = extraer_int_del_buffer(un_buffer);
-
 		    //printf("llego marquitos a cpu %d\n", marco);
 
 			sem_post(&esperarMarco);
@@ -100,9 +98,7 @@ void atender_cpu_memoria()
 			break;
 		case CANT_INTRUCCIONES:
 		    un_buffer = recibir_todo_el_buffer(fd_memoria);
-
 			cantInstucciones = extraer_int_del_buffer(un_buffer);
-
 			sem_post(&wait_instruccion);
 		    break;
 		case TERMINO_INSTRUCCION_MEMORIA:

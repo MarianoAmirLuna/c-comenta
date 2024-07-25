@@ -30,6 +30,7 @@ int tiempo_transcurrido_milisegundos(struct timespec start, struct timespec end)
 void actualizarQPrimaProceso(int pid,int tiempo);
 void enviar_pcb(PCB pcb, int socket_enviar,int numerillo);
 void avisarDesalojo(int pid);
+int buscarQPrima(int pid);
 
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;

@@ -13,7 +13,16 @@ void desbloquear_el_proceso_de_la_iterfaz(char* nombre_interfaz){
 
 	printf("el pid que fue liberado %d\n",*pid);
 
-	list_add(procesosREADY,pid);
+	int qPrimaNueva = buscarQPrima(pid);
+	if (strcmp(ALGORITMO_PLANIFICACION, "VRR") == 0 && qPrimaNueva != QUANTUM)
+	{
+		list_add(procesos_READY_priori,pid);
+		log_trace(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
+	}
+	else
+	{
+		list_add(procesosREADY, pid);
+	}
 
 	interfaz->estaLibre = true;
 	sem_post(&nuevo_bucle);

@@ -802,22 +802,6 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
 
 void solicitar_instruccion(int pid, int program_counter)
 {
-    bool tienePath = contiene_numero(procesosConPath, pid);
-
-    if (!tienePath)
-    {
-
-        while (1)
-        {
-            tienePath = contiene_numero(procesosConPath, pid);
-
-            if (tienePath)
-            {
-                break;
-            }
-            usleep(75000);
-        }
-    }
 
     t_buffer *a_enviar = crear_buffer();
 
@@ -1139,24 +1123,6 @@ int traducir_dl(int direccionLogica)
 
 void obtener_cantidad_instrucciones(int pid)
 {
-
-    bool tienePath = contiene_numero(procesosConPath, pid);
-
-    if (!tienePath)
-    {
-
-        while (1)
-        {
-            tienePath = contiene_numero(procesosConPath, pid);
-
-            if (tienePath)
-            {
-                break;
-            }
-            usleep(75000);
-        }
-    }
-
     t_buffer *a_enviar = crear_buffer();
 
     a_enviar->size = 0;
@@ -1280,7 +1246,13 @@ void procesar_instruccion()
     terminaPorSenial = false;
     cambioContexto = false;
     ejecute_instruccion_tipo_io = false;
-    obtener_cantidad_instrucciones(pcb_ejecucion.pid);
+    
+    if(pcb_ejecucion.program_counter > 1){ //no preguntes porque esta esto solo anda y punto
+        obtener_cantidad_instrucciones(pcb_ejecucion.pid);
+    }
+    else{
+        cantInstucciones = 100000;
+    }
 
     while (!terminarPorExit && !cambioContexto && !terminaPorSenial && !ejecute_instruccion_tipo_io)
     {

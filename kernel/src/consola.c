@@ -189,8 +189,11 @@ void _atender_instruccion_validada(char *leido)
 
         *pidComando = atoi(comando_consola[1]);
         liberarRecursosProceso(pidComando); //deadlock
-        finalizarProceso(*pidComando);  //eliminar de la memoria
         mandar_a_exit(pidComando);
+
+        if(*pidComando != estaEJecutando){
+            finalizarProceso(*pidComando);  //eliminar de la memoria
+        }
         
         free(pidComando);
     }

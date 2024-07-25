@@ -622,12 +622,13 @@ void ciclo_plani_RR()
 {
   // printf("entre al rr\n");
   //  quantum++;
-  if (tiempoTranscurrido * 100 >= QUANTUM && !estaCPULibre) // FIN DE QUANTUM
+  /*if (tiempoTranscurrido * 100 >= QUANTUM && !estaCPULibre) // FIN DE QUANTUM
   {
     tiempoTranscurrido = 0;
     avisarDesalojo(estaEJecutando);
     sem_wait(&esperar_devolucion_pcb);
-  }
+  }*/
+
   while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION) // si hay procesos en new y los podes pasar a ready pasalos
   {                                                                                         // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     int *pidNuevo = list_remove(procesosNEW, 0);
@@ -666,17 +667,17 @@ void bloquearProceso()
 void ciclo_plani_VRR()
 {
 
-  if (tiempoTranscurrido * 100 >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
+  /*if (tiempoTranscurrido * 100 >= buscarQPrima(estaEJecutando) && !estaCPULibre) // si el tiempo transcurrido es mayor a lo que le queda
   {                                                                              // cuando se termino su qprima
     // printf("FIN DE QPRIMA\n");
     restaurarQPrima(estaEJecutando);
     tiempoTranscurrido = 0;
     avisarDesalojo(estaEJecutando);
     sem_wait(&esperar_devolucion_pcb);
-  }
+  }*/
 
   while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
-  { // si entró un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+  { // si entrÃ³ un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     int *pidNuevo = list_remove(procesosNEW, 0);
     pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
     list_add(listQPrimas, pqNuevo);
@@ -686,10 +687,17 @@ void ciclo_plani_VRR()
   }
 
   pthread_mutex_lock(&mutexExec);
-  if (procesoEXEC == 0 && !list_is_empty(procesosREADY) && estaCPULibre)
+  if (procesoEXEC == 0 && (!list_is_empty(procesosREADY) || !list_is_empty(procesos_READY_priori)) && estaCPULibre)
   {
-
-    int *exec = list_remove(procesosREADY, 0);
+    int *exec;
+    if(!list_is_empty(procesos_READY_priori))
+    {
+      exec = list_remove(procesos_READY_priori, 0);
+    }
+    else
+    {
+      exec = list_remove(procesosREADY, 0);
+    }
     procesoEXEC = *exec;
     // estaEJecutando = procesoEXEC;
   }
@@ -702,8 +710,6 @@ void ciclo_plani_VRR()
       mandarNuevoPCB();
     }
   }
-
-  tiempoTranscurrido++;
 }
 
 void ciclo_planificacion()
@@ -769,7 +775,7 @@ void mandarNuevoPCB()
   procesoEXEC = 0;
   estaCPULibre = false;
 
-  // quantum_global_reloj = QUANTUM;
+  // quantum_global_reloj = QUANTUM; FINALIZAR_PROCESO 4
   // sem_post(&contador_q);
   iniciar_tiempo(); // empiezo a contar por el tema de los q primas de VRR
 
@@ -778,7 +784,15 @@ void mandarNuevoPCB()
     thread_args *args = malloc(sizeof(thread_args));
     args->id = contador_hilos;
     args->pid = pcb_a_enviar->pid;
-    args->tiempo = QUANTUM; // ADAPTAR A VRR
+    if(strcmp(ALGORITMO_PLANIFICACION, "RR") == 0)
+    {
+      args->tiempo = QUANTUM; // ADAPTAR A VRR
+    }
+    else //es VRR
+    {
+      args->tiempo = buscarQPrima(pcb_a_enviar->pid);
+      //log_trace(kernel_log_debug, "PID: %d - EL Q PRIMA QUE ASIGNE ES: %d", args->pid,args->tiempo);
+    }
 
     int *numerillo = malloc(sizeof(int));
     *numerillo = contador_hilos;

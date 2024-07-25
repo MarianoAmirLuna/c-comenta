@@ -8,6 +8,7 @@ t_list *procesosSuspendidos=NULL;
 t_list* lista_interfaces=NULL;
 t_list *procesosEXIT=NULL;
 t_list *lista_id_hilos;
+t_list* procesos_READY_priori;
 
 int procesoEXEC = 0;
 pthread_mutex_t mutexExec = PTHREAD_MUTEX_INITIALIZER;
