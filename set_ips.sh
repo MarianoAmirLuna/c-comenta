@@ -12,6 +12,9 @@ IP_CPU=$2
 IP_KERNEL=$3
 IP_IO=$4
 
+# Definimos la ruta principal como el directorio actual
+RUTA_PRINCIPAL="$PWD"
+
 # Función para actualizar el valor de una clave en un archivo de configuración
 function actualizar_valor {
   archivo=$1
@@ -19,7 +22,7 @@ function actualizar_valor {
   valor=$3
 
   # Usamos el comando "sed" para reemplazar la línea que contiene la clave con el nuevo valor
-  sed -i "s/^\($clave\s*=\s*\).*$/\1$valor/" $archivo
+  sed -i "s/^\($clave\s*=\s*\).*$/\1$valor/" "$archivo"
 }
 
 # Función para recorrer recursivamente los subdirectorios y actualizar los archivos de configuración
@@ -41,13 +44,10 @@ function actualizar_archivos {
   for subdir in "$directorio"/*/; do
     # Verificamos si el directorio existe y es un directorio
     if [ -d "$subdir" ]; then
-     actualizar_archivos "$subdir" # Llamada recursiva para actualizar los archivos dentro del subdirectorio
+      actualizar_archivos "$subdir" # Llamada recursiva para actualizar los archivos dentro del subdirectorio
     fi
   done
 }
 
-# Definimos la ruta principal
-ruta_principal="/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/"
-
 # Llamamos a la función para actualizar los archivos dentro de la ruta principal
-actualizar_archivos "$ruta_principal"
+actualizar_archivos "$RUTA_PRINCIPAL"
