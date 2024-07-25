@@ -428,11 +428,6 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 
 int main(int argc, char** argv) {
 
-	if (argc < 2) {
-        fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
 	inicializar_io(argv[1]);
 
 	log_info(io_logger, "Inicializando Entrada/Salida");
