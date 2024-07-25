@@ -3,9 +3,9 @@
 
 #include "c_gestor.h"
 
-void inicializar_cpu();
+void inicializar_cpu(char* rutaconfig);
 void iniciar_logs();
-void iniciar_config_cpu();
+void iniciar_config_cpu(char* rutaconfig);
 void imprimir_config();
 void iniciar_semaforos();
 void iniciar_variables();

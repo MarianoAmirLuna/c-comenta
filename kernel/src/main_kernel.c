@@ -8,12 +8,17 @@
 #include "../include/funciones_kernel.h"
 #include "../include/consola.h"
 
-int main(void)
+int main(int argc, char** argv)
 {
 	//recibe mensajes del interrupt / dispatch / io / memoria
 	lista_interfaces = list_create();
 
-	inicializar_kernel();
+	if (argc < 2) {
+        fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+	inicializar_kernel(argv[1]);
 	fd_kernel = iniciar_servidor(PUERTO_ESCUCHA);
 
     fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);

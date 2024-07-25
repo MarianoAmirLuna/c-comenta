@@ -7,9 +7,14 @@
 #include "../include/cpu.h"
 
 
-int main(void) {
+int main(int argc, char** argv) {
 
-	inicializar_cpu();
+	if (argc < 2) {
+        fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+	inicializar_cpu(argv[1]);
 
 	fd_cpu_dispatch = iniciar_servidor(PUERTO_ESCUCHA_DISPATCH);
 

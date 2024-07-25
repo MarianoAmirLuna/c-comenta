@@ -1,9 +1,9 @@
 #include "../include/inicializar_cpu.h"
 #include <utils/shared.h>
 
-void inicializar_cpu(){
+void inicializar_cpu(char* rutaconfig){
     iniciar_logs();
-    iniciar_config_cpu();
+    iniciar_config_cpu(rutaconfig);
     imprimir_config();
 	iniciar_semaforos();
 	iniciar_variables();
@@ -26,8 +26,8 @@ void iniciar_logs(){
 		exit(EXIT_FAILURE);
 	}
 }
-void iniciar_config_cpu(){
-    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/cpu.config"); //esto te pide la ruta del config
+void iniciar_config_cpu(char* rutaconfig){
+    cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
 
 	if ( cpu_config == NULL)	
 	{

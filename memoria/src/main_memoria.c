@@ -10,9 +10,14 @@
 #include <time.h>
 #include <unistd.h>
 
-int main() {
+int main(int argc, char** argv) {
 
-	inicializar_memoria();
+	if (argc < 2) {
+        fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+	inicializar_memoria(argv[1]);
 	
 	fd_memoria = iniciar_servidor(PUERTO_ESCUCHA);
    

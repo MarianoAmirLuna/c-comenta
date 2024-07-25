@@ -7,8 +7,6 @@
 #include <commons/log.h>
 #include <commons/config.h>
 
-void inicializar_kernel();
-
 void inicializar_logs()
 {
 	kernel_logger = log_create("kernel.log", "", 1, LOG_LEVEL_INFO);
@@ -28,9 +26,9 @@ void inicializar_logs()
 	}
 }
 
-void inicializar_configs()
+void inicializar_configs(char* rutaconfig)
 {
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config");
+	kernel_config = config_create(rutaconfig);
 
 	if (kernel_config == NULL)
 	{
@@ -107,10 +105,10 @@ void iniciar_recursos()
 	estado_instancias();
 }
 
-void inicializar_kernel()
+void inicializar_kernel(char* rutaConfig)
 {
 	inicializar_logs();
-	inicializar_configs();
+	inicializar_configs(rutaConfig);
 	imprimir_configs();
 	// iniciar_planificacion();
 	iniciar_semaforos();

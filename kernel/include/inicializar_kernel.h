@@ -4,9 +4,9 @@
 #include "k_gestor.h"
 
 
-void inicializar_kernel();
+void inicializar_kernel(char* rutaconfig);
 void inicializar_logs();
-void inicializar_configs();
+void inicializar_configs(char* rutaconfig);
 void imprimir_configs();
 
 

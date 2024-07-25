@@ -28,8 +28,8 @@ void iniciar_logs(){
 
 }
 
-void iniciar_config(){
-	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/memoria.config"); 
+void iniciar_config(char* rutaconfig){
+	memoria_config = config_create(rutaconfig); 
 
 	if (memoria_config == NULL)
 	{
@@ -56,12 +56,11 @@ void iniciar_semaforos(){
 }
 
 
-void inicializar_memoria(){
+void inicializar_memoria(char* rutaconfig){
 	iniciar_listas();
     iniciar_logs();
-    iniciar_config();
+    iniciar_config(rutaconfig);
     imprimir_config();
 	iniciarPaginacion();
 	iniciar_semaforos();
 }
-
