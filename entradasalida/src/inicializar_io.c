@@ -1,9 +1,9 @@
 #include "../include/inicializar_io.h"
 #include "../include/i_gestor.h"
 
-void inicializar_io(){
+void inicializar_io(char* rutaconfig){
     iniciar_logs();
-    iniciar_config_io();
+    iniciar_config_io(rutaconfig);
     imprimir_config();
 	iniciar_semaforos();
 }
@@ -30,8 +30,8 @@ void iniciar_logs(){
 
 }
 
-void iniciar_config_io(){
-    io_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"); //esto te pide la ruta del config
+void iniciar_config_io(char* rutaconfig){
+    io_config = config_create(rutaconfig); //esto te pide la ruta del config
 
 	if ( io_config == NULL)	
 	{
