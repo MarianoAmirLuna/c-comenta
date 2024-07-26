@@ -9,6 +9,11 @@ void atender_kernel_dispatch()
 	char *nombre_interfaz;
 	int tiempo_q_prima;
 	int numero_hiloXD;
+	char* nombreArchivo;
+	interfaces_io *interfazXD;
+	instruccion *instruccion_io;
+	int tamanio;
+	int registroPuntero;
 
 	while (control_key)
 	{
@@ -151,7 +156,7 @@ void atender_kernel_dispatch()
 				{
 					printf("lo agrege a la queue de procesos bloqueados\n");
 					printf("de la interfaz: %s\n", interfaz->nombre_interfaz);
-					queue_push(interfaz->procesos_bloqueados, &(pcb_devuelto2->pid)); // agrego el pid a la queue de bloqueados de dicha interfaz
+					queue_push(interfaz->procesos_bloqueados, &(pcb_devuelto2->pid)); //agrego el pid a la queue de bloqueados de dicha interfaz
 				}
 			}
 			sem_post(&nuevo_bucle);
@@ -266,7 +271,158 @@ void atender_kernel_dispatch()
 			}
 
 			break;
+		case ENVIAR_IO_FS_CREATE:
+		    un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
 
+			interfazXD = encontrar_interfaz(nombre_interfaz);
+
+			if (interfazXD != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_CREATE"))
+			{
+				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
+
+				instruccion_io->nombre_instruccion = "IO_FS_CREATE";
+				instruccion_io->nombre_archivo = nombreArchivo;
+				instruccion_io->lista_enteros = list_create();
+
+				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
+				sem_post(&ciclo_instruccion_io);
+				printf("lo agrege a la queue\n");
+			}
+
+		    break;
+		
+		case ENVIAR_IO_FS_DELETE:
+            un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+
+			interfazXD = encontrar_interfaz(nombre_interfaz);
+
+			if (interfazXD != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_DELETE"))
+			{
+				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
+
+				instruccion_io->nombre_instruccion = "IO_FS_DELETE";
+				instruccion_io->nombre_archivo = nombreArchivo;
+				instruccion_io->lista_enteros = list_create();
+
+				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
+				sem_post(&ciclo_instruccion_io);
+				printf("lo agrege a la queue\n");
+			}
+
+		    break;
+		case ENVIAR_IO_FS_TRUNCATE:
+		    un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+			int* tamanio_truncate = malloc(sizeof(int)); 
+			*tamanio_truncate = extraer_int_del_buffer(un_buffer);
+
+			interfazXD = encontrar_interfaz(nombre_interfaz);
+
+			if (interfazXD != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_TRUNCATE"))
+			{
+				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
+
+				instruccion_io->nombre_instruccion = "IO_FS_TRUNCATE";
+				instruccion_io->nombre_archivo = nombreArchivo;
+				instruccion_io->lista_enteros = list_create();
+
+				list_add(instruccion_io->lista_enteros,tamanio_truncate);
+
+				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
+				sem_post(&ciclo_instruccion_io);
+				printf("lo agrege a la queue\n");
+			}
+
+		    break;
+		
+		case ENVIAR_IO_FS_WRITE:
+		    un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+			int* registro_puntero_write = malloc(sizeof(int));
+			int* tamanio_write = malloc(sizeof(int));
+
+			*registro_puntero_write = extraer_int_del_buffer(un_buffer);
+			*tamanio_write = extraer_int_del_buffer(un_buffer);
+
+			interfazXD = encontrar_interfaz(nombre_interfaz);
+
+            if (interfazXD != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_WRITE"))
+			{
+				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
+
+				instruccion_io->nombre_instruccion = "IO_FS_WRITE";
+				instruccion_io->nombre_archivo = nombreArchivo;
+				instruccion_io->lista_enteros = list_create();
+
+				list_add(instruccion_io->lista_enteros,registro_puntero_write);
+				list_add(instruccion_io->lista_enteros,tamanio_write);
+
+				for (int i = 0; i < tamanio; i++)
+				{
+					int *direccion_fisica_write = malloc(sizeof(int));
+					*direccion_fisica_write = extraer_int_del_buffer(un_buffer);
+
+					printf("la df es: %d\n", *direccion_fisica_write);
+					list_add(instruccion_io->lista_enteros, direccion_fisica_write);
+				}
+
+				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
+				sem_post(&ciclo_instruccion_io);
+				printf("lo agrege a la queue\n");
+			}
+		    
+		    break;
+		case ENVIAR_IO_FS_READ:
+		    un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
+			nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+
+			int *bytes_restantes = malloc(sizeof(int));
+			int *tamanio_escribirXD = malloc(sizeof(int));
+			int *cant_direccionesXD = malloc(sizeof(int));
+
+			*bytes_restantes = extraer_int_del_buffer(un_buffer);
+			*tamanio_escribirXD = extraer_int_del_buffer(un_buffer);
+			*cant_direccionesXD = extraer_int_del_buffer(un_buffer);
+
+			printf("restante escribir: %d\n", *bytes_restantes);
+			printf("tamanio_escribir: %d\n", *tamanio_escribirXD);
+			printf("cant direcciones: %d\n", *cant_direccionesXD);
+
+			// sem_post(&esperar_devolucion_pcb);
+			interfazXD = encontrar_interfaz(nombre_interfaz);
+
+			if (interfaz3 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_READ"))
+			{
+				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
+				instruccion_io->nombre_instruccion = "IO_FS_READ";
+				instruccion_io->nombre_archivo = "";
+				instruccion_io->lista_enteros = list_create();
+
+				list_add(instruccion_io->lista_enteros, bytes_restantes);
+				list_add(instruccion_io->lista_enteros, tamanio_escribirXD);
+				list_add(instruccion_io->lista_enteros, cant_direccionesXD);
+
+				for (int i = 0; i < *cant_direccionesXD; i++)
+				{
+					int *df_read = malloc(sizeof(int));
+					*df_read = extraer_int_del_buffer(un_buffer);
+
+					printf("la df es: %d\n", *df_read);
+					list_add(instruccion_io->lista_enteros, df_read);
+				}
+
+				queue_push(interfaz3->instrucciones_ejecutar, instruccion_io);
+				sem_post(&ciclo_instruccion_io);
+				printf("lo agrege a la queue\n");
+			}
+		    break;
 		case CONSULTA_PLANIFICACION:
 			ciclo_planificacion();
 			t_paquete *paquete_pid = crear_paquete();

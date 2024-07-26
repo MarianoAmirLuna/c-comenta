@@ -466,19 +466,20 @@ void detener_tiempo()
 
 void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 {
-
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
 
   instruccion *instruccionXD = queue_pop(interfaz.instrucciones_ejecutar); // saco la instruccion de la queue y la ejecuto
+  int* pid = list_get(interfaz.procesos_bloqueados->elements,0); //obtengo el pid
+  cargar_int_al_buffer(buffer,*pid);
 
   if (strcmp(instruccionXD->nombre_instruccion, "IO_GEN_SLEEP") == 0)
   {
     printf("voy a ejecutar un gen_sleep\n");
 
     int *unidades_trabajo = list_get(instruccionXD->lista_enteros, 0);
-
+    
     cargar_int_al_buffer(buffer, *unidades_trabajo);
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_GEN_SLEEP, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
@@ -514,22 +515,61 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_CREATE") == 0)
   {
+    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_CREATE, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_DELETE") == 0)
   {
+    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_DELETE, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_TRUNCATE") == 0)
   {
+    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+    int* numerito = list_get(instruccionXD->lista_enteros,0);
+    cargar_int_al_buffer(buffer,*numerito);
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_TRUNCATE, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_WRITE") == 0)
   {
+    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+
+    for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
+    {
+      int *numerito = list_get(instruccionXD->lista_enteros, i);
+      cargar_int_al_buffer(buffer, *numerito);
+    }
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_WRITE, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_READ") == 0)
   {
+    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+
+    for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
+    {
+      int *numerito = list_get(instruccionXD->lista_enteros, i);
+      cargar_int_al_buffer(buffer, *numerito);
+    }
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_READ, buffer);
+    enviar_paquete(paquete, interfaz.fd_interfaz);
+    destruir_paquete(paquete);
   }
 }
 
