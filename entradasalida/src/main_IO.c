@@ -362,15 +362,15 @@ void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 	}
 }
 
-void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
+void crearInterfaz(char *nombre_Interfaz)
 {
-	t_config *config_interface = crearConfig(direccion_Config);
+	//t_config *config_interface = crearConfig(direccion_Config);
 
-	char *IP_KERNEL = config_get_string_value(config_interface, "IP_KERNEL");
-	char *PUERTO_KERNEL = config_get_string_value(config_interface, "PUERTO_KERNEL");
-	char *IP_MEMORIA = config_get_string_value(config_interface, "IP_MEMORIA");
-	char *PUERTO_MEMORIA = config_get_string_value(config_interface, "PUERTO_MEMORIA");
-	char *TIPO_INTERFAZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
+	//char *IP_KERNEL = config_get_string_value(config_interface, "IP_KERNEL");
+	//char *PUERTO_KERNEL = config_get_string_value(config_interface, "PUERTO_KERNEL");
+	//char *IP_MEMORIA = config_get_string_value(config_interface, "IP_MEMORIA");
+	//char *PUERTO_MEMORIA = config_get_string_value(config_interface, "PUERTO_MEMORIA");
+	//char *TIPO_INTERFAZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
 
 	printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
 
@@ -396,7 +396,7 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
     enviar_paquete(un_paquete, fd_kernel);
     destruir_paquete(un_paquete);
 
-	printf("mande un buffer a kernel\n");
+	printf("Mande un buffer a kernel\n");
 
 	////////////////////////////////////////////////////////////
 
@@ -412,7 +412,7 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
     enviar_paquete(un_paquete2, fd_memoria);
     destruir_paquete(un_paquete2);
 
-	printf("mande un buffer a memoria\n");
+	printf("Mande un buffer a memoria\n");
 
 	///////////////////////////////////////////////////////////
 
@@ -426,13 +426,18 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 
 }
 
-int main()
+int main(int argc, char** argv)
 {
-	inicializar_io();
+	if (argc < 3) {
+        fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+	inicializar_io(argv[2]);
 
 	log_info(io_logger, "Inicializando Entrada/Salida");
 
-	do
+	/*do
 	{
 		log_info(io_logger, "Escriba el nombre de la interfaz");
 		nombreInterACrear = readline(">");
@@ -441,11 +446,11 @@ int main()
 		{
 			log_warning(io_log_debug, "Una interfaz no puede tener el nombre vacio");
 		}
-	} while (string_is_empty(nombreInterACrear));
+	} while (string_is_empty(nombreInterACrear));*/
+	//log_info(io_logger, "El nombre elegido es %s", nombreInterACrear);
+	log_info(io_logger, "El nombre elegido es %s", argv[1]);
 
-	log_info(io_logger, "El nombre elegido es %s", nombreInterACrear);
-
-	do
+	/*do
 	{
 		log_info(io_logger, "Escriba la direccion del archivo de configuracion");
 		direccionConfigInterCrear = readline(">");
@@ -455,15 +460,17 @@ int main()
 			log_warning(io_log_debug, "Una direccion no puede ser vacia");
 		}
 
-	} while (string_is_empty(direccionConfigInterCrear));
-
+	} while (string_is_empty(direccionConfigInterCrear));*/
 	//direccionConfigInterCrear = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"; // hardcodeo el path del config para hacer pruebas
-	log_info(io_logger, "La direccion elegida es %s", direccionConfigInterCrear);											  // TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
+	//log_info(io_logger, "La direccion elegida es %s", direccionConfigInterCrear);											  // TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
 
-	crearInterfaz(nombreInterACrear, direccionConfigInterCrear);
+	log_info(io_logger, "La direccion elegida es %s", argv[2]);
+
+	nombreInterACrear = argv[1]; //para evitar errores en los buffers
+	crearInterfaz(nombreInterACrear);
 	//iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
 	// free(direccionConfigInterCrear);
-	free(nombreInterACrear);
+	//free(nombreInterACrear);
 
 	log_info(io_logger, "Fin de Entrada/Salida");
 

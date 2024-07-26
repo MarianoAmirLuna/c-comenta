@@ -1,9 +1,9 @@
 #include "../include/inicializar_io.h"
 #include "../include/i_gestor.h"
 
-void inicializar_io(){
+void inicializar_io(char* rutaConfig){
     iniciar_logs();
-    iniciar_config_io();
+    iniciar_config_io(rutaConfig);
     imprimir_config();
 	iniciar_semaforos();
 }
@@ -28,8 +28,8 @@ void iniciar_logs(){
 	}
 }
 
-void iniciar_config_io(){
-    io_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"); //esto te pide la ruta del config
+void iniciar_config_io(char* rutaConfig){
+    io_config = config_create(rutaConfig); //esto te pide la ruta del config
 
 	if ( io_config == NULL)	
 	{
@@ -43,11 +43,10 @@ void iniciar_config_io(){
 	IP_KERNEL = config_get_string_value(io_config, "IP_KERNEL");
 	PUERTO_KERNEL = config_get_string_value(io_config, "PUERTO_KERNEL");
 	TIEMPO_UNIDAD_TRABAJO = config_get_int_value(io_config, "TIEMPO_UNIDAD_TRABAJO");
-	PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
-	BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
-	BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
-	RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
-
+	//PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
+	//BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
+	//BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
+	//RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
 }
 
 void imprimir_config(){
