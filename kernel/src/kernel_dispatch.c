@@ -363,7 +363,7 @@ void atender_kernel_dispatch()
 				list_add(instruccion_io->lista_enteros,registro_puntero_write);
 				list_add(instruccion_io->lista_enteros,tamanio_write);
 
-				for (int i = 0; i < tamanio; i++)
+				for (int i = 0; i < *tamanio_write; i++)
 				{
 					int *direccion_fisica_write = malloc(sizeof(int));
 					*direccion_fisica_write = extraer_int_del_buffer(un_buffer);

@@ -771,6 +771,7 @@ void io_fs_write(char* interfaz, char* nombreArchivo, char* registroDireccion, c
         df = traducir_dl(dirLogicaDelDato); //obtengo todas las df que voy a necesitar para escribir en un futuro
         cargar_int_al_buffer(buffer_IOKernel, df);
         dirLogicaDelDato++;
+        printf("carge al buffer la df: %d\n",df);
     }
 
     t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IO_FS_WRITE, buffer_IOKernel);

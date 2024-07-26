@@ -118,6 +118,7 @@ void atender_interfaz_kernel(int *arg)
 			printf("el pid es %d\n",pid);
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
 
+			avisarKernelTerminoEjecutarIO();
 			
 			break;
 		case ENVIAR_IO_FS_DELETE:
@@ -128,6 +129,8 @@ void atender_interfaz_kernel(int *arg)
 
 			printf("el pid es %d\n",pid);
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
+
+			avisarKernelTerminoEjecutarIO();
 			
 			break;
 		case ENVIAR_IO_FS_TRUNCATE:
@@ -140,24 +143,52 @@ void atender_interfaz_kernel(int *arg)
 			printf("el pid es %d\n",pid);
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
 			printf("el registro tamanio es: %d\n",registro_tamanio);
+
+			avisarKernelTerminoEjecutarIO();
 			
 			break;
 		case ENVIAR_IO_FS_WRITE:
 		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 	        pid = extraer_int_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
+			int registro_puntero_write = extraer_int_del_buffer(un_buffer);
+			int tamanio_write = extraer_int_del_buffer(un_buffer);
+
+			t_buffer *buffer3 = crear_buffer();
+			buffer3->size = 0;
+			buffer3->stream = NULL;
+
+			cargar_string_al_buffer(buffer3,nombreInterACrear); //hay que pasar esto asi desp memoria sabe a quien responderle
+			cargar_int_al_buffer(buffer3,tamanio_write);
+
+			for(int i = 0; i < tamanio_write; i++){
+
+				numero = extraer_int_del_buffer(un_buffer);
+				printf("el numero %d\n",numero);
+				cargar_int_al_buffer(buffer3,numero);
+			}
+
+			t_paquete *paquete3 = crear_super_paquete(LEER_MEMORIA_PALABRA_DIALS_FS, buffer3);
+			enviar_paquete(paquete3, fd_memoria);
+			destruir_paquete(paquete3);
 
 			printf("el pid es %d\n",pid);
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
+
+			sem_wait(&esperar_palabra_memoria);
+
+			printf("mensaje obtenido: %s\n",palabraIOWrite);
+
+			avisarKernelTerminoEjecutarIO();
 			
 			break;
 		case ENVIAR_IO_FS_READ:
-		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+		    /*un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 	        pid = extraer_int_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
 
 			printf("el pid es %d\n",pid);
-			printf("el nombre del archivo es: %s\n",nombreArchivo);
+			printf("el nombre del archivo es: %s\n",nombreArchivo);*/
 			
 			break;
 

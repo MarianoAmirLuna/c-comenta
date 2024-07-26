@@ -43,8 +43,7 @@ void leerMemoria(t_buffer *un_buffer)
 
 	printf("llegue a leer memoria\n");
 
-	sleep(1);
-	printf("me fui a mimir 1 sg\n");
+	usleep(RETARDO_RESPUESTA * 1000);
 
 	char palabra[length + 1];
 	palabra[length] = '\0';
@@ -73,6 +72,51 @@ void leerMemoria(t_buffer *un_buffer)
 	cargar_string_al_buffer(buffer,palabra_final);
 
 	t_paquete *paquete = crear_super_paquete(DEVOLVER_STRING_STDOUT, buffer);
+	enviar_paquete(paquete, fd_encontrado);
+	destruir_paquete(paquete);
+}
+
+void leerMemoria_dialfs(t_buffer *un_buffer)
+{
+	char* nombre_interfaz = extraer_string_del_buffer(un_buffer);
+	int fd_encontrado = encontrar_fd_interfaz(nombre_interfaz);
+
+	printf("el nombre_interfaz: %s\n",nombre_interfaz);
+	printf("su fd %d\n",fd_encontrado);
+	
+	int length = extraer_int_del_buffer(un_buffer);
+
+	printf("llegue a leer memoria\n");
+
+	usleep(RETARDO_RESPUESTA * 1000);
+
+	char palabra[length + 1];
+	palabra[length] = '\0';
+
+	for (int i = 0; i < length; i++)
+	{
+
+		uint8_t datoLeido;
+		int df = extraer_int_del_buffer(un_buffer);
+		memcpy(&datoLeido, memoriaPrincipal + df, 1);
+		palabra[i] = (char)datoLeido;
+	}
+
+	printf("la palabra que necesita el dialfs es: %s\n", palabra);
+
+	char* palabra_final = (char*)malloc(length + 1);
+
+	memcpy(palabra_final, palabra, length);
+    // Asegura que la cadena esté terminada con un carácter nulo
+    palabra_final[length] = '\0';
+
+	t_buffer *buffer = crear_buffer();
+	buffer->size = 0;
+	buffer->stream = NULL;
+
+	cargar_string_al_buffer(buffer,palabra_final);
+
+	t_paquete *paquete = crear_super_paquete(DEVOLVER_STRING_DIALFS, buffer);
 	enviar_paquete(paquete, fd_encontrado);
 	destruir_paquete(paquete);
 }
@@ -129,6 +173,9 @@ void atender_creacion_interfaz(int *arg)
 			leerMemoria(un_buffer);
 
             break;
+		case LEER_MEMORIA_PALABRA_DIALS_FS:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
+			leerMemoria_dialfs(un_buffer);
 		case -1:
 			printf("Desconexion de KERNEL - IO");
 			control_key = 0;

@@ -10,6 +10,7 @@ void inicializar_io(){
 
 void iniciar_semaforos(){
 	sem_init(&termino_ejecutar, 1, 0);
+	sem_init(&esperar_palabra_memoria,1,0);
 }
 
 void iniciar_logs(){

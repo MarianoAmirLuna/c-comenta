@@ -549,12 +549,14 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
     for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
     {
       int *numerito = list_get(instruccionXD->lista_enteros, i);
+      printf("los numeros son: %d\n",*numerito);
       cargar_int_al_buffer(buffer, *numerito);
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_WRITE, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
     destruir_paquete(paquete);
+    printf("mande el buffer a ENVIAR_IO_FS_WRITE\n");
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_READ") == 0)

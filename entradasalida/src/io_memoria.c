@@ -37,6 +37,11 @@ void atender_interfaz_memoria(int *arg)
             avisarKernelTerminoEjecutarIO();
 
 		    break;
+		case DEVOLVER_STRING_DIALFS:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
+			palabraIOWrite = extraer_string_del_buffer(un_buffer);
+			sem_post(&esperar_palabra_memoria);
+		    break;
 		case -1:
 
 			control_key = 0;
