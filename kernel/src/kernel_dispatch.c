@@ -65,6 +65,7 @@ void atender_kernel_dispatch()
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
+			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
 
@@ -76,7 +77,6 @@ void atender_kernel_dispatch()
 
 			// list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
 
-			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
 			atender_wait(nombre_recurso_wait, &(pcb_devuelto_por_wait->pid));
 			sem_post(&nuevo_bucle);
 			break;
@@ -91,6 +91,7 @@ void atender_kernel_dispatch()
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
+			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
 
@@ -100,7 +101,6 @@ void atender_kernel_dispatch()
 			//printf("el contador dio: %d\n", tiempo_q_prima);
 			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
-			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			atender_signal(nombre_recurso_signal, &(pcb_devuelto_por_signal->pid));
 			sem_post(&nuevo_bucle);
 			break;
@@ -123,7 +123,7 @@ void atender_kernel_dispatch()
 			detener_tiempo();
 
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
-			actualizarQPrimaProceso(pcb_devuelto->pid,tiempo_q_prima);
+			actualizarQPrimaProceso(pcb_devuelto2->pid,tiempo_q_prima);
 			//log_trace(kernel_log_debug, "PID: %d - Desalojado por IO", pcb_devuelto2->pid);
 
 			//printf("el contador dio: %d\n", tiempo_q_prima);

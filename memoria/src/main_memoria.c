@@ -12,10 +12,10 @@
 
 int main(int argc, char** argv) {
 
-	if (argc < 2) {
+	/*if (argc < 2) {
         fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
         return EXIT_FAILURE;
-    }
+    }*/
 
 	inicializar_memoria(argv[1]);
 	

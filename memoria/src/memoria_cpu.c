@@ -62,6 +62,7 @@ void devolver_instruccion(t_buffer *un_buffer)
 
 	// printf("el pid que fue serializado: %d\n",pid);
 	// printf("el pid que fue serializado: %d\n",program_counter);
+	usleep(RETARDO_RESPUESTA * 1000);
 
 	char *path_instruccion = obtener_instruccion_lista(pid, program_counter);
 
@@ -77,7 +78,6 @@ void devolver_instruccion(t_buffer *un_buffer)
 
 	char *instruccion = obtenerInstruccion(path_instruccion, program_counter);
 
-	usleep(RETARDO_RESPUESTA * 1000);
 
 	// printf("la instruccion es: %s\n",instruccion);
 

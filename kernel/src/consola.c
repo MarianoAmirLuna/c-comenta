@@ -196,6 +196,7 @@ void _atender_instruccion_validada(char *leido)
         }
         
         free(pidComando);
+        ciclo_planificacion();
     }
     else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0)
     {

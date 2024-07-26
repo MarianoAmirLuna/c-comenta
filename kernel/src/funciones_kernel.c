@@ -10,13 +10,13 @@
 PCB *iniciar_PCB()
 { // revisar si anda o hay que poner struct adelante
 
-  t_config *config = iniciar_configuracion("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/kernel.config");
+  //t_config *config = iniciar_configuracion("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/deadlock.config");
 
   PCB *pcb = malloc(sizeof(PCB));
 
   pcb->pid = asignar_pid();
   pcb->program_counter = 0;
-  pcb->quantum = config_get_int_value(config, "QUANTUM");
+  pcb->quantum = QUANTUM;
   pcb->registros_cpu.AX = 0;
   pcb->registros_cpu.BX = 0;
   pcb->registros_cpu.CX = 0;
@@ -1048,22 +1048,28 @@ void mandar_a_exit(int *pid_finalizado)
     }
   }
 
-  /*for(int i=0;nombresRecursos[i]!=NULL;i++) //mira los bloqueados por recursos
+  for(int i=0;nombresRecursos[i]!=NULL;i++) //mira los bloqueados por recursos
   {
     printf("el pid: %d\n",*pid_finalizado);
-    t_list *lista = list_get(lista_recursos_y_bloqueados, i); //PREGUNTAR A LUCA ACA HAY UN SEGMENTATION
+    if(i < list_size(lista_recursos_y_bloqueados))
+    {
+      t_list *lista = list_get(lista_recursos_y_bloqueados, i); // PREGUNTAR A LUCA ACA HAY UN SEGMENTATION
 
-    for(int j = 0; j < list_size(lista); j++){
+      for (int j = 0; j < list_size(lista); j++)
+      {
 
-      int *numeroSuerte = list_get(lista, j);
+        int *numeroSuerte = list_get(lista, j);
 
-      if(*numeroSuerte == *pid_finalizado){
+        if (*numeroSuerte == *pid_finalizado)
+        {
 
-        numero_desalojado = list_remove(lista,j);
-        printf("elimine a un wachin del recurso\n");
+          numero_desalojado = list_remove(lista, j);
+          printf("elimine a un wachin del recurso\n");
+        }
       }
     }
-  }*/
+    
+  }
   /*
     for(int i = 0; nombresRecursos[i] != NULL ; i++){
 

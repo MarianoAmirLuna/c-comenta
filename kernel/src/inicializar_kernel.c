@@ -28,13 +28,14 @@ void inicializar_logs()
 
 void inicializar_configs(char* rutaconfig)
 {
-	kernel_config = config_create(rutaconfig);
+	/*kernel_config = config_create(rutaconfig); DES-COMENTAR PARA ENTREGA
 
 	if (kernel_config == NULL)
 	{
 		perror("Hay un error al iniciar el config.");
 		exit(EXIT_FAILURE);
-	}
+	}*/
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/deadlock.config");
 
 	PUERTO_ESCUCHA = config_get_string_value(kernel_config, "PUERTO_ESCUCHA");
 	IP_MEMORIA = config_get_string_value(kernel_config, "IP_MEMORIA");
@@ -80,13 +81,7 @@ void iniciar_semaforos()
     lista_id_hilos = list_create();
 	procesos_READY_priori = list_create();
 
-	lista_recursos_y_bloqueados = list_create();
-
-	for (int i = 0; i < cantidad_de_recursos; i++)
-	{
-		t_list *new_list = list_create();
-		list_add(lista_recursos_y_bloqueados, new_list);
-	}
+	
 }
 
 void iniciar_recursos()
@@ -101,6 +96,13 @@ void iniciar_recursos()
 		*instancia = atoi(STR_InstanciasRecursos[i]);
 		list_add(instanciasRecursos, instancia);
 		// printf("Recurso: %s, cantidad: %d \n", nombresRecursos[i], *instancia);
+	}
+	lista_recursos_y_bloqueados = list_create();
+
+	for (int i = 0; nombresRecursos[i]!=NULL; i++)
+	{
+		t_list *new_list = list_create();
+		list_add(lista_recursos_y_bloqueados, new_list);
 	}
 	estado_instancias();
 }
