@@ -20,14 +20,12 @@ void iniciar_logs(){
 		exit(EXIT_FAILURE);
 	}
 
-
 	io_log_debug = log_create("io.log","", 1 ,LOG_LEVEL_TRACE);
 
 	if(io_log_debug == NULL){
 		perror ("Hay un error al iniciar el log.");
 		exit(EXIT_FAILURE);
 	}
-
 }
 
 void iniciar_config_io(){

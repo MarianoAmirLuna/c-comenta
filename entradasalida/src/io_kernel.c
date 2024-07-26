@@ -25,6 +25,9 @@ void atender_interfaz_kernel(int *arg)
 	int fd_entradasalida_kernel = *arg;
 	bool control_key = 1;
 	t_buffer *un_buffer;
+	int pid;
+	char* nombreArchivo;
+	int registro_tamanio;
 
 	while (control_key)
 	{
@@ -36,6 +39,7 @@ void atender_interfaz_kernel(int *arg)
 		case ENVIAR_IO_GEN_SLEEP:
 
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+			pid = extraer_int_del_buffer(un_buffer);
 			int unidades_trabajo = extraer_int_del_buffer(un_buffer);
 
 			printf("mande a dormir a la io\n");
@@ -49,6 +53,7 @@ void atender_interfaz_kernel(int *arg)
 		case ENVIAR_IO_STDIN_READ:
 
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+			pid = extraer_int_del_buffer(un_buffer);
 			int tamanio_restante_pag_read = extraer_int_del_buffer(un_buffer);
 			int tamanio_escribir_read = extraer_int_del_buffer(un_buffer);
 			int cant_direcciones_read = extraer_int_del_buffer(un_buffer);
@@ -81,7 +86,7 @@ void atender_interfaz_kernel(int *arg)
 
 		case ENVIAR_IO_STDOUT_WRITE:
             un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
-	        
+	        pid = extraer_int_del_buffer(un_buffer);
             int tamanioXD = extraer_int_del_buffer(un_buffer);
 
 			t_buffer *buffer2 = crear_buffer();
@@ -104,6 +109,57 @@ void atender_interfaz_kernel(int *arg)
 			//Se libera la interfaz en io-memoria
 
 			break;
+		case ENVIAR_IO_FS_CREATE:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+	        pid = extraer_int_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+			printf("ejecute un create\n");
+
+			printf("el pid es %d\n",pid);
+			printf("el nombre del archivo es: %s\n",nombreArchivo);
+
+			
+			break;
+		case ENVIAR_IO_FS_DELETE:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+	        pid = extraer_int_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+			printf("ejecute un delete\n");
+
+			printf("el pid es %d\n",pid);
+			printf("el nombre del archivo es: %s\n",nombreArchivo);
+			
+			break;
+		case ENVIAR_IO_FS_TRUNCATE:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+	        pid = extraer_int_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+			registro_tamanio = extraer_int_del_buffer(un_buffer);
+			printf("ejecute un truncate\n");
+
+			printf("el pid es %d\n",pid);
+			printf("el nombre del archivo es: %s\n",nombreArchivo);
+			printf("el registro tamanio es: %d\n",registro_tamanio);
+			
+			break;
+		case ENVIAR_IO_FS_WRITE:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+	        pid = extraer_int_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+
+			printf("el pid es %d\n",pid);
+			printf("el nombre del archivo es: %s\n",nombreArchivo);
+			
+			break;
+		case ENVIAR_IO_FS_READ:
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+	        pid = extraer_int_del_buffer(un_buffer);
+			nombreArchivo = extraer_string_del_buffer(un_buffer);
+
+			printf("el pid es %d\n",pid);
+			printf("el nombre del archivo es: %s\n",nombreArchivo);
+			
+			break;
 
 		case -1:
 
@@ -115,3 +171,10 @@ void atender_interfaz_kernel(int *arg)
 		}
 	}
 }
+
+/*
+ENVIAR_IO_FS_CREATE,
+	ENVIAR_IO_FS_DELETE,
+	ENVIAR_IO_FS_TRUNCATE,
+	ENVIAR_IO_FS_WRITE,
+	ENVIAR_IO_FS_READ,*/

@@ -700,6 +700,143 @@ void establecerVariablesNecesarias(char *typeInstruccion, char *nameInterfaz)
     sem_post(&wait_instruccion);
 }
 
+void io_fs_create(char* interfaz,char* nombreArchivo){
+    
+    t_buffer *a_enviar = crear_buffer();
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_string_al_buffer(a_enviar,interfaz);
+    cargar_string_al_buffer(a_enviar,nombreArchivo);
+
+    t_paquete *un_paquete = crear_super_paquete(ENVIAR_IO_FS_CREATE, a_enviar);
+    enviar_paquete(un_paquete, fd_kernel_dispatch);
+    destruir_paquete(un_paquete);
+
+}
+
+void io_fd_delete(char* interfaz,char* nombreArchivo){
+
+    t_buffer *a_enviar = crear_buffer();
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_string_al_buffer(a_enviar,interfaz);
+    cargar_string_al_buffer(a_enviar,nombreArchivo);
+
+    t_paquete *un_paquete = crear_super_paquete(ENVIAR_IO_FS_DELETE, a_enviar);
+    enviar_paquete(un_paquete, fd_kernel_dispatch);
+    destruir_paquete(un_paquete);
+}
+
+void io_fd_truncate(char* interfaz,char* nombreArchivo, char* registroTamanio){
+
+    int valor = obtenerValorRegistro(registroTamanio);
+
+    t_buffer *a_enviar = crear_buffer();
+    a_enviar->size = 0;
+    a_enviar->stream = NULL;
+
+    cargar_string_al_buffer(a_enviar,interfaz);
+    cargar_string_al_buffer(a_enviar,nombreArchivo);
+    cargar_int_al_buffer(a_enviar,valor);
+
+    t_paquete *un_paquete = crear_super_paquete(ENVIAR_IO_FS_TRUNCATE, a_enviar);
+    enviar_paquete(un_paquete, fd_kernel_dispatch);
+    destruir_paquete(un_paquete);
+}
+
+void io_fs_write(char* interfaz, char* nombreArchivo, char* registroDireccion, char* registroTamanio, char* registroPunteroArchivo){
+
+    int dirLogicaDelDato = obtenerValorRegistro(registroDireccion);
+    int tamanioDato = obtenerValorRegistro(registroTamanio);
+    int registroPuntero = obtenerValorRegistro(registroPunteroArchivo);
+
+    t_buffer *buffer_IOKernel = crear_buffer();
+    buffer_IOKernel->size = 0;
+    buffer_IOKernel->stream = NULL;
+
+    printf("la dl es: %d\n", dirLogicaDelDato);
+    printf("el tamanio es: %d\n", tamanioDato);
+
+    cargar_string_al_buffer(buffer_IOKernel, interfaz);
+    cargar_string_al_buffer(buffer_IOKernel, nombreArchivo);
+    cargar_int_al_buffer(buffer_IOKernel,registroPuntero);
+    cargar_int_al_buffer(buffer_IOKernel, tamanioDato);
+
+    int df;
+
+    for (int i = 0; i < tamanioDato; i++)
+    {
+        df = traducir_dl(dirLogicaDelDato); //obtengo todas las df que voy a necesitar para escribir en un futuro
+        cargar_int_al_buffer(buffer_IOKernel, df);
+        dirLogicaDelDato++;
+    }
+
+    t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IO_FS_WRITE, buffer_IOKernel);
+    enviar_paquete(paquete_IOKernel, fd_kernel_dispatch);
+    destruir_paquete(paquete_IOKernel);
+}
+
+void io_fs_read(char* interfaz,char* nombreArchivo,char* registroDireccion,char* registroTamanio,char* registroPunteroArchivo){
+
+    if (primeraSolicitudTamanioDePagina)
+    {
+        solicitarTamanioPagina();
+        primeraSolicitudTamanioDePagina = false;
+    }
+
+    int dirLogicaDelDato = obtenerValorRegistro(registroDireccion);
+    int tamanioDato = obtenerValorRegistro(registroTamanio);
+    int registroPuntero = obtenerValorRegistro(registroPunteroArchivo);
+
+    printf("la dl es: %d\n", dirLogicaDelDato);
+    printf("el tamanio es: %d\n", tamanioDato);
+
+    int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
+
+    int cantDireccionesNecesarias = obtener_cant_direcciones(dirLogicaDelDato, tamanioDato, bytes_restantes_en_pagina);
+
+    t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+    cargar_string_al_buffer(buffer, interfaz);
+    cargar_string_al_buffer(buffer,nombreArchivo);
+    cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
+    cargar_int_al_buffer(buffer, tamanioDato);
+    cargar_int_al_buffer(buffer, cantDireccionesNecesarias);
+
+    int flag = 0;
+
+    for (int i = 0; i < cantDireccionesNecesarias; i++)
+    {
+        int df = traducir_dl(dirLogicaDelDato);
+
+        printf("direccion fisica: %d\n", df);
+
+        cargar_int_al_buffer(buffer, df);
+
+        if (flag == 0)
+        {
+            dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
+            flag = 1;
+        }
+        else
+        {
+            dirLogicaDelDato = dirLogicaDelDato + tamanio_pagina;
+        }
+
+        printf("carge un int al buffer\n");
+    }
+
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_READ, buffer);
+    enviar_paquete(paquete, fd_kernel_dispatch);
+    destruir_paquete(paquete);
+}
+
+
 void ejecutar_instruccion(char *instruccion, PCB *pcb)
 {
     char instr[20], param1[20], param2[20], param3[20], param4[20], param5[20];
@@ -774,18 +911,23 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         establecerVariablesNecesarias("IO_STDOUT_WRITE", param1);
         break;
     case IO_FS_CREATE:
+        io_fs_create(param1,param2);
         establecerVariablesNecesarias("IO_FS_CREATE", param1);
         break;
     case IO_FS_DELETE:
+        io_fd_delete(param1,param2);
         establecerVariablesNecesarias("IO_FS_DELETE", param1);
         break;
     case IO_FS_TRUNCATE:
+        io_fd_truncate(param1,param2,param3);
         establecerVariablesNecesarias("IO_FS_TRUNCATE", param1);
         break;
     case IO_FS_WRITE:
+        io_fs_write(param1,param2,param3,param4,param5);
         establecerVariablesNecesarias("IO_FS_WRITE", param1);
         break;
     case IO_FS_READ:
+        io_fs_read(param1,param2,param3,param4,param5);
         establecerVariablesNecesarias("IO_FS_READ", param1);
         break;
     case EXIT:
@@ -909,98 +1051,6 @@ lineaTLB *inicializarLineaTLB(int pid, int pagina, int marco)
 
     return lineaTL;
 }
-/*
-void actualizarPrioridadesTLB(lineaTLB lineaTL)
-{
-    int index = list_index_of(cola_tlb->elements, &lineaTL); // obtengo el index del que quiero borrar
-
-    lineaTLB *lineaRemovida = list_remove(cola_tlb->elements, index); // lo borro
-
-    printf("agrege al final por LRU la pag: %d\n",lineaRemovida->pagina);
-
-    queue_push(cola_tlb, lineaRemovida); // lo vuelvo a agregar al final
-}
-
-void agregarPaginaTLB(int pid, int pagina, int marco)
-{
-    lineaTLB *lineaTL = inicializarLineaTLB(pid, pagina, marco);
-
-    if (queue_size(cola_tlb) < CANTIDAD_ENTRADAS_TLB)
-    { // si entra aca es porque no hay que hacer ningun reemplazo
-        // printf("VOY A AGREGAR LA LINEA A LA COLA CON MARCO: %d\n",lineaTL->marco);
-        queue_push(cola_tlb, lineaTL);
-        printf("agrege la pagina %d\n",lineaTL->pagina);
-    }
-    else
-    { // significa que ya se lleno la TLB entonces hay que reemplazar una
-
-        lineaTLB *lineaABorrar = queue_pop(cola_tlb);
-        free(lineaABorrar);
-        printf("saque la pagina %d\n",lineaABorrar->pagina);
-        queue_push(cola_tlb, lineaTL);
-        printf("agrege la pagina %d\n",lineaTL->pagina);
-    }
-}
-
-bool condicion_id_pagina(void *elemento)
-{
-    lineaTLB *dato = (lineaTLB *)elemento;
-    return (dato->pid == id_global && dato->pagina == pagina_global);
-}
-
-int buscarMarcoTLB(int pid, int pagina)
-{
-    id_global = pid;
-    pagina_global = pagina;
-
-    lineaTLB *lineaTL = list_find(cola_tlb->elements, condicion_id_pagina);
-
-    if (lineaTL == NULL)
-    { // se produce un MISS al no encontrarlo
-        log_warning(cpu_log_debug, "PID: %d - TLB MISS - Pagina: %d", pid, pagina);
-        return -1;
-    }
-
-    log_warning(cpu_log_debug, "PID: %d - TLB HIT - Pagina: %d", pid, pagina);
-
-    if (strcmp(ALGORITMO_TLB, "LRU") == 0)
-    { // en caso de que sea LRU hay que actualizar la prioridad
-        // printf("actualize la prioridad del LRU\n");
-        actualizarPrioridadesTLB(*lineaTL);
-    }
-
-    return lineaTL->marco; // encontro el marco y lo devuelve
-}
-
-int traducir_dl(int direccionLogica)
-{
-    if (primeraSolicitudTamanioDePagina) // sirve para obtener el tamanio de pagina de memoria
-    {
-        solicitarTamanioPagina();
-        primeraSolicitudTamanioDePagina = false;
-    }
-
-    int num_pag = direccionLogica / tamanio_pagina;
-
-    int desplazamiento = direccionLogica - num_pag * tamanio_pagina;
-
-    marco = buscarMarcoTLB(pcb_ejecucion.pid, num_pag);
-
-    if (marco != -1)
-    { // hubo un HIT
-        return (marco * tamanio_pagina + desplazamiento);
-    }
-
-    enviar_pedido_marco(num_pag, pcb_ejecucion.pid); // en caso de un miss busca en memoria
-
-    agregarPaginaTLB(pcb_ejecucion.pid, num_pag, marco); // despues del miss se actualiza la TLB
-
-    log_debug(cpu_log_debug, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pcb_ejecucion.pid, num_pag, marco);
-
-    // int sizeTLB = queue_size(cola_tlb);
-
-    return (marco * tamanio_pagina + desplazamiento);
-}*/
 
 int list_index_of(t_list *self, void *data, bool (*comp)(void *, void *))
 {
@@ -1247,7 +1297,7 @@ void procesar_instruccion()
     cambioContexto = false;
     ejecute_instruccion_tipo_io = false;
     
-    if(pcb_ejecucion.program_counter > 1){ //no preguntes porque esta esto solo anda y punto
+    if(pcb_ejecucion.program_counter > 2){ //no preguntes porque esta esto solo anda y punto
         obtener_cantidad_instrucciones(pcb_ejecucion.pid);
     }
     else{
