@@ -13,18 +13,18 @@ int main(int argc, char** argv)
 	//recibe mensajes del interrupt / dispatch / io / memoria
 	lista_interfaces = list_create();
 
-	/*if (argc < 2) {
+	if (argc < 2) {
         fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
         return EXIT_FAILURE;
-    }*/
+    }
 
 	inicializar_kernel(argv[1]);
 	fd_kernel = iniciar_servidor(PUERTO_ESCUCHA);
 
-    fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);
+    fd_memoria = iniciar_conexion(IP_MEMORIA, PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);
 
-	fd_cpu_interrupt = iniciar_conexion(PUERTO_CPU_INTERRUPT, "CPU-INTERRUPT",kernel_log_debug);
-	fd_cpu_dispatch = iniciar_conexion(PUERTO_CPU_DISPATCH, "CPU-DISPATCH",kernel_log_debug);
+	fd_cpu_interrupt = iniciar_conexion(IP_CPU,PUERTO_CPU_INTERRUPT, "CPU-INTERRUPT",kernel_log_debug);
+	fd_cpu_dispatch = iniciar_conexion(IP_CPU, PUERTO_CPU_DISPATCH, "CPU-DISPATCH",kernel_log_debug);
 
 	pthread_t hilo_planificacion;
 	pthread_create(&hilo_planificacion, NULL, (void*)iniciar_planificacion, NULL);

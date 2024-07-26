@@ -9,10 +9,10 @@
 
 int main(int argc, char** argv) {
 
-	/*if (argc < 2) {
+	if (argc < 2) {
         fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
         return EXIT_FAILURE;
-    }*/
+    }
 
 	inicializar_cpu(argv[1]);
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
 	fd_cpu_interrupt = iniciar_servidor(PUERTO_ESCUCHA_INTERRUPT);
 
-    fd_memoria = iniciar_conexion(PUERTO_MEMORIA, "CPU", cpu_log_debug);
+    fd_memoria = iniciar_conexion(IP_MEMORIA, PUERTO_MEMORIA, "CPU", cpu_log_debug);
 	
 	fd_kernel_dispatch = esperar_cliente(fd_cpu_dispatch);
 

@@ -15,7 +15,7 @@ t_log *logger;
 
 	return socket_cliente;
 }*/
-int iniciar_conexion(char *puerto, char *nombre, t_log *logger_debug)
+int iniciar_conexion(char* ip, char *puerto, char *nombre, t_log *logger_debug)
 {
 	struct addrinfo hints;
 	struct addrinfo *server_info;
@@ -25,7 +25,7 @@ int iniciar_conexion(char *puerto, char *nombre, t_log *logger_debug)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	getaddrinfo("127.0.0.1", puerto, &hints, &server_info);
+	getaddrinfo(ip, puerto, &hints, &server_info);
 
 	// Ahora vamos a crear el socket.
 	int socket_cliente = socket(server_info->ai_family,
