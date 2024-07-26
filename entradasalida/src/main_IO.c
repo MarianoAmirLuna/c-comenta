@@ -301,6 +301,131 @@ void guardar_en_bloque(const char* filename, const char* contenido, int bloque, 
     fclose(file);
 }
 
+void leerArchivo(char* nombre_Archivo, t_config* config_interface,int registro_puntero,int registro_tamanio){
+
+	log_info(io_logger, "Iniciando lectura de archivo %s", nombre_Archivo);
+
+	char* PATH_FS = config_get_string_value(config_interface,"PATH_BASE_DIALFS");
+
+	char* PATH_bloques = string_duplicate(PATH_FS);
+	string_append(&PATH_bloques,"/bloques.dat");
+
+
+	
+	char* PATH_metadata = string_duplicate(PATH_FS);
+	char* direccionMetadata = string_from_format("/%s", nombre_Archivo);
+	string_append(&PATH_metadata,direccionMetadata);
+
+	t_config* config_metadata = config_create(PATH_metadata);
+	printf("PATH_metadata: %s\n",PATH_metadata);
+
+	int bloque_inicial = config_get_int_value(config_metadata,"BLOQUE_INICIAL");
+
+	int tamanio_de_bloque = config_get_int_value(config_interface,"BLOCK_SIZE");
+
+	FILE *archivo = fopen(PATH_bloques, "rb");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        exit(EXIT_FAILURE);
+    }
+
+    // Calcular la posición desde donde se debe leer
+    int posicion_lectura = (bloque_inicial * tamanio_de_bloque) + registro_puntero;
+
+    // Mover el puntero del archivo a la posición de lectura calculada
+    if (fseek(archivo, posicion_lectura, SEEK_SET) != 0) {
+        perror("Error al posicionarse en el archivo");
+        fclose(archivo);
+        exit(EXIT_FAILURE);
+    }
+
+    // Leer los bytes indicados por registro_tamanio
+    char *buffer = (char *)malloc(registro_tamanio + 1); // +1 para el terminador nulo
+    if (buffer == NULL) {
+        perror("Error al asignar memoria");
+        fclose(archivo);
+        exit(EXIT_FAILURE);
+    }
+
+    size_t leido = fread(buffer, sizeof(char), registro_tamanio, archivo);
+    if (leido != registro_tamanio) {
+        if (feof(archivo)) {
+            printf("Se alcanzó el final del archivo antes de leer la cantidad solicitada.\n");
+        } else {
+            perror("Error al leer del archivo");
+            free(buffer);
+            fclose(archivo);
+        	exit(EXIT_FAILURE);
+        }
+    }
+
+    // Añadir terminador nulo al buffer para imprimirlo como cadena
+    buffer[registro_tamanio] = '\0';
+
+    // Mostrar el resultado leído en pantalla
+	log_info(io_logger, "Datos leídos: %s\n", buffer);
+
+    // Liberar memoria y cerrar el archivo
+    free(buffer);
+    fclose(archivo);
+
+	log_info(io_logger, "Fin de lectura");
+}
+
+void escribirArchivo(char *nombre_Archivo, t_config *config_interface,int registro_puntero,char* texto_a_escribir){
+
+	log_info(io_logger, "Iniciando escritura de archivo");
+	log_info(io_logger, "Se va a escribir %s en el archivo %s",texto_a_escribir,nombre_Archivo);
+
+	char* PATH_FS = config_get_string_value(config_interface,"PATH_BASE_DIALFS");
+
+	char* PATH_bloques = string_duplicate(PATH_FS);
+	string_append(&PATH_bloques,"/bloques.dat");
+
+
+	
+	char* PATH_metadata = string_duplicate(PATH_FS);
+	char* direccionMetadata = string_from_format("/%s", nombre_Archivo);
+	string_append(&PATH_metadata,direccionMetadata);
+
+	t_config* config_metadata = config_create(PATH_metadata);
+	printf("PATH_metadata: %s\n",PATH_metadata);
+
+	int bloque_inicial = config_get_int_value(config_metadata,"BLOQUE_INICIAL");
+
+	int tamanio_de_bloque = config_get_int_value(config_interface,"BLOCK_SIZE");
+
+
+	// Abrir el archivo en modo lectura/escritura
+    FILE *archivo = fopen(PATH_bloques, "r+b");
+    if (archivo == NULL) {
+        perror("Error al abrir el archivo");
+        exit(EXIT_FAILURE);
+    }
+
+    // Calcular la posición desde donde se debe escribir
+    int posicion_escritura = (bloque_inicial * tamanio_de_bloque) + registro_puntero;
+
+    // Mover el puntero del archivo a la posición de escritura calculada
+    if (fseek(archivo, posicion_escritura, SEEK_SET) != 0) {
+        perror("Error al posicionarse en el archivo");
+        fclose(archivo);
+        exit(EXIT_FAILURE);
+    }
+
+    // Escribir el texto en la posición calculada
+    size_t texto_len = strlen(texto_a_escribir);
+    size_t escrito = fwrite(texto_a_escribir, sizeof(char), texto_len, archivo);
+    if (escrito != texto_len) {
+        perror("Error al escribir en el archivo");
+        fclose(archivo);
+        exit(EXIT_FAILURE);
+    }
+
+    // Cerrar el archivo
+    fclose(archivo);
+	log_info(io_logger, "Fin de escritura");
+}
 
 void compactar(t_config *config_interface, char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar)
 {
@@ -883,7 +1008,7 @@ void ejecutarInterfazDIALFS(char *nombre, t_config *config_interface)
 		log_info(io_logger, "La interfaz se ha reconectado");
 	}
 
-	char *comandoEjecutar = "IO_FS_TRUNCATE";
+	char *comandoEjecutar = "IO_FS_READ";
 
 	if (strcmp(comandoEjecutar, "IO_FS_CREATE") == 0)
 	{
@@ -922,13 +1047,20 @@ void ejecutarInterfazDIALFS(char *nombre, t_config *config_interface)
 	{
 
 		log_info(io_logger, "La instruccion a ejecutar es IO_FS_WRITE");
-		log_error(io_log_debug, "El comando no se encuntra implementado");
+		char* nombre_Archivo = "tercero.text";
+		//log_error(io_log_debug, "El comando no se encuntra implementado");
+		int registro_puntero = 12;
+		escribirArchivo(nombre_Archivo, config_interface,registro_puntero,"hola_mundo_que_tal");
 	}
 	else if (strcmp(comandoEjecutar, "IO_FS_READ") == 0)
 	{
 
 		log_info(io_logger, "La instruccion a ejecutar es IO_FS_READ");
-		log_error(io_log_debug, "El comando no se encuntra implementado");
+
+		char* nombre_Archivo = "tercero.text";
+		int registro_puntero = 12;
+		int registro_tamanio = 18;
+		leerArchivo(nombre_Archivo, config_interface,registro_puntero,registro_tamanio);
 	}
 	else
 	{
@@ -1064,7 +1196,7 @@ void CorrerTest(){
 
 	crearArchivo(nombre_Archivo, config_test);
 
-	int tamanioTruncar = 32;
+	int tamanioTruncar = 48;
 
 	truncarArchivo(nombre_Archivo, config_test, tamanioTruncar);
 
@@ -1073,16 +1205,22 @@ void CorrerTest(){
 
 	crearArchivo(nombre_Archivo, config_test);
 
-	tamanioTruncar = 128;
+	tamanioTruncar = 32;
 
 	truncarArchivo(nombre_Archivo, config_test, tamanioTruncar);
 
-	nombre_Archivo = "pruebaFS.txt";
+	nombre_Archivo = "tercero.text";
+
+	crearArchivo(nombre_Archivo, config_test);
 
 	tamanioTruncar = 64;
 
 	truncarArchivo(nombre_Archivo, config_test, tamanioTruncar);
 
+	nombre_Archivo = "segundo.txt";
+
+	tamanioTruncar = 48;
+		truncarArchivo(nombre_Archivo, config_test, tamanioTruncar);
 
 }
 
@@ -1132,8 +1270,8 @@ int main()
 																															  */
 	// crearInterfaz(nombreInterACrear, direccionConfigInterCrear);
 	
-	//iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
-	CorrerTest();
+	iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
+	//CorrerTest();
 	// free(direccionConfigInterCrear);
 	// free(nombreInterACrear);
 
