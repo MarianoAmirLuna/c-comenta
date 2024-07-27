@@ -27,14 +27,14 @@ void iniciar_logs(){
 	}
 }
 void iniciar_config_cpu(char* rutaconfig){
-    cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
-
+    //cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
+    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/deadlock.config");
 	if ( cpu_config == NULL)	
 	{
 		perror("Hay un error al iniciar el config.");
 		exit(EXIT_FAILURE);
 	}
-	//cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/deadlock.config");
+	
 
 	IP_MEMORIA = config_get_string_value(cpu_config, "IP_MEMORIA");
 	PUERTO_MEMORIA = config_get_string_value(cpu_config, "PUERTO_MEMORIA");

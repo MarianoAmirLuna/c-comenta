@@ -29,14 +29,14 @@ void iniciar_logs(){
 }
 
 void iniciar_config(char* rutaconfig){
-	memoria_config = config_create(rutaconfig); 
+	//memoria_config = config_create(rutaconfig); 
+	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/deadlock.config");
 
 	if (memoria_config == NULL)
 	{
 		perror("Hay un error al iniciar el config.");
 		exit(EXIT_FAILURE);
 	}
-	//memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/deadlock.config");
 
 	PUERTO_ESCUCHA = config_get_string_value(memoria_config,"PUERTO_ESCUCHA");
     TAM_MEMORIA = config_get_int_value(memoria_config,"TAM_MEMORIA");

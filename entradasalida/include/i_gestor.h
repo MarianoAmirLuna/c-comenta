@@ -34,7 +34,7 @@ extern int BLOCK_SIZE;
 extern int BLOCK_COUNT;
 extern int RETRASO_COMPACTACION;
 extern sem_t termino_ejecutar;
-
-
+extern sem_t esperar_palabra_memoria;
+extern char* palabraIOWrite;
 
 #endif
