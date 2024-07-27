@@ -112,8 +112,10 @@ void ejecutarInterfazSTDOUT(char *nombre, t_config *config_interface)
 
 void crearArchivosInicialesFS()
 {
-
+	
 	char *PATH_Creacion = PATH_BASE_DIALFS;
+
+	printf("PATH_Creacion: %s", PATH_BASE_DIALFS);
 
 	char *PATH_Bloques = string_duplicate(PATH_Creacion);
 	char *PATH_Bitmap = string_duplicate(PATH_Creacion);
