@@ -198,11 +198,11 @@ void guardar_en_bloque(const char* filename, const char* contenido, int bloque, 
     fclose(file);
 }
 
-void leerArchivo(char* nombre_Archivo, t_config* config_interface,int registro_puntero,int registro_tamanio){
+void leerArchivo(char* nombre_Archivo,int registro_puntero,int registro_tamanio){
 
 	log_info(io_logger, "Iniciando lectura de archivo %s", nombre_Archivo);
 
-	char* PATH_FS = config_get_string_value(config_interface,"PATH_BASE_DIALFS");
+	char* PATH_FS = PATH_BASE_DIALFS;
 
 	char* PATH_bloques = string_duplicate(PATH_FS);
 	string_append(&PATH_bloques,"/bloques.dat");
@@ -218,7 +218,7 @@ void leerArchivo(char* nombre_Archivo, t_config* config_interface,int registro_p
 
 	int bloque_inicial = config_get_int_value(config_metadata,"BLOQUE_INICIAL");
 
-	int tamanio_de_bloque = config_get_int_value(config_interface,"BLOCK_SIZE");
+	int tamanio_de_bloque = BLOCK_SIZE;
 
 	FILE *archivo = fopen(PATH_bloques, "rb");
     if (archivo == NULL) {
@@ -265,16 +265,17 @@ void leerArchivo(char* nombre_Archivo, t_config* config_interface,int registro_p
     // Liberar memoria y cerrar el archivo
     free(buffer);
     fclose(archivo);
+	config_destroy(config_metadata);
 
 	log_info(io_logger, "Fin de lectura");
 }
 
-void escribirArchivo(char *nombre_Archivo, t_config *config_interface,int registro_puntero,char* texto_a_escribir){
+void escribirArchivo(char *nombre_Archivo,int registro_puntero,char* texto_a_escribir){
 
 	log_info(io_logger, "Iniciando escritura de archivo");
 	log_info(io_logger, "Se va a escribir %s en el archivo %s",texto_a_escribir,nombre_Archivo);
 
-	char* PATH_FS = config_get_string_value(config_interface,"PATH_BASE_DIALFS");
+	char* PATH_FS = PATH_BASE_DIALFS;
 
 	char* PATH_bloques = string_duplicate(PATH_FS);
 	string_append(&PATH_bloques,"/bloques.dat");
@@ -290,7 +291,7 @@ void escribirArchivo(char *nombre_Archivo, t_config *config_interface,int regist
 
 	int bloque_inicial = config_get_int_value(config_metadata,"BLOQUE_INICIAL");
 
-	int tamanio_de_bloque = config_get_int_value(config_interface,"BLOCK_SIZE");
+	int tamanio_de_bloque = BLOCK_SIZE;
 
 
 	// Abrir el archivo en modo lectura/escritura
@@ -321,17 +322,18 @@ void escribirArchivo(char *nombre_Archivo, t_config *config_interface,int regist
 
     // Cerrar el archivo
     fclose(archivo);
+	config_destroy(config_metadata);
 	log_info(io_logger, "Fin de escritura");
 }
 
-void compactar(t_config *config_interface, char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar, int pid)
+void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar, int pid)
 {
 	log_info(io_logger, "PID: %i - Inicio compactacion", pid);
 
 	char *PATH_bloques = string_duplicate(PATH_FS);
 	string_append(&PATH_bloques, "/bloques.dat");
 
-	int tamanioBloque = config_get_int_value(config_interface, "BLOCK_SIZE");
+	int tamanioBloque = BLOCK_SIZE;
 
 	int fd = open(PATH_bloques, O_RDWR);
 	if (fd == -1)
@@ -448,7 +450,9 @@ void compactar(t_config *config_interface, char *PATH_FS, char *nombre_ArchivoCo
 
 			// Insertar en el diccionario
 			queue_push(colaArchivos, guardarCola);
+			config_destroy(connfig_metadatos);
 		}
+		
 	}
 
 	//printf("Contenido diccionario en key=0: %s, Contenido diccionario en key=2: %s\n",dictionary_get(diccionarioArchivos,"0"),dictionary_get(diccionarioArchivos,"2"));
@@ -507,15 +511,15 @@ void compactar(t_config *config_interface, char *PATH_FS, char *nombre_ArchivoCo
 
 		guardar_en_bloque(PATH_bloques,archivo_NO_truncar->contenido,bloqueLibre,tamanioBloque);
 
+
+
 		primerBloqueLibre = bloque_Final_del_archivo_no_truncar+1;
-
-
-		
-
-
-
-
+		free(archivo_NO_truncar->PATH);
+		free(archivo_NO_truncar->contenido);
+    	free(archivo_NO_truncar);
 	}
+
+	queue_destroy(colaArchivos);
 
 	
 	//guaro en el ultimo bloque libre que me quedo el contenido del archivo a truncar y ademas los trunco
@@ -579,7 +583,7 @@ void compactar(t_config *config_interface, char *PATH_FS, char *nombre_ArchivoCo
 
 	log_info(io_logger, "Aplicando retraso de compactacion");
 
-	int retraso_compactacion = config_get_int_value(config_interface;"RETRASO_COMPACTACION");
+	int retraso_compactacion = config_interface;"RETRASO_COMPACTACION";
 	usleep(retraso_compactacion*1000);
 
 	log_info(io_logger, "Aplicando retraso de compactacion");
@@ -615,7 +619,7 @@ for (int i = bloque_Final_del_archivo_truncar_oficial+1; i <= bloque_final_despu
 
 	escribirCentinelaBLoquesDesdeHasta(PATH_bloques, bloque_Final_del_archivo_truncar_oficial+1, (bloque_final_despues_de_truncar+1), tamanioBloque, '\0');
 
-mapped_bitarray = copia_bitmap;
+	mapped_bitarray = copia_bitmap;
 	bitarray_munmap(mapped_bitarray);
 
 	bitarray_destroy(copia_bitmap);
@@ -624,12 +628,12 @@ mapped_bitarray = copia_bitmap;
 	
 }
 
-void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamanioTruncar, int pid)
+void truncarArchivo(char *nombre_Archivo, int tamanioTruncar, int pid)
 {
 
 	log_info(io_logger, "Iniciando truncar del archivo %s", nombre_Archivo);
 
-	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
+	char *PATH_FS = PATH_BASE_DIALFS;
 
 	char *PATH_metadata = string_duplicate(PATH_FS);
 
@@ -648,7 +652,7 @@ void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamani
 		return;
 	}
 
-	int tamanioBloque = config_get_int_value(config_interface, "BLOCK_SIZE");
+	int tamanioBloque = BLOCK_SIZE;
 
 	int tamanioArchivo = config_get_int_value(connfig_metadatos, "TAMANIO_ARCHIVO");
 
@@ -684,6 +688,7 @@ void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamani
 
 		config_set_value(connfig_metadatos, "TAMANIO_ARCHIVO", string_itoa(tamanioTruncar));
 		config_save(connfig_metadatos);
+		config_destroy(connfig_metadatos);
 
 		log_info(io_logger, "FIN de truncar");
 		return;
@@ -695,7 +700,7 @@ void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamani
 		// compactar
 		bitarray_munmap(mapped_bitarray);
 
-		compactar(config_interface, PATH_FS, nombre_Archivo,tamanioTruncar, pid);
+		compactar(PATH_FS, nombre_Archivo,tamanioTruncar, pid);
 	}
 	else
 	{
@@ -703,6 +708,7 @@ void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamani
 		// trunco sin problema
 		config_set_value(connfig_metadatos, "TAMANIO_ARCHIVO", string_itoa(tamanioTruncar));
 		config_save(connfig_metadatos);
+		config_destroy(connfig_metadatos);
 
 		for (int i = primer_bloque_a_reclamar; i <= nuevo_Bloque_Final; i++)
 		{
@@ -715,11 +721,11 @@ void truncarArchivo(char *nombre_Archivo, t_config *config_interface, int tamani
 	log_info(io_logger, "FIN de truncar");
 }
 
-void eliminarArchivo(char *nombre_Archivo, t_config *config_interface)
+void eliminarArchivo(char *nombre_Archivo)
 {
 	log_info(io_logger, "Iniciando borrado del archivo %s", nombre_Archivo);
 
-	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
+	char *PATH_FS = PATH_BASE_DIALFS;
 	char *PATH_metadata = string_duplicate(PATH_FS);
 
 	char *direccionMetadata = string_from_format("/%s", nombre_Archivo);
@@ -740,6 +746,7 @@ void eliminarArchivo(char *nombre_Archivo, t_config *config_interface)
 
 	int bloqueInicial = config_get_int_value(connfig_metadatos, "BLOQUE_INICIAL");
 	int tamnioArchivo = config_get_int_value(connfig_metadatos, "TAMANIO_ARCHIVO");
+	config_destroy(connfig_metadatos);
 
 	log_info(io_logger, "Liberando bloques bitmap");
 	if (tamnioArchivo == 0)
@@ -748,7 +755,7 @@ void eliminarArchivo(char *nombre_Archivo, t_config *config_interface)
 	}
 	else
 	{
-		int tamanioBloque = config_get_int_value(config_interface, "BLOCK_SIZE");
+		int tamanioBloque = BLOCK_SIZE;
 		// 0-1-2 64 64/16 = 4 el archivo ocupa 4 bloques, osea, ocupa los bloque 2,3,4,5 .... 5= 2+3 = 2 + (4-1) bloqeu final = bloque inicial + (tamaño_en_bloques -1)
 
 		// bloque_inicial = 0,  el archivo mide 64, 64/16 = 4, el archivo mide 4 bloques: 0-1-2-3, bloque_final = 3, 3 = 0 + 3 = 0 + (4-1) ---> bloque_final = bloque_inicial + (tamanio_en_bloques-1)
@@ -784,12 +791,12 @@ void eliminarArchivo(char *nombre_Archivo, t_config *config_interface)
 	log_info(io_logger, "Fin del proceso de borrado");
 }
 
-void crearArchivo(char *nombre_Archivo, t_config *config_interface)
+void crearArchivo(char *nombre_Archivo)
 {
 
 	log_info(io_logger, "Iniciando creacion de archivo de Metadata %s", nombre_Archivo);
 
-	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
+	char *PATH_FS = PATH_BASE_DIALFS;
 
 	char *PATH_metadata = string_duplicate(PATH_FS);
 
@@ -825,7 +832,7 @@ void crearArchivo(char *nombre_Archivo, t_config *config_interface)
 
 	// printf("voy a escribir los bloques\n");
 	// t_config* nuevoConfig = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
-	int tamanioBloque = config_get_int_value(config_interface, "BLOCK_SIZE");
+	int tamanioBloque = BLOCK_SIZE;
 	escribirCentinelaInicialBLoques(PATH_FS, bloqueInicial, tamanioBloque, '\0'); // cambiar '0' a '\0'
 
 	log_info(io_logger, "Fin creacion de archivo de metadata");
@@ -958,10 +965,10 @@ void atender_interfaz_kernel(int *arg)
 
 			
 			log_info(io_logger, "PID: %i - Crear Archivo: %s",nombreArchivo);
-			crearArchivo(nombreArchivo, config); //falta config
+			crearArchivo(nombreArchivo);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
-			usleep(*1000); //falta unidad de tiempo
+			usleep(TIEMPO_UNIDAD_TRABAJO*1000);
 			log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
@@ -979,10 +986,10 @@ void atender_interfaz_kernel(int *arg)
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
 
 			log_info(io_logger, "PID: %i - Eliminar Archivo: %s",nombreArchivo);
-			eliminarArchivo(nombreArchivo, config); //falta config
+			eliminarArchivo(nombreArchivo); 
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
-			usleep(*1000); //falta unidad de tiempo
+			usleep(TIEMPO_UNIDAD_TRABAJO*1000);
 			log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
@@ -1002,10 +1009,10 @@ void atender_interfaz_kernel(int *arg)
 			printf("el registro tamanio es: %d\n",registro_tamanio);
 
 			log_info(io_logger, "PID: %i - Truncar Archivo: %s - Tamaño: %i",nombreArchivo,registro_tamanio);
-			truncarArchivo(nombreArchivo, config_interface, registro_tamanio, pid); //falta config
+			truncarArchivo(nombreArchivo,registro_tamanio, pid);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
-			usleep(*1000); //falta unidad de tiempo
+			usleep(TIEMPO_UNIDAD_TRABAJO*1000);
 			log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
@@ -1046,10 +1053,10 @@ void atender_interfaz_kernel(int *arg)
 			printf("mensaje obtenido: %s\n",palabraIOWrite);
 
 			log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamaño a Escribir: %i - Puntero Archivo: %i",pid,nombreArchivo,tamanio_write,registro_puntero_write);
-			escribirArchivo(nombreArchivo, config,registro_puntero_write,palabraIOWrite); //falta config
+			escribirArchivo(nombreArchivo,registro_puntero_write,palabraIOWrite);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
-			usleep(*1000); //falta unidad de tiempo
+			usleep(TIEMPO_UNIDAD_TRABAJO*1000);
 			log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
@@ -1070,10 +1077,10 @@ void atender_interfaz_kernel(int *arg)
 			printf("mensaje obtenido: %s\n",palabraIOWrite);
 
 			log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamaño a Escribir: %i - Puntero Archivo: %i",pid,nombreArchivo,tamanio_write,registro_puntero_write);
-			leerArchivo(nombreArchivo, config,registro_puntero_write,registro_tamanio); //falta config
+			leerArchivo(nombreArchivo,registro_puntero_write,registro_tamanio);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
-			usleep(*1000); //falta unidad de tiempo
+			usleep(TIEMPO_UNIDAD_TRABAJO*1000);
 			log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
