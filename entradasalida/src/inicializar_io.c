@@ -4,7 +4,7 @@
 void inicializar_io(char* rutaConfig){
     iniciar_logs();
     iniciar_config_io(rutaConfig);
-    imprimir_config();
+    //imprimir_config();
 	iniciar_semaforos();
 }
 
@@ -44,7 +44,7 @@ void iniciar_config_io(char* rutaConfig){
 	IP_KERNEL = config_get_string_value(io_config, "IP_KERNEL");
 	PUERTO_KERNEL = config_get_string_value(io_config, "PUERTO_KERNEL");
 	TIEMPO_UNIDAD_TRABAJO = config_get_int_value(io_config, "TIEMPO_UNIDAD_TRABAJO");
-	if(strcmp(TIPO_INTERFAZ, "DIALFS"))
+	if(strcmp(TIPO_INTERFAZ, "DIALFS")==0)
 	{
 		PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
 		BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");

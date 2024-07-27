@@ -7,16 +7,16 @@
 #include "../include/cpu.h"
 
 
-//int main(int argc, char** argv) {
-int main() {
+int main(int argc, char** argv) {
+//int main() {
 
-	/*if (argc < 2) {
+	if (argc < 2) {
         fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
         return EXIT_FAILURE;
-    }*/
+    }
 
-	//inicializar_cpu(argv[1]);
-	inicializar_cpu("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/planificacion.config");
+	inicializar_cpu(argv[1]);
+	//inicializar_cpu("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/planificacion.config");
 
 	fd_cpu_dispatch = iniciar_servidor(PUERTO_ESCUCHA_DISPATCH);
 

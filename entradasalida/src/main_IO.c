@@ -280,9 +280,9 @@ void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 }
 
 */
-void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
+void crearInterfaz(char *nombre_Interfaz)
 {
-	t_config *io_config = crearConfig(direccion_Config);
+	//t_config *io_config = crearConfig(direccion_Config);
 
 	/*IP_MEMORIA = config_get_string_value(io_config, "IP_MEMORIA");
 	TIPO_INTERFAZ = config_get_string_value(io_config, "TIPO_INTERFAZ");
@@ -299,7 +299,7 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 		RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
 	}*/
 
-	printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
+	//printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
 
 	log_info(io_logger, "Creando conexión con Kernel");
 	fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
@@ -375,6 +375,7 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 }
 
 int main(int argc, char** argv)
+//int main()
 {
 	if (argc < 3) {
         fprintf(stderr, "Uso: %s <ruta_al_archivo_de_configuracion>\n", argv[0]);
@@ -382,6 +383,7 @@ int main(int argc, char** argv)
     }
 
 	inicializar_io(argv[2]);
+	//inicializar_io("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/planificacion/slp1.config");
 
 	log_info(io_logger, "Inicializando Entrada/Salida");
 
@@ -397,6 +399,7 @@ int main(int argc, char** argv)
 	} while (string_is_empty(nombreInterACrear));*/
 	//log_info(io_logger, "El nombre elegido es %s", nombreInterACrear);
 	log_info(io_logger, "El nombre elegido es %s", argv[1]);
+	
 
 	/*do
 	{
