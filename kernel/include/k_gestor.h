@@ -49,6 +49,7 @@ extern pthread_mutex_t mutexExec;
 extern pthread_mutex_t lista_pcb_mutex;
 extern pthread_mutex_t proteger_lista_ready;
 extern pthread_mutex_t proteger_mandar_pcb;
+extern pthread_mutex_t proteger_lista_hilos;
 //extern pthread_mutex_t modificarLista;
 
 extern t_list *procesosNEW;
@@ -117,6 +118,8 @@ extern t_list *listaPidsRecursos;
 extern t_list *lista_recursos_y_bloqueados; //<--- ordenada igual que nombresRecursos, tiene elementos t_list
 
 extern sem_t sem_seguir_planificando;
+
+extern sem_t sem_lista_hilos;
 
 extern struct timespec start_time;
 extern struct timespec end_time;

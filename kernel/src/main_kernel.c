@@ -8,7 +8,8 @@
 #include "../include/funciones_kernel.h"
 #include "../include/consola.h"
 
-int main(int argc, char** argv)
+//int main(int argc, char** argv)
+int main()
 {
 	//recibe mensajes del interrupt / dispatch / io / memoria
 	lista_interfaces = list_create();
@@ -18,7 +19,8 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }*/
 
-	inicializar_kernel(argv[1]);
+	//inicializar_kernel(argv[1]);
+	inicializar_kernel("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/planificacion.config");
 	fd_kernel = iniciar_servidor(PUERTO_ESCUCHA);
 
     fd_memoria = iniciar_conexion(IP_MEMORIA, PUERTO_MEMORIA, "MEMORIA",kernel_log_debug);

@@ -10,6 +10,7 @@ void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
 	// busco la interfaz en de la lista y lo mando al planificador otra vez
 	int *pid = malloc(sizeof(int));
 
+
 	if (list_size(interfaz->procesos_bloqueados->elements) > 0)
 	{
 		pid = (int *)queue_pop(interfaz->procesos_bloqueados);
@@ -26,11 +27,12 @@ void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
 		{
 			list_add(procesosREADY, pid);
 		}
-	}
-
+    }
+	
 	interfaz->estaLibre = true;
 	sem_post(&nuevo_bucle);
 	sem_post(&ciclo_instruccion_io);
+	
 }
 
 void atender_creacion_interfaz(int *arg)
