@@ -804,6 +804,7 @@ void io_fs_read(char* interfaz,char* nombreArchivo,char* registroDireccion,char*
 
     cargar_string_al_buffer(buffer, interfaz);
     cargar_string_al_buffer(buffer,nombreArchivo);
+    cargar_int_al_buffer(buffer,registroPuntero);
     cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
     cargar_int_al_buffer(buffer, tamanioDato);
     cargar_int_al_buffer(buffer, cantDireccionesNecesarias);

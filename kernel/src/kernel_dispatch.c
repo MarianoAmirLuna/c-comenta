@@ -400,7 +400,9 @@ void atender_kernel_dispatch()
 			int *bytes_restantes = malloc(sizeof(int));
 			int *tamanio_escribirXD = malloc(sizeof(int));
 			int *cant_direccionesXD = malloc(sizeof(int));
+			int *registro_puntero = malloc(sizeof(int));
 
+			*registro_puntero = extraer_int_del_buffer(un_buffer);
 			*bytes_restantes = extraer_int_del_buffer(un_buffer);
 			*tamanio_escribirXD = extraer_int_del_buffer(un_buffer);
 			*cant_direccionesXD = extraer_int_del_buffer(un_buffer);
@@ -412,13 +414,14 @@ void atender_kernel_dispatch()
 			// sem_post(&esperar_devolucion_pcb);
 			interfazXD = encontrar_interfaz(nombre_interfaz);
 
-			if (interfaz3 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_READ"))
+			if (interfazXD != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_READ"))
 			{
 				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
 				instruccion_io->nombre_instruccion = "IO_FS_READ";
 				instruccion_io->nombre_archivo = "";
 				instruccion_io->lista_enteros = list_create();
-
+				
+                list_add(instruccion_io->lista_enteros, registro_puntero);
 				list_add(instruccion_io->lista_enteros, bytes_restantes);
 				list_add(instruccion_io->lista_enteros, tamanio_escribirXD);
 				list_add(instruccion_io->lista_enteros, cant_direccionesXD);
@@ -432,7 +435,7 @@ void atender_kernel_dispatch()
 					list_add(instruccion_io->lista_enteros, df_read);
 				}
 
-				queue_push(interfaz3->instrucciones_ejecutar, instruccion_io);
+				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
 				sem_post(&ciclo_instruccion_io);
 				printf("lo agrege a la queue\n");
 			}

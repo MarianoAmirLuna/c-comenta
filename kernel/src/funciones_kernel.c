@@ -581,11 +581,15 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
     {
       int *numerito = list_get(instruccionXD->lista_enteros, i);
       cargar_int_al_buffer(buffer, *numerito);
+
+      printf("carge los datos: %d\n",*numerito);
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_READ, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
     destruir_paquete(paquete);
+
+    printf("mande un buffer al IO_FS_READ");
   }
 }
 

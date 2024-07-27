@@ -3,8 +3,8 @@
 
 void inicializar_io(){
     iniciar_logs();
-    iniciar_config_io();
-    imprimir_config();
+    //iniciar_config_io();
+    //imprimir_config();
 	iniciar_semaforos();
 }
 
@@ -30,14 +30,14 @@ void iniciar_logs(){
 }
 
 void iniciar_config_io(){
-    io_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"); //esto te pide la ruta del config
+    //io_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"); //esto te pide la ruta del config
 
 	if ( io_config == NULL)	
 	{
 		perror("Hay un error al iniciar el config.");
 		exit(EXIT_FAILURE);
 	}
-
+	/*
 	IP_MEMORIA = config_get_string_value(io_config, "IP_MEMORIA");
 	TIPO_INTERFAZ = config_get_string_value(io_config, "TIPO_INTERFAZ");
 	PUERTO_MEMORIA = config_get_string_value(io_config, "PUERTO_MEMORIA");
@@ -48,6 +48,7 @@ void iniciar_config_io(){
 	BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
 	BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
 	RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
+	*/
 
 }
 
