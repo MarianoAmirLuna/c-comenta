@@ -13,6 +13,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <../include/bitarray_mmap.h>
 
 int bitsToBytes(int bits)
 {
@@ -51,7 +52,7 @@ t_config *crearConfig(char *direccion)
 
 	return configDevolver;
 }
-
+/*
 void ejecutarInterfazGenerica(char *nombre, t_config *config_interface)
 {
 	log_info(io_logger, "Iniciando interfaz Generica");
@@ -64,7 +65,7 @@ void ejecutarInterfazGenerica(char *nombre, t_config *config_interface)
 
 	log_trace(io_log_debug, "Fin de Interfaz Generica");
 }
-
+*/
 void escribirEnMemoria(int direccionLogica, char *texto, int tamanio)
 {
 
@@ -80,7 +81,7 @@ void escribirEnMemoria(int direccionLogica, char *texto, int tamanio)
 	enviar_paquete(paquete, fd_memoria);
 	destruir_paquete(paquete);
 }
-
+/*
 void ejecutarInterfazSTDIN(char *nombre, t_config *config_interface)
 {
 	log_info(io_logger, "Iniciando interfaz STDIN");
@@ -93,7 +94,8 @@ void ejecutarInterfazSTDIN(char *nombre, t_config *config_interface)
 
 	free(textoAEscribir);
 }
-
+*/
+/*
 void ejecutarInterfazSTDOUT(char *nombre, t_config *config_interface)
 {
 
@@ -105,167 +107,82 @@ void ejecutarInterfazSTDOUT(char *nombre, t_config *config_interface)
 
 	log_info(io_logger, "El texto leido es %s", textoLeido);
 }
-
+*/
 // Inicio DialFS
 
-int setearPrimerBitDisponible(t_bitarray *bloq_dis) // setea en 1 el primer bit en 0 que encuentre y devuelve la posicion donde hizo el cambio
+void crearArchivosInicialesFS()
 {
 
-	for (int base = 0; base < bitarray_get_max_bit(bloq_dis); base++)
-	{
-		if (bitarray_test_bit(bloq_dis, base) == 0)
-		{
-			bitarray_set_bit(bloq_dis, base);
-			return base;
-		}
-	}
-}
-
-void escribirCentinelaInicialBLoques(char *PATH_FS, int numPagina, char escribir)
-{
-
-	char *PATH_bloques = string_duplicate(PATH_FS);
-	printf("path_bloques antes de append: %s\n", PATH_bloques);
-	string_append(&PATH_bloques, "/ bloques.dat");
-	printf("path_bloques despues de append: %s\n", PATH_bloques);
-	/*
-		numPagina=0;
-		escribir='/0';
-	*/
-	int fd = open(PATH_bloques, O_RDWR);
-	if (fd == -1)
-	{
-		perror("Error al abrir el archivo");
-		exit(EXIT_FAILURE);
-	}
-
-	// Obtener el tamaño del archivo
-	struct stat sb;
-	if (fstat(fd, &sb) == -1)
-	{
-		perror("Error al obtener el tamaño del archivo");
-		close(fd);
-		exit(EXIT_FAILURE);
-	}
-	/*
-		// Asegurarse de que el archivo tenga al menos 16 bytes
-		if (sb.st_size < 16) {
-			if (ftruncate(fd, 16) == -1) {
-				perror("Error al redimensionar el archivo");
-				close(fd);
-				exit(EXIT_FAILURE);
-			}
-		}
-	*/
-	// Mapear el archivo en memoria
-	char *map = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	if (map == MAP_FAILED)
-	{
-		perror("Error al mapear el archivo");
-		close(fd);
-		exit(EXIT_FAILURE);
-	}
-
-	// Escribir '\0' en los primeros 16 bytes
-	for (int i = (numPagina) * 16; i < (numPagina + 1) * 16; i++)
-	{
-		map[i] = escribir;
-	}
-
-	// Sincronizar los cambios
-	if (msync(map, sb.st_size, MS_SYNC) == -1)
-	{
-		perror("Error al sincronizar los cambios");
-	}
-
-	// Desmapear el archivo y cerrar el descriptor
-	if (munmap(map, sb.st_size) == -1)
-	{
-		perror("Error al desmapear el archivo");
-	}
-	close(fd);
-}
-
-void crearArchivo(char *nombre_Archivo, t_config *config_interface, t_bitarray *bloq_dis)
-{
-
-	log_info(io_logger, "Iniciando creacion de archivo de Metadata");
-
-	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
-
-	char *PATH_metadata = string_duplicate(PATH_FS);
-
-	char *direccionArchivoCrear = string_from_format("/ %s", nombre_Archivo);
-
-	string_append(&PATH_metadata, direccionArchivoCrear);
-
-	FILE *archivoACrear = fopen(PATH_metadata, "w"); // creo el archivo de metadatos
-
-	bool bit = bitarray_test_bit(bloq_dis, 0);
-	printf("El valor del bit antes de setear es: %d\n", bit);
-
-	int bloqueInicial = setearPrimerBitDisponible(bloq_dis);
-
-	bit = bitarray_test_bit(bloq_dis, 0);
-	printf("El valor del bit despues de setear es: %d\n", bit);
-
-	fprintf(archivoACrear, "BLOQUE_INICIAL=\nTAMANIO_ARCHIVO=\n");
-	fclose(archivoACrear);
-
-	t_config *config_metadata = config_create(PATH_metadata);
-
-	config_set_value(config_metadata, "BLOQUE_INICIAL", string_itoa(bloqueInicial));
-	config_set_value(config_metadata, "TAMANIO_ARCHIVO", "0");
-	config_save(config_metadata);
-	config_destroy(config_metadata);
-
-	// printf("voy a escribir los bloques\n");
-	// t_config* nuevoConfig = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config");
-	escribirCentinelaInicialBLoques(PATH_FS, bloqueInicial, '/0');
-
-	log_info(io_logger, "Fin creacion de archivo de metadata");
-}
-
-void crearArchivosInicialesFS(t_config *config_interface)
-{
-
-	char *PATH_Creacion = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
+	char *PATH_Creacion = PATH_BASE_DIALFS;
 
 	char *PATH_Bloques = string_duplicate(PATH_Creacion);
 	char *PATH_Bitmap = string_duplicate(PATH_Creacion);
 
-	char *direccionArchivoBloques = string_from_format("/ %s", "bloques.dat");
-	char *direccionArchivoBitmap = string_from_format("/ %s", "bitmap.dat");
+	string_append(&PATH_Bloques, "/bloques.dat");
+	string_append(&PATH_Bitmap, "/bitmap.dat");
 
-	string_append(&PATH_Bloques, direccionArchivoBloques);
-	string_append(&PATH_Bitmap, direccionArchivoBitmap);
+	FILE *archivoBloques = fopen(PATH_Bloques, "wb");
+	FILE *archivoBitmap = fopen(PATH_Bitmap, "wb");
 
-	FILE *archivoBloques = fopen(PATH_Bloques, "w");
-	FILE *archivoBitmap = fopen(PATH_Bitmap, "w");
-
+	// Inicio establecer tamaño maximo archivo bloques.dat
 	int fd_BLoques = fileno(archivoBloques);
 
-	int Tamnio_BLoque = config_get_int_value(config_interface, "BLOCK_SIZE");
+	int Tamanio_BLoque = BLOCK_SIZE;
 
-	int Cantidad_BLoque = config_get_int_value(config_interface, "BLOCK_COUNT");
+	int Cantidad_BLoques = BLOCK_COUNT;
 
-	ftruncate(fd_BLoques, Tamnio_BLoque * Cantidad_BLoque);
+	ftruncate(fd_BLoques, Tamanio_BLoque * Cantidad_BLoques);
+	// Fin establecer tamaño maximo archivo bloques.dat
+
+	// Inicio bitmap.dat
+
+	char *data = asignarMemoriaBits(Cantidad_BLoques);
+
+	if (data == NULL)
+	{
+		printf("MALLOC FAIL!\n");
+	}
+
+	int tamanioBitArray = bitsToBytes(Cantidad_BLoques);
+
+	memset(data, 0, tamanioBitArray);
+
+	t_bitarray *bitarray_inicial = bitarray_create_with_mode(data, tamanioBitArray, MSB_FIRST);
+	if (bitarray_inicial == NULL)
+	{
+		fprintf(stderr, "Error al crear el bit array\n");
+		free(data);
+		return;
+	}
+
+	if (bitarray_write_to_file(bitarray_inicial, PATH_Bitmap) == -1)
+	{
+		fprintf(stderr, "Error al escribir el bit array en el archivo\n");
+		bitarray_destroy(bitarray_inicial);
+		free(data);
+		return;
+	}
+
+	// printf("variable Cantidad_BLoques: %i\n",Cantidad_BLoques);
+	// printf("Tamanio del bit array guardado: %i\n",bitarray_get_max_bit(bitarray_inicial));
+	bitarray_destroy(bitarray_inicial);
+	free(data);
+	// Fin bitmap.dat
 
 	fclose(archivoBloques);
-
 	fclose(archivoBitmap);
 }
-
+/*
 void ejecutarInterfazDIALFS(char *nombre, t_config *config_interface)
 {
 
 	log_info(io_logger, "Iniciando interfaz DIALFS");
 
-	char *PATH_FS = config_get_string_value(config_interface, "PATH_BASE_DIALFS");
+	char *PATH_FS = PATH_BASE_DIALFS;
 
-	crearArchivosInicialesFS(config_interface);
+	crearArchivosInicialesFS();
 
-	int cant_bloques = config_get_int_value(config_interface, "BLOCK_COUNT");
+	int cant_bloques = BLOCK_COUNT;
 
 	char *data = asignarMemoriaBits(cant_bloques);
 
@@ -319,9 +236,9 @@ void ejecutarInterfazDIALFS(char *nombre, t_config *config_interface)
 		log_error(io_log_debug, "No se pudo identificar correctamente la instruccion a ejecutar");
 	}
 }
-
+*/
 // Fin DialFS
-
+/*
 void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 {
 	log_info(io_logger, "Incializando interfaz");
@@ -362,15 +279,25 @@ void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 	}
 }
 
-void crearInterfaz(char *nombre_Interfaz)
+*/
+void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 {
-	//t_config *config_interface = crearConfig(direccion_Config);
+	t_config *io_config = crearConfig(direccion_Config);
 
-	//char *IP_KERNEL = config_get_string_value(config_interface, "IP_KERNEL");
-	//char *PUERTO_KERNEL = config_get_string_value(config_interface, "PUERTO_KERNEL");
-	//char *IP_MEMORIA = config_get_string_value(config_interface, "IP_MEMORIA");
-	//char *PUERTO_MEMORIA = config_get_string_value(config_interface, "PUERTO_MEMORIA");
-	//char *TIPO_INTERFAZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
+	/*IP_MEMORIA = config_get_string_value(io_config, "IP_MEMORIA");
+	TIPO_INTERFAZ = config_get_string_value(io_config, "TIPO_INTERFAZ");
+	PUERTO_MEMORIA = config_get_string_value(io_config, "PUERTO_MEMORIA");
+	IP_KERNEL = config_get_string_value(io_config, "IP_KERNEL");
+	PUERTO_KERNEL = config_get_string_value(io_config, "PUERTO_KERNEL");
+	TIEMPO_UNIDAD_TRABAJO = config_get_int_value(io_config, "TIEMPO_UNIDAD_TRABAJO");*/
+
+	/*if (strcmp(TIPO_INTERFAZ, "DIALFS") == 0)
+	{
+		PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
+		BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
+		BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
+		RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
+	}*/
 
 	printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
 
@@ -384,17 +311,39 @@ void crearInterfaz(char *nombre_Interfaz)
 
 	//////////////////////////////////////////////////////////
 
+	// Si la interfaz es del tipo DIALFS reviso si los archivo estan creados, si estan creados no hago nada (se reconecto), si no lo estan los creo (primera ejecucion)
+	if (strcmp(TIPO_INTERFAZ, "DIALFS") == 0)
+	{
+		char *PATH_FS = PATH_BASE_DIALFS;
+		char *PATH_bitmap = string_duplicate(PATH_FS);
+		string_append(&PATH_bitmap, "/bitmap.dat");
+
+		struct stat buffer;
+		if (stat(PATH_bitmap, &buffer) != 0)
+		{ // me fijo si el file system ya esta creado, esto significaria que la interfaz se desconecto y se volvio a conectar
+
+			log_info(io_logger, "Generando archivos bloques.dat y bitmap.dat");
+			crearArchivosInicialesFS();
+		}
+		else
+		{
+			log_info(io_logger, "La interfaz DIALFS se ha reconectado");
+		}
+	}
+
+	///////////////////////////////////////////////////////////
+
 	t_buffer *a_enviar = crear_buffer();
 
-    a_enviar->size = 0;
-    a_enviar->stream = NULL;
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
 
-    cargar_string_al_buffer(a_enviar, nombre_Interfaz);
-	cargar_string_al_buffer(a_enviar,TIPO_INTERFAZ);
+	cargar_string_al_buffer(a_enviar, nombre_Interfaz);
+	cargar_string_al_buffer(a_enviar, TIPO_INTERFAZ);
 
-    t_paquete *un_paquete = crear_super_paquete(CREAR_INTERFAZ, a_enviar);
-    enviar_paquete(un_paquete, fd_kernel);
-    destruir_paquete(un_paquete);
+	t_paquete *un_paquete = crear_super_paquete(CREAR_INTERFAZ, a_enviar);
+	enviar_paquete(un_paquete, fd_kernel);
+	destruir_paquete(un_paquete);
 
 	printf("Mande un buffer a kernel\n");
 
@@ -402,28 +351,27 @@ void crearInterfaz(char *nombre_Interfaz)
 
 	t_buffer *a_enviar2 = crear_buffer();
 
-    a_enviar2->size = 0;
-    a_enviar2->stream = NULL;
+	a_enviar2->size = 0;
+	a_enviar2->stream = NULL;
 
-    cargar_string_al_buffer(a_enviar2, nombre_Interfaz);
-	cargar_string_al_buffer(a_enviar2,TIPO_INTERFAZ);
+	cargar_string_al_buffer(a_enviar2, nombre_Interfaz);
+	cargar_string_al_buffer(a_enviar2, TIPO_INTERFAZ);
 
-    t_paquete *un_paquete2 = crear_super_paquete(CREAR_INTERFAZ, a_enviar2);
-    enviar_paquete(un_paquete2, fd_memoria);
-    destruir_paquete(un_paquete2);
+	t_paquete *un_paquete2 = crear_super_paquete(CREAR_INTERFAZ, a_enviar2);
+	enviar_paquete(un_paquete2, fd_memoria);
+	destruir_paquete(un_paquete2);
 
 	printf("Mande un buffer a memoria\n");
 
 	///////////////////////////////////////////////////////////
 
-	pthread_t hilo_generica; 
+	pthread_t hilo_generica;
 	pthread_create(&hilo_generica, NULL, (void *)atender_interfaz_kernel, &fd_kernel);
 	pthread_detach(hilo_generica);
 
 	pthread_t hilo_generica2; // planificador largo plazo
 	pthread_create(&hilo_generica2, NULL, (void *)atender_interfaz_memoria, &fd_memoria);
-	pthread_join(hilo_generica2,NULL);
-
+	pthread_join(hilo_generica2, NULL);
 }
 
 int main(int argc, char** argv)

@@ -10,7 +10,7 @@
 PCB *iniciar_PCB()
 { // revisar si anda o hay que poner struct adelante
 
-  //t_config *config = iniciar_configuracion("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/deadlock.config");
+  // t_config *config = iniciar_configuracion("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/deadlock.config");
 
   PCB *pcb = malloc(sizeof(PCB));
 
@@ -180,6 +180,22 @@ pidConQ *buscarPidConQ(int pid)
 {
   pidGlobal = pid;
   return (pidConQ *)list_find(listQPrimas, pidIgualAlGlobal);
+}
+
+int buscarQPrimaNEW(int pid)
+{
+  int i=0;
+  while(i<list_size(listQPrimas))
+  {
+    pidConQ *pq = list_get(listQPrimas, i);
+    if(pq->pid==pid)
+    {
+      break;
+    }
+    i++;
+  }
+  pidConQ *ret = list_get(listQPrimas, i);
+  return ret->qPrima;
 }
 
 void restaurarQPrima(int pid)
@@ -471,15 +487,15 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
   buffer->stream = NULL;
 
   instruccion *instruccionXD = queue_pop(interfaz.instrucciones_ejecutar); // saco la instruccion de la queue y la ejecuto
-  int* pid = list_get(interfaz.procesos_bloqueados->elements,0); //obtengo el pid
-  cargar_int_al_buffer(buffer,*pid);
+  int *pid = list_get(interfaz.procesos_bloqueados->elements, 0);          // obtengo el pid
+  cargar_int_al_buffer(buffer, *pid);
 
   if (strcmp(instruccionXD->nombre_instruccion, "IO_GEN_SLEEP") == 0)
   {
     printf("voy a ejecutar un gen_sleep\n");
 
     int *unidades_trabajo = list_get(instruccionXD->lista_enteros, 0);
-    
+
     cargar_int_al_buffer(buffer, *unidades_trabajo);
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_GEN_SLEEP, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
@@ -515,7 +531,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_CREATE") == 0)
   {
-    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+    cargar_string_al_buffer(buffer, instruccionXD->nombre_archivo);
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_CREATE, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
@@ -524,7 +540,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_DELETE") == 0)
   {
-    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+    cargar_string_al_buffer(buffer, instruccionXD->nombre_archivo);
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_DELETE, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
@@ -533,9 +549,9 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_TRUNCATE") == 0)
   {
-    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
-    int* numerito = list_get(instruccionXD->lista_enteros,0);
-    cargar_int_al_buffer(buffer,*numerito);
+    cargar_string_al_buffer(buffer, instruccionXD->nombre_archivo);
+    int *numerito = list_get(instruccionXD->lista_enteros, 0);
+    cargar_int_al_buffer(buffer, *numerito);
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_TRUNCATE, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
@@ -544,7 +560,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_WRITE") == 0)
   {
-    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+    cargar_string_al_buffer(buffer, instruccionXD->nombre_archivo);
 
     for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
     {
@@ -559,17 +575,22 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_READ") == 0)
   {
-    cargar_string_al_buffer(buffer,instruccionXD->nombre_archivo);
+    cargar_string_al_buffer(buffer, instruccionXD->nombre_archivo);
+    printf("el nombre del archivo antes de mandar: %s\n",instruccionXD->nombre_archivo);
 
     for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
     {
       int *numerito = list_get(instruccionXD->lista_enteros, i);
       cargar_int_al_buffer(buffer, *numerito);
+
+      printf("carge los datos: %d\n", *numerito);
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_READ, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
     destruir_paquete(paquete);
+
+    printf("mande un buffer al IO_FS_READ");
   }
 }
 
@@ -600,7 +621,7 @@ void iniciar_planificacion_io()
 
 void avisarDesalojo(int pid)
 {
-  log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pid);
+  //log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pid);
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
@@ -612,7 +633,7 @@ void avisarDesalojo(int pid)
 
 void desalojoFinProceso()
 {
-  log_trace(kernel_log_debug, "PID: %d - Desalojado por finalizacion de proceso", estaEJecutando);
+  log_trace(kernel_log_debug, "PID: %d - Terminado por Fin de Programa (success)", estaEJecutando);
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
@@ -730,7 +751,7 @@ void ciclo_plani_VRR()
   if (procesoEXEC == 0 && (!list_is_empty(procesosREADY) || !list_is_empty(procesos_READY_priori)) && estaCPULibre)
   {
     int *exec;
-    if(!list_is_empty(procesos_READY_priori))
+    if (!list_is_empty(procesos_READY_priori))
     {
       exec = list_remove(procesos_READY_priori, 0);
     }
@@ -788,12 +809,12 @@ void *contador_tiempos(void *arg)
 
   usleep(args->tiempo * 1000);
 
-  printf("la id es: %d\n", args->id);
+  //printf("la id es: %d\n", args->id);
 
   if (contiene_numero(lista_id_hilos, args->id)) // si la lista contiene el numero mando la interrupcion
   {
     avisarDesalojo(args->pid);
-    printf("aviso un desalojo\n");
+    //printf("aviso un desalojo\n");
   }
   else
   {
@@ -807,8 +828,10 @@ void mandarNuevoPCB()
   sem_wait(&esperar_termine_ejecutar_pcb_cpu);
 
   pthread_mutex_lock(&proteger_mandar_pcb);
-  PCB *pcb_a_enviar = buscarPCB(procesoEXEC);                 // Busco el pcb que le toca ejecutar en la cola
-  enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch, contador_hilos); // si rompe es casi seguro porque busca un pcb que no coincide con el pid
+  PCB *pcb_a_enviar = buscarPCB(procesoEXEC);
+
+  enviar_pcb(*pcb_a_enviar, fd_cpu_dispatch, contador_hilos);
+
   estaEJecutando = pcb_a_enviar->pid;
   pthread_mutex_unlock(&proteger_mandar_pcb);
 
@@ -824,14 +847,15 @@ void mandarNuevoPCB()
     thread_args *args = malloc(sizeof(thread_args));
     args->id = contador_hilos;
     args->pid = pcb_a_enviar->pid;
-    if(strcmp(ALGORITMO_PLANIFICACION, "RR") == 0)
+    if (strcmp(ALGORITMO_PLANIFICACION, "RR") == 0)
     {
       args->tiempo = QUANTUM; // ADAPTAR A VRR
     }
-    else //es VRR
+    else // es VRR
     {
+      //pidConQ *aux = buscarPidConQ(pcb_a_enviar->pid);
       args->tiempo = buscarQPrima(pcb_a_enviar->pid);
-      //log_trace(kernel_log_debug, "PID: %d - EL Q PRIMA QUE ASIGNE ES: %d", args->pid,args->tiempo);
+      // log_trace(kernel_log_debug, "PID: %d - EL Q PRIMA QUE ASIGNE ES: %d", args->pid,args->tiempo);
     }
 
     int *numerillo = malloc(sizeof(int));
@@ -1088,10 +1112,10 @@ void mandar_a_exit(int *pid_finalizado)
     }
   }
 
-  for(int i=0;nombresRecursos[i]!=NULL;i++) //mira los bloqueados por recursos
+  for (int i = 0; nombresRecursos[i] != NULL; i++) // mira los bloqueados por recursos
   {
-    printf("el pid: %d\n",*pid_finalizado);
-    if(i < list_size(lista_recursos_y_bloqueados))
+    printf("el pid: %d\n", *pid_finalizado);
+    if (i < list_size(lista_recursos_y_bloqueados))
     {
       t_list *lista = list_get(lista_recursos_y_bloqueados, i); // PREGUNTAR A LUCA ACA HAY UN SEGMENTATION
 
@@ -1108,7 +1132,6 @@ void mandar_a_exit(int *pid_finalizado)
         }
       }
     }
-    
   }
   /*
     for(int i = 0; nombresRecursos[i] != NULL ; i++){

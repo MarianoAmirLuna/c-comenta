@@ -29,6 +29,8 @@ int BLOCK_SIZE;
 int BLOCK_COUNT;
 int RETRASO_COMPACTACION;
 sem_t termino_ejecutar;
+sem_t esperar_palabra_memoria;
+char* palabraIOWrite;
 
 
 #endif

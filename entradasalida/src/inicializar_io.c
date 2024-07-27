@@ -10,6 +10,7 @@ void inicializar_io(char* rutaConfig){
 
 void iniciar_semaforos(){
 	sem_init(&termino_ejecutar, 1, 0);
+	sem_init(&esperar_palabra_memoria, 1,0);
 }
 
 void iniciar_logs(){
@@ -43,10 +44,14 @@ void iniciar_config_io(char* rutaConfig){
 	IP_KERNEL = config_get_string_value(io_config, "IP_KERNEL");
 	PUERTO_KERNEL = config_get_string_value(io_config, "PUERTO_KERNEL");
 	TIEMPO_UNIDAD_TRABAJO = config_get_int_value(io_config, "TIEMPO_UNIDAD_TRABAJO");
-	//PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
-	//BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
-	//BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
-	//RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
+	if(strcmp(TIPO_INTERFAZ, "DIALFS"))
+	{
+		PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
+		BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
+		BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
+		RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
+	}
+
 }
 
 void imprimir_config(){

@@ -32,9 +32,13 @@ void atender_kernel_dispatch()
 			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
 			list_add(listaPCBs, pcb_devuelto);
 
+			//log_debug(kernel_log_debug, "PCB de pid:%d devuelto", pcb_devuelto->pid);
+
 			int codigo = extraer_int_del_buffer(un_buffer);
             numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			pthread_mutex_lock(&proteger_lista_hilos);
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
+			pthread_mutex_unlock(&proteger_lista_hilos);
 			
 			estaCPULibre = true;
 			sem_post(&esperar_devolucion_pcb);
@@ -47,15 +51,19 @@ void atender_kernel_dispatch()
 
 			if (codigo == 1)
 			{ // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
-
+				log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pcb_devuelto->pid);
 				pthread_mutex_lock(&proteger_lista_ready);
 				list_add(procesosREADY, &(pcb_devuelto->pid));
 				pthread_mutex_unlock(&proteger_lista_ready);
+				restaurarQPrima(pcb_devuelto->pid);
 			}
 			else
 			{ // ejecuto todas las instrucciones
 				// significa que termino todas sus intrucciones y tengo que liberar los recursos y mandarlo a exit
-				list_add(procesosEXIT, &(pcb_devuelto->pid));
+				//list_add(procesosEXIT, &(pcb_devuelto->pid));
+				log_trace(kernel_log_debug, "PID: %d - Terminado por Fin de Programa (success)", pcb_devuelto->pid);
+				mandar_a_exit(&(pcb_devuelto->pid));
+				//ciclo_planificacion();
 				//finalizarProceso(pcb_devuelto->pid); // agregar un poco mas de logica aca
 			}
 			sem_post(&nuevo_bucle);
@@ -72,11 +80,13 @@ void atender_kernel_dispatch()
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
 			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			pthread_mutex_lock(&proteger_lista_hilos);
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
+			pthread_mutex_unlock(&proteger_lista_hilos);
 
 			detener_tiempo();
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
-			// actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
+			actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
 			//printf("el contador dio: %d\n", tiempo_q_prima);
 			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
@@ -98,11 +108,13 @@ void atender_kernel_dispatch()
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
 			char *nombre_recurso_signal = extraer_string_del_buffer(un_buffer);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			pthread_mutex_lock(&proteger_lista_hilos);
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
+			pthread_mutex_unlock(&proteger_lista_hilos);
 
 			detener_tiempo();
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
-			// actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
+			actualizarQPrimaProceso(estaEJecutando,tiempo_q_prima);
 			//printf("el contador dio: %d\n", tiempo_q_prima);
 			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
@@ -123,13 +135,15 @@ void atender_kernel_dispatch()
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
+			pthread_mutex_lock(&proteger_lista_hilos);
 			removerNumeroLista(lista_id_hilos,numero_hiloXD);
+			pthread_mutex_unlock(&proteger_lista_hilos);
 
 			detener_tiempo();
 
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
 			actualizarQPrimaProceso(pcb_devuelto2->pid,tiempo_q_prima);
-			//log_trace(kernel_log_debug, "PID: %d - Desalojado por IO", pcb_devuelto2->pid);
+			log_trace(kernel_log_debug, "PID: %d - Desalojado por IO", pcb_devuelto2->pid);
 
 			//printf("el contador dio: %d\n", tiempo_q_prima);
 			//printf("ACAAAAAAAAAAAAAAAAAAAA\n");
@@ -363,7 +377,7 @@ void atender_kernel_dispatch()
 				list_add(instruccion_io->lista_enteros,registro_puntero_write);
 				list_add(instruccion_io->lista_enteros,tamanio_write);
 
-				for (int i = 0; i < tamanio; i++)
+				for (int i = 0; i < *tamanio_write; i++)
 				{
 					int *direccion_fisica_write = malloc(sizeof(int));
 					*direccion_fisica_write = extraer_int_del_buffer(un_buffer);
@@ -386,7 +400,9 @@ void atender_kernel_dispatch()
 			int *bytes_restantes = malloc(sizeof(int));
 			int *tamanio_escribirXD = malloc(sizeof(int));
 			int *cant_direccionesXD = malloc(sizeof(int));
+			int *registro_puntero = malloc(sizeof(int));
 
+			*registro_puntero = extraer_int_del_buffer(un_buffer);
 			*bytes_restantes = extraer_int_del_buffer(un_buffer);
 			*tamanio_escribirXD = extraer_int_del_buffer(un_buffer);
 			*cant_direccionesXD = extraer_int_del_buffer(un_buffer);
@@ -398,13 +414,14 @@ void atender_kernel_dispatch()
 			// sem_post(&esperar_devolucion_pcb);
 			interfazXD = encontrar_interfaz(nombre_interfaz);
 
-			if (interfaz3 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_READ"))
+			if (interfazXD != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_FS_READ"))
 			{
 				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
 				instruccion_io->nombre_instruccion = "IO_FS_READ";
-				instruccion_io->nombre_archivo = "";
+				instruccion_io->nombre_archivo = nombreArchivo;
 				instruccion_io->lista_enteros = list_create();
-
+				
+                list_add(instruccion_io->lista_enteros, registro_puntero);
 				list_add(instruccion_io->lista_enteros, bytes_restantes);
 				list_add(instruccion_io->lista_enteros, tamanio_escribirXD);
 				list_add(instruccion_io->lista_enteros, cant_direccionesXD);
@@ -418,7 +435,7 @@ void atender_kernel_dispatch()
 					list_add(instruccion_io->lista_enteros, df_read);
 				}
 
-				queue_push(interfaz3->instrucciones_ejecutar, instruccion_io);
+				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
 				sem_post(&ciclo_instruccion_io);
 				printf("lo agrege a la queue\n");
 			}
