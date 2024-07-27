@@ -182,6 +182,22 @@ pidConQ *buscarPidConQ(int pid)
   return (pidConQ *)list_find(listQPrimas, pidIgualAlGlobal);
 }
 
+int buscarQPrimaNEW(int pid)
+{
+  int i=0;
+  while(i<list_size(listQPrimas))
+  {
+    pidConQ *pq = list_get(listQPrimas, i);
+    if(pq->pid==pid)
+    {
+      break;
+    }
+    i++;
+  }
+  pidConQ *ret = list_get(listQPrimas, i);
+  return ret->qPrima;
+}
+
 void restaurarQPrima(int pid)
 {
   pidConQ *aux = buscarPidConQ(pid);
@@ -600,7 +616,7 @@ void iniciar_planificacion_io()
 
 void avisarDesalojo(int pid)
 {
-  log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pid);
+  //log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pid);
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
@@ -788,12 +804,12 @@ void *contador_tiempos(void *arg)
 
   usleep(args->tiempo * 1000);
 
-  printf("la id es: %d\n", args->id);
+  //printf("la id es: %d\n", args->id);
 
   if (contiene_numero(lista_id_hilos, args->id)) // si la lista contiene el numero mando la interrupcion
   {
     avisarDesalojo(args->pid);
-    printf("aviso un desalojo\n");
+    //printf("aviso un desalojo\n");
   }
   else
   {
@@ -830,6 +846,7 @@ void mandarNuevoPCB()
     }
     else //es VRR
     {
+      //pidConQ *aux = buscarPidConQ(pcb_a_enviar->pid);
       args->tiempo = buscarQPrima(pcb_a_enviar->pid);
       //log_trace(kernel_log_debug, "PID: %d - EL Q PRIMA QUE ASIGNE ES: %d", args->pid,args->tiempo);
     }
@@ -1031,7 +1048,7 @@ void consultar_pid_cpu()
 
 void mandar_a_exit(int *pid_finalizado)
 {
-
+  
   // consultar_pid_cpu();
   printf("esta ejecutando: %d\n", estaEJecutando);
   printf("pid finalizado: %d\n", *pid_finalizado);

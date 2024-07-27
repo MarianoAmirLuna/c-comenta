@@ -27,8 +27,8 @@ void iniciar_logs(){
 	}
 }
 void iniciar_config_cpu(char* rutaconfig){
-    //cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
-    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/deadlock.config");
+    cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
+    //cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/planificacion.config");
 	if ( cpu_config == NULL)	
 	{
 		perror("Hay un error al iniciar el config.");
