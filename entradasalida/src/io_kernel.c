@@ -206,8 +206,6 @@ char* leerArchivo(char* nombre_Archivo,int registro_puntero,int registro_tamanio
 
 	char* PATH_bloques = string_duplicate(PATH_FS);
 	string_append(&PATH_bloques,"/bloques.dat");
-
-
 	
 	char* PATH_metadata = string_duplicate(PATH_FS);
 	char* direccionMetadata = string_from_format("/%s", nombre_Archivo);
@@ -263,13 +261,13 @@ char* leerArchivo(char* nombre_Archivo,int registro_puntero,int registro_tamanio
 	log_info(io_logger, "Datos leídos: %s\n", buffer);
 
     // Liberar memoria y cerrar el archivo
-    free(buffer);
+
     fclose(archivo);
 	config_destroy(config_metadata);
 
 	log_info(io_logger, "Fin de lectura");
 
-	return "hola";
+	return buffer;
 }
 
 void escribirArchivo(char *nombre_Archivo,int registro_puntero,char* texto_a_escribir){
@@ -801,6 +799,8 @@ void crearArchivo(char *nombre_Archivo)
 
 	char *PATH_FS = PATH_BASE_DIALFS;
 
+	printf("EL PATH FS: %s\n",PATH_FS);
+
 	char *PATH_metadata = string_duplicate(PATH_FS);
 
 	char *direccionMetadata = string_from_format("/%s", nombre_Archivo);
@@ -959,15 +959,18 @@ void atender_interfaz_kernel(int *arg)
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
 			printf("ejecute un create\n");
 
-			log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
+			//INICIAR_PROCESO /scripts_memoria/instrucciones.txt
+
+			//log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
 
 			printf("el pid es %d\n",pid);
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
+			printf("el path: %s\n",PATH_BASE_DIALFS);
 
-			log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
+			//log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
 
 			
-			log_info(io_logger, "PID: %i - Crear Archivo: %s",nombreArchivo);
+			//log_info(io_logger, "PID: %i - Crear Archivo: %s",nombreArchivo);
 			crearArchivo(nombreArchivo);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
@@ -983,12 +986,12 @@ void atender_interfaz_kernel(int *arg)
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
 			printf("ejecute un delete\n");
 
-			log_info(io_logger, "PID: %i - Operacion: IO_FS_DELETE",pid);
+			//log_info(io_logger, "PID: %i - Operacion: IO_FS_DELETE",pid);
 
 			printf("el pid es %d\n",pid);
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
 
-			log_info(io_logger, "PID: %i - Eliminar Archivo: %s",nombreArchivo);
+			//log_info(io_logger, "PID: %i - Eliminar Archivo: %s",nombreArchivo);
 			eliminarArchivo(nombreArchivo); 
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
@@ -1005,13 +1008,13 @@ void atender_interfaz_kernel(int *arg)
 			registro_tamanio = extraer_int_del_buffer(un_buffer);
 			printf("ejecute un truncate\n");
 
-			log_info(io_logger, "PID: %i - Operacion: IO_FS_TRUNCATE",pid);
+			//log_info(io_logger, "PID: %i - Operacion: IO_FS_TRUNCATE",pid);
 
 			printf("el pid es %d\n",pid);
 			printf("el nombre del archivo es: %s\n",nombreArchivo);
 			printf("el registro tamanio es: %d\n",registro_tamanio);
 
-			log_info(io_logger, "PID: %i - Truncar Archivo: %s - Tamaño: %i",nombreArchivo,registro_tamanio);
+			//log_info(io_logger, "PID: %i - Truncar Archivo: %s - Tamaño: %i",pid,nombreArchivo,registro_tamanio);
 			truncarArchivo(nombreArchivo,registro_tamanio, pid);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
@@ -1059,7 +1062,7 @@ void atender_interfaz_kernel(int *arg)
 			//escribirArchivo(nombreArchivo,registro_puntero_write,palabraIOWrite);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
-			usleep(TIEMPO_UNIDAD_TRABAJO*1000);
+			usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
 			log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
@@ -1067,20 +1070,29 @@ void atender_interfaz_kernel(int *arg)
 			break;
 		case ENVIAR_IO_FS_READ:
 
-			log_info(io_logger, "PID: %i - Operacion: IO_FS_READ",pid); //falta pid
-		    /*un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 	        pid = extraer_int_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
+			int punteroRead = extraer_int_del_buffer(un_buffer);
+			int bytesRestantesPagina = extraer_int_del_buffer(un_buffer);
+			int tamanioEscribirRead = extraer_int_del_buffer(un_buffer);
+			int cantidadDireccionesXD = extraer_int_del_buffer(un_buffer);
 
-			
+			//faltan extraer las direcciones fisicas del buffer
+
+			log_info(io_logger, "PID: %i - Operacion: IO_FS_READ",pid); //falta pid
 
 			printf("el pid es %d\n",pid);
-			printf("el nombre del archivo es: %s\n",nombreArchivo);*/
+			printf("el nombre del archivo es: %s\n",nombreArchivo);
+			printf("puntero read %d\n",punteroRead);
+			printf("byts restantes %d\n",bytesRestantesPagina);
+			printf("tamanio escribir %d\n",tamanioEscribirRead);
+			printf("cantidad direcciones %d\n",cantidadDireccionesXD);
 
 			//printf("mensaje obtenido: %s\n",palabraIOWrite);
 
-			log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamaño a Escribir: %i - Puntero Archivo: %i",pid,nombreArchivo,tamanio_write,registro_puntero_write);
-			leerArchivo(nombreArchivo,registro_puntero_write,registro_tamanio);
+			//log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamaño a Escribir: %i - Puntero Archivo: %i",pid,nombreArchivo,tamanio_write,registro_puntero_write);
+			char* leidoDelArchivo = leerArchivo(nombreArchivo,registro_puntero_write,registro_tamanio);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
 			usleep(TIEMPO_UNIDAD_TRABAJO*1000);

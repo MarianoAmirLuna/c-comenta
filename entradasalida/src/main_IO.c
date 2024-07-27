@@ -246,13 +246,18 @@ void iniciarInterfaz(char *nombre_Interface, char *direccion_Config)
 
 void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 {
-	t_config *config_interface = crearConfig(direccion_Config);
+	t_config *io_config = crearConfig(direccion_Config);
 
-	char *IP_KERNEL = config_get_string_value(config_interface, "IP_KERNEL");
-	char *PUERTO_KERNEL = config_get_string_value(config_interface, "PUERTO_KERNEL");
-	char *IP_MEMORIA = config_get_string_value(config_interface, "IP_MEMORIA");
-	char *PUERTO_MEMORIA = config_get_string_value(config_interface, "PUERTO_MEMORIA");
-	char *TIPO_INTERFAZ = config_get_string_value(config_interface, "TIPO_INTERFAZ");
+	IP_MEMORIA = config_get_string_value(io_config, "IP_MEMORIA");
+	TIPO_INTERFAZ = config_get_string_value(io_config, "TIPO_INTERFAZ");
+	PUERTO_MEMORIA = config_get_string_value(io_config, "PUERTO_MEMORIA");
+	IP_KERNEL = config_get_string_value(io_config, "IP_KERNEL");
+	PUERTO_KERNEL = config_get_string_value(io_config, "PUERTO_KERNEL");
+	TIEMPO_UNIDAD_TRABAJO = config_get_int_value(io_config, "TIEMPO_UNIDAD_TRABAJO");
+	PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
+	BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
+	BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
+	RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
 
 	printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
 
