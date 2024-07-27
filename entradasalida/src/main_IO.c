@@ -289,10 +289,14 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 	IP_KERNEL = config_get_string_value(io_config, "IP_KERNEL");
 	PUERTO_KERNEL = config_get_string_value(io_config, "PUERTO_KERNEL");
 	TIEMPO_UNIDAD_TRABAJO = config_get_int_value(io_config, "TIEMPO_UNIDAD_TRABAJO");
-	PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
-	BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
-	BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
-	RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
+
+	if (strcmp(TIPO_INTERFAZ, "DIALFS") == 0)
+	{
+		PATH_BASE_DIALFS = config_get_string_value(io_config, "PATH_BASE_DIALFS");
+		BLOCK_SIZE = config_get_int_value(io_config, "BLOCK_SIZE");
+		BLOCK_COUNT = config_get_int_value(io_config, "BLOCK_COUNT");
+		RETRASO_COMPACTACION = config_get_int_value(io_config, "RETRASO_COMPACTACION");
+	}
 
 	printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
 
@@ -306,7 +310,7 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 
 	//////////////////////////////////////////////////////////
 
-	//Si la interfaz es del tipo DIALFS reviso si los archivo estan creados, si estan creados no hago nada (se reconecto), si no lo estan los creo (primera ejecucion)
+	// Si la interfaz es del tipo DIALFS reviso si los archivo estan creados, si estan creados no hago nada (se reconecto), si no lo estan los creo (primera ejecucion)
 	if (strcmp(TIPO_INTERFAZ, "DIALFS") == 0)
 	{
 		char *PATH_FS = PATH_BASE_DIALFS;
@@ -330,15 +334,15 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 
 	t_buffer *a_enviar = crear_buffer();
 
-    a_enviar->size = 0;
-    a_enviar->stream = NULL;
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
 
-    cargar_string_al_buffer(a_enviar, nombre_Interfaz);
-	cargar_string_al_buffer(a_enviar,TIPO_INTERFAZ);
+	cargar_string_al_buffer(a_enviar, nombre_Interfaz);
+	cargar_string_al_buffer(a_enviar, TIPO_INTERFAZ);
 
-    t_paquete *un_paquete = crear_super_paquete(CREAR_INTERFAZ, a_enviar);
-    enviar_paquete(un_paquete, fd_kernel);
-    destruir_paquete(un_paquete);
+	t_paquete *un_paquete = crear_super_paquete(CREAR_INTERFAZ, a_enviar);
+	enviar_paquete(un_paquete, fd_kernel);
+	destruir_paquete(un_paquete);
 
 	printf("mande un buffer a kernel\n");
 
@@ -346,28 +350,27 @@ void crearInterfaz(char *nombre_Interfaz, char *direccion_Config)
 
 	t_buffer *a_enviar2 = crear_buffer();
 
-    a_enviar2->size = 0;
-    a_enviar2->stream = NULL;
+	a_enviar2->size = 0;
+	a_enviar2->stream = NULL;
 
-    cargar_string_al_buffer(a_enviar2, nombre_Interfaz);
-	cargar_string_al_buffer(a_enviar2,TIPO_INTERFAZ);
+	cargar_string_al_buffer(a_enviar2, nombre_Interfaz);
+	cargar_string_al_buffer(a_enviar2, TIPO_INTERFAZ);
 
-    t_paquete *un_paquete2 = crear_super_paquete(CREAR_INTERFAZ, a_enviar2);
-    enviar_paquete(un_paquete2, fd_memoria);
-    destruir_paquete(un_paquete2);
+	t_paquete *un_paquete2 = crear_super_paquete(CREAR_INTERFAZ, a_enviar2);
+	enviar_paquete(un_paquete2, fd_memoria);
+	destruir_paquete(un_paquete2);
 
 	printf("mande un buffer a memoria\n");
 
 	///////////////////////////////////////////////////////////
 
-	pthread_t hilo_generica; 
+	pthread_t hilo_generica;
 	pthread_create(&hilo_generica, NULL, (void *)atender_interfaz_kernel, &fd_kernel);
 	pthread_detach(hilo_generica);
 
 	pthread_t hilo_generica2; // planificador largo plazo
 	pthread_create(&hilo_generica2, NULL, (void *)atender_interfaz_memoria, &fd_memoria);
-	pthread_join(hilo_generica2,NULL);
-
+	pthread_join(hilo_generica2, NULL);
 }
 
 int main()
@@ -401,12 +404,12 @@ int main()
 
 	} while (string_is_empty(direccionConfigInterCrear));
 
-	//direccionConfigInterCrear = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"; // hardcodeo el path del config para hacer pruebas
-	log_info(io_logger, "La direccion elegida es %s", direccionConfigInterCrear);											  // TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
+	// direccionConfigInterCrear = "/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/entradasalida/entradasalida.config"; // hardcodeo el path del config para hacer pruebas
+	log_info(io_logger, "La direccion elegida es %s", direccionConfigInterCrear); // TODO: ¿Se deberia considerar la posibilidad de que en esa direccion no haya archivo de configuracion?
 
 	crearInterfaz(nombreInterACrear, direccionConfigInterCrear);
-	//iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
-	// free(direccionConfigInterCrear);
+	// iniciarInterfaz(nombreInterACrear, direccionConfigInterCrear);
+	//  free(direccionConfigInterCrear);
 	free(nombreInterACrear);
 
 	log_info(io_logger, "Fin de Entrada/Salida");

@@ -2,26 +2,30 @@
 #include <utils/shared.h>
 #include "../include/funciones_kernel.h"
 
-void desbloquear_el_proceso_de_la_iterfaz(char* nombre_interfaz){
+void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
+{
 
-	interfaces_io* interfaz = encontrar_interfaz(nombre_interfaz);
+	interfaces_io *interfaz = encontrar_interfaz(nombre_interfaz);
 
-	//busco la interfaz en de la lista y lo mando al planificador otra vez
-	int* pid = malloc(sizeof(int));
+	// busco la interfaz en de la lista y lo mando al planificador otra vez
+	int *pid = malloc(sizeof(int));
 
-	pid = (int*)queue_pop(interfaz->procesos_bloqueados);
-
-	printf("el pid que fue liberado %d\n",*pid);
-
-	int qPrimaNueva = buscarQPrima(pid);
-	if (strcmp(ALGORITMO_PLANIFICACION, "VRR") == 0 && qPrimaNueva != QUANTUM)
+	if (list_size(interfaz->procesos_bloqueados->elements) > 0)
 	{
-		list_add(procesos_READY_priori,pid);
-		log_trace(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
-	}
-	else
-	{
-		list_add(procesosREADY, pid);
+		pid = (int *)queue_pop(interfaz->procesos_bloqueados);
+
+		printf("el pid que fue liberado %d\n", *pid);
+
+		int qPrimaNueva = buscarQPrima(pid);
+		if (strcmp(ALGORITMO_PLANIFICACION, "VRR") == 0 && qPrimaNueva != QUANTUM)
+		{
+			list_add(procesos_READY_priori, pid);
+			log_trace(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
+		}
+		else
+		{
+			list_add(procesosREADY, pid);
+		}
 	}
 
 	interfaz->estaLibre = true;
@@ -43,38 +47,38 @@ void atender_creacion_interfaz(int *arg)
 		switch (cod_op)
 		{
 		case CREAR_INTERFAZ:
-		    printf("estoy por crear la interfaz\n");
+			printf("estoy por crear la interfaz\n");
 
-		    interfaces_io* nueva_interfaz = (interfaces_io*)malloc(sizeof(interfaces_io));
+			interfaces_io *nueva_interfaz = (interfaces_io *)malloc(sizeof(interfaces_io));
 
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 
-            char* nombre_interfaz = extraer_string_del_buffer(un_buffer);
-            char* tipo_interfaz = extraer_string_del_buffer(un_buffer);
+			char *nombre_interfaz = extraer_string_del_buffer(un_buffer);
+			char *tipo_interfaz = extraer_string_del_buffer(un_buffer);
 
-			printf("el nombre dela interfaz: %s\n",nombre_interfaz);
-			printf("el tipo dela interfaz: %s\n",tipo_interfaz);
+			printf("el nombre dela interfaz: %s\n", nombre_interfaz);
+			printf("el tipo dela interfaz: %s\n", tipo_interfaz);
 
-            nueva_interfaz->fd_interfaz = fd_entradasalida_kernel;
-            nueva_interfaz->nombre_interfaz = nombre_interfaz;
-            nueva_interfaz->tipo_interfaz = tipo_interfaz;
+			nueva_interfaz->fd_interfaz = fd_entradasalida_kernel;
+			nueva_interfaz->nombre_interfaz = nombre_interfaz;
+			nueva_interfaz->tipo_interfaz = tipo_interfaz;
 			nueva_interfaz->procesos_bloqueados = queue_create();
 			nueva_interfaz->instrucciones_ejecutar = queue_create();
 			nueva_interfaz->estaLibre = true;
 
-            list_add(lista_interfaces, nueva_interfaz);
-            
+			list_add(lista_interfaces, nueva_interfaz);
+
 			printf("agrege la nueva interfaz a la queue\n");
 
 			int size = list_size(lista_interfaces);
 
-			printf("el tamanio de la list interfaces: %d\n",size);
-		    break;
+			printf("el tamanio de la list interfaces: %d\n", size);
+			break;
 		case LIBERAR_INTERFAZ:
 
-		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
-			char* name_interfaz = extraer_string_del_buffer(un_buffer);
-			
+			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
+			char *name_interfaz = extraer_string_del_buffer(un_buffer);
+
 			desbloquear_el_proceso_de_la_iterfaz(name_interfaz);
 
 			break;

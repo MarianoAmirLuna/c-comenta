@@ -363,7 +363,7 @@ void atender_kernel_dispatch()
 				list_add(instruccion_io->lista_enteros,registro_puntero_write);
 				list_add(instruccion_io->lista_enteros,tamanio_write);
 
-				for (int i = 0; i < tamanio; i++)
+				for (int i = 0; i < *tamanio_write; i++)
 				{
 					int *direccion_fisica_write = malloc(sizeof(int));
 					*direccion_fisica_write = extraer_int_del_buffer(un_buffer);
@@ -404,7 +404,7 @@ void atender_kernel_dispatch()
 			{
 				instruccion_io = (instruccion *)malloc(sizeof(instruccion));
 				instruccion_io->nombre_instruccion = "IO_FS_READ";
-				instruccion_io->nombre_archivo = "";
+				instruccion_io->nombre_archivo = nombreArchivo;
 				instruccion_io->lista_enteros = list_create();
 				
                 list_add(instruccion_io->lista_enteros, registro_puntero);
