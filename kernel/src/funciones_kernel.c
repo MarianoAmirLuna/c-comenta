@@ -632,7 +632,7 @@ void avisarDesalojo(int pid)
 
 void desalojoFinProceso()
 {
-  log_trace(kernel_log_debug, "PID: %d - Desalojado por finalizacion de proceso", estaEJecutando);
+  log_trace(kernel_log_debug, "PID: %d - Terminado por Fin de Programa (success)", estaEJecutando);
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
@@ -1052,7 +1052,7 @@ void consultar_pid_cpu()
 
 void mandar_a_exit(int *pid_finalizado)
 {
-  
+
   // consultar_pid_cpu();
   printf("esta ejecutando: %d\n", estaEJecutando);
   printf("pid finalizado: %d\n", *pid_finalizado);
