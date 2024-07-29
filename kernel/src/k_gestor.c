@@ -44,6 +44,9 @@ int estaEJecutando;
 int quantum_global_reloj;
 struct timespec start_time;
 struct timespec end_time;
+
+struct timespec start_time_falopa;
+struct timespec end_time_falopa;
 int consulta_pid_ejecucion;
 sem_t esperar_consulta_pid;
 sem_t esperar_termine_ejecutar_pcb_cpu;

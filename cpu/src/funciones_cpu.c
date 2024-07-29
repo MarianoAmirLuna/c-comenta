@@ -1297,21 +1297,10 @@ void procesar_instruccion()
     terminaPorSenial = false;
     cambioContexto = false;
     ejecute_instruccion_tipo_io = false;
-    
-    if(pcb_ejecucion.program_counter > 2){ //no preguntes porque esta esto solo anda y punto
-        obtener_cantidad_instrucciones(pcb_ejecucion.pid);
-    }
-    else{
-        cantInstucciones = 100000;
-    }
+
 
     while (!terminarPorExit && !cambioContexto && !terminaPorSenial && !ejecute_instruccion_tipo_io)
     {
-
-        if(cantInstucciones == pcb_ejecucion.program_counter){
-            terminarPorExit = true;
-            break;
-        }
 
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
@@ -1352,7 +1341,7 @@ void procesar_instruccion()
         }
         else
         {
-            if (cambioContexto)
+            if (cambioContexto && !ejecute_instruccion_tipo_io)
             {
                 devolverPCBKernelCambioContexto();
             }

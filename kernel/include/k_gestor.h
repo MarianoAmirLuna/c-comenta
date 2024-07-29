@@ -123,6 +123,9 @@ extern sem_t sem_lista_hilos;
 
 extern struct timespec start_time;
 extern struct timespec end_time;
+extern struct timespec start_time_falopa;
+extern struct timespec end_time_falopa;
+
 extern int consulta_pid_ejecucion;
 
 

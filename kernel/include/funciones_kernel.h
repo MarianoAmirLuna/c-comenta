@@ -35,6 +35,7 @@ pidConQ *buscarPidConQ(int);
 int buscarQPrimaNEW(int);
 void restaurarQPrima(int);
 
+
 //int seguirPlanificando;
 //sem_t sem_cpu_libre;
 //int ejecutandoProceso;
