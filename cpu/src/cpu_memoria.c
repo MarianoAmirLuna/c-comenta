@@ -111,6 +111,11 @@ void atender_cpu_memoria()
 			caracterGlobal = extraer_uint8_del_buffer(un_buffer);
 			sem_post(&esperar_lectura_caracter);
 			break;
+		case MANDAR_LECTURA_DE_STRING:
+		    un_buffer = recibir_todo_el_buffer(fd_memoria);
+			stringLeido = extraer_string_del_buffer(un_buffer);
+			sem_post(&esperarLecturaDeString);
+			break;
 		case OUT_OF_MEMORY:
 		    un_buffer = recibir_todo_el_buffer(fd_memoria);
 			int valorRandom = extraer_int_del_buffer(un_buffer);

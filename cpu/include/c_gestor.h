@@ -33,6 +33,7 @@ extern sem_t esperarMarco;
 extern sem_t esperarEscrituraDeMemoria;
 extern sem_t esperarLecturaDeMemoria;
 extern sem_t esperar_lectura_caracter;
+extern sem_t esperarLecturaDeString;
 //extern sem_t esperarCantInstrucciones;
 
 extern PCB pcb_ejecucion;
@@ -57,6 +58,7 @@ extern bool terminePorOutOfMemory;
 extern char* nombre_interfaz;
 extern char* tipo_instruccion;
 extern bool yaDevolvioPcb;
+extern char* stringLeido;
 
 extern t_list* procesosConPath;
 extern int numeroID_hilo;

@@ -392,7 +392,7 @@ int calcularEspacioDisponibleEnMemoria()
 		}
 	}
 
-	printf("El espacio total Disponible en la memoria es de %d\n",acumulador);
+	printf("El espacio total Disponible en la memoria es de %d\n", acumulador);
 
 	return acumulador;
 }
@@ -607,6 +607,73 @@ void escribirMemoria(t_buffer *un_buffer)
 	printf("cantidad de iteraciones: %d\n", cantIteraciones);
 }
 
+void concat_uint8_to_string(char *str, uint8_t ch)
+{
+    size_t len = strlen(str); // Encuentra la longitud actual del string
+
+    printf("el caracter es: %c\n", (char)ch);
+
+    str[len] = (char)ch; // Añade el carácter al final del string
+    str[len + 1] = '\0'; // Añade el terminador nulo
+}
+
+void leerMemoriaUnString(t_buffer *un_buffer)
+{
+	int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
+	int tamanioALeer = extraer_int_del_buffer(un_buffer);
+
+	int cantIteraciones = 0;
+	t_list *cortesPagina = list_create();
+
+	obtenerCortesDePagina(cortesPagina, tamanioALeer, bytes_restantes_en_pagina); // [10,42,74] Cada cuantos bytes necesitas un nuevo marco (osea una nueva df)
+
+	int longitud = list_size(cortesPagina);
+
+	for (int i = 0; i < longitud; i++)
+	{
+		int *pepe = (int *)list_get(cortesPagina, i);
+		printf("valor de la lista cortes: %d\n", *pepe);
+	}
+
+	printf("la longitud es: %d\n", longitud);
+
+	int df = extraer_int_del_buffer(un_buffer);
+	uint8_t infoLeida;
+	char str[tamanioALeer + 1]; // Inicializa el string como vacío
+    str[0] = '\0';
+
+	while (cantIteraciones < tamanioALeer)
+	{
+
+		if (necesitoNuevaDF(cortesPagina, cantIteraciones))
+		{
+			df = extraer_int_del_buffer(un_buffer);
+		}
+
+		printf("en la direccion fisica: %d\n", df);
+		memcpy(&infoLeida, memoriaPrincipal + df, 1);
+		concat_uint8_to_string(str, infoLeida);
+		cantIteraciones++;
+		df++;
+	}
+
+	printf("cantidad de iteraciones: %d\n", cantIteraciones);
+
+	printf("###################### MENSAJE LEIDO: %s \n",str);
+
+	t_buffer *a_enviar = crear_buffer();
+	a_enviar->size = 0;
+	a_enviar->stream = NULL;
+
+	cargar_string_al_buffer(a_enviar, str);
+	usleep(RETARDO_RESPUESTA * 1000);
+
+	t_paquete *un_paquete = crear_super_paquete(MANDAR_LECTURA_DE_STRING, a_enviar);
+	enviar_paquete(un_paquete, fd_cpu);
+	destruir_paquete(un_paquete);
+
+}
+
 void leer_caracter(int df)
 {
 	uint8_t datoLeido;
@@ -677,6 +744,10 @@ void atender_memoria_cpu()
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			escribirMemoria(un_buffer);
 			terminoInstruccionMemoria();
+			break;
+		case LEER_EN_MEMORIA_UN_STRING:
+			un_buffer = recibir_todo_el_buffer(fd_cpu);
+			leerMemoriaUnString(un_buffer);
 			break;
 		case LEER_CARACTER_MEMORIA:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);

@@ -34,6 +34,7 @@ sem_t esperarMarco;
 sem_t esperarEscrituraDeMemoria;
 sem_t esperarLecturaDeMemoria;
 sem_t esperar_lectura_caracter;
+sem_t esperarLecturaDeString;
 //sem_t esperarCantInstrucciones;
 
 char* instruccion_actual;
@@ -56,6 +57,7 @@ char* nombre_interfaz;
 char* tipo_instruccion;
 bool terminePorOutOfMemory;
 bool yaDevolvioPcb;
+char* stringLeido;
 
 t_list* procesosConPath;
 int numeroID_hilo;

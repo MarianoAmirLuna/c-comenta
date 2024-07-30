@@ -26,5 +26,7 @@ void imprimirBitmapMemoriaPrincipal();
 void terminoInstruccionMemoria();
 void leer_caracter(int df);
 int calcularEspacioDisponibleEnMemoria();
+void leerMemoriaUnString(t_buffer *un_buffer);
+void concat_uint8_to_string(char *str, uint8_t ch);
 
 #endif

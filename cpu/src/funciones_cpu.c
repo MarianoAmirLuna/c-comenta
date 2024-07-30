@@ -470,48 +470,43 @@ void leerCaracterMemoria(int direccionLogica)
 
 void _copy_string(char *tamanio)
 {
+    // Leer del SI
     int desplazamiento_en_pagina = (int)pcb_ejecucion.registros_cpu.DI % tamanio_pagina; // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
-
     int tamanioAEscribir = atoi(tamanio);
 
-    char str[tamanioAEscribir + 1]; // Inicializa el string como vacío
-    str[0] = '\0';
+    int tamanioALeer = tamanioAEscribir;
+    logicaDeLeer( bytes_restantes_en_pagina, tamanioALeer);
+    sem_wait(&esperarLecturaDeString);
 
-    for (int i = 0; i < tamanioAEscribir; i++)
-    {
-        leerCaracterMemoria((int)pcb_ejecucion.registros_cpu.SI);
-        concat_uint8_to_string(str, caracterGlobal);
-        pcb_ejecucion.registros_cpu.SI++;
-    }
-
-    printf("$$$$$ El string es: %s\n", str);
-
+    // Escribir en el DI
     int cantDireccionesNecesarias = obtener_cant_direcciones((int)pcb_ejecucion.registros_cpu.DI, tamanioAEscribir, bytes_restantes_en_pagina);
 
     t_buffer *buffer = crear_buffer();
     buffer->size = 0;
     buffer->stream = NULL;
-
-    cargar_string_al_buffer(buffer, str);
+    
+    cargar_string_al_buffer(buffer, stringLeido);
     cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
     cargar_int_al_buffer(buffer, tamanioAEscribir);
 
     int flag = 0;
 
+    int copiaDI = (int)pcb_ejecucion.registros_cpu.DI;
+
     for (int i = 0; i < cantDireccionesNecesarias; i++)
     {
-        int df = traducir_dl((int)pcb_ejecucion.registros_cpu.DI);
+        int df = traducir_dl(copiaDI);
         cargar_int_al_buffer(buffer, df);
 
         if (flag == 0)
         {
-            pcb_ejecucion.registros_cpu.DI = (int)pcb_ejecucion.registros_cpu.DI + bytes_restantes_en_pagina;
+            copiaDI = copiaDI + bytes_restantes_en_pagina;
             flag = 1;
         }
         else
         {
-            pcb_ejecucion.registros_cpu.DI = (int)pcb_ejecucion.registros_cpu.DI + tamanio_pagina;
+            copiaDI = copiaDI + tamanio_pagina;
         }
         printf("carge un int al buffer\n");
     }
@@ -519,6 +514,42 @@ void _copy_string(char *tamanio)
     t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
     enviar_paquete(paquete, fd_memoria);
     destruir_paquete(paquete);
+}
+
+void logicaDeLeer(int bytes_restantes_en_pagina, int tamanioALeer){ //Cambiar .h
+    int cantDireccionesNecesarias = obtener_cant_direcciones((int)pcb_ejecucion.registros_cpu.SI, tamanioALeer, bytes_restantes_en_pagina);
+
+    t_buffer *buffer = crear_buffer(); 
+    buffer->size = 0;
+    buffer->stream = NULL;
+    cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
+    cargar_int_al_buffer(buffer, tamanioALeer);
+
+    int flag = 0;
+
+    int copiaSI = (int)pcb_ejecucion.registros_cpu.SI;
+
+    for (int i = 0; i < cantDireccionesNecesarias; i++)
+    {
+        int df = traducir_dl(copiaSI);
+        cargar_int_al_buffer(buffer, df);
+
+        if (flag == 0)
+        {
+            copiaSI = copiaSI + bytes_restantes_en_pagina;
+            flag = 1;
+        }
+        else
+        {
+            copiaSI = copiaSI + tamanio_pagina;
+        }
+        printf("carge un int al buffer\n");
+    }
+
+    t_paquete *paquete = crear_super_paquete(LEER_EN_MEMORIA_UN_STRING, buffer);
+    enviar_paquete(paquete, fd_memoria);
+    destruir_paquete(paquete);
+
 }
 
 void ioGenSleep(char *nombreInterfaz, char *unidadesTrabajo)

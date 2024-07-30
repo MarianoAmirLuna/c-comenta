@@ -61,5 +61,6 @@ void io_fd_truncate(char* interfaz,char* nombreArchivo, char* registroTamanio);
 void io_fs_write(char* interfaz, char* nombreArchivo, char* registroDireccion, char* registroTamanio, char* registroPunteroArchivo);
 void io_fs_read(char* interfaz,char* nombreArchivo,char* registroDireccion,char* registroTamanio,char* registroPunteroArchivo);
 void devolverPCBKernelOutOfMemory();
+void logicaDeLeer(int bytes_restantes_en_pagina, int tamanioALeer);
 
 #endif
