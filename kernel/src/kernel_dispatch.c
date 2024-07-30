@@ -54,15 +54,22 @@ void atender_kernel_dispatch()
 				log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pcb_devuelto->pid);
 				pthread_mutex_lock(&proteger_lista_ready);
 				list_add(procesosREADY, &(pcb_devuelto->pid));
+				mostrarUnaLista(procesosREADY,"Ready");
+				log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <READY>\n", pcb_devuelto->pid);
 				pthread_mutex_unlock(&proteger_lista_ready);
 				restaurarQPrima(pcb_devuelto->pid);
 			}
 			else
 			{ // ejecuto todas las instrucciones
 				// significa que termino todas sus intrucciones y tengo que liberar los recursos y mandarlo a exit
-				//list_add(procesosEXIT, &(pcb_devuelto->pid));
-				log_trace(kernel_log_debug, "PID: %d - Terminado por Fin de Programa (success)", pcb_devuelto->pid);
-				mandar_a_exit(&(pcb_devuelto->pid));
+				//list_add(procesosEXIT, &(pcb_devuelto->pid));				
+				list_add(procesosEXIT,&(pcb_devuelto->pid));
+				log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <EXIT>\n", pcb_devuelto->pid); 
+				finalizarProceso(pcb_devuelto->pid); 
+
+				if(!contiene_numero(procesosFinalizadosPorConsola, pcb_devuelto->pid)){ // Si no esta en la lista de termiandos por consola, queire decir que termino bien
+					log_info(kernel_log_debug, "Finaliza el proceso <%d> - Motivo: <SUCCESS>\n", pcb_devuelto->pid);
+				}
 				//ciclo_planificacion();
 				//finalizarProceso(pcb_devuelto->pid); // agregar un poco mas de logica aca
 			}
@@ -103,6 +110,7 @@ void atender_kernel_dispatch()
 			sem_post(&esperar_devolucion_pcb);
 			list_add(listaPCBs, pcb_devuelto_por_signal);
 			list_add(procesosREADY, &(pcb_devuelto_por_signal->pid));
+			mostrarUnaLista(procesosREADY, "Ready");
 			quantum_global_reloj = QUANTUM;
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
@@ -158,6 +166,7 @@ void atender_kernel_dispatch()
 			{
 				printf("lo agrege a exit\n");
 				list_add(procesosEXIT, &(pcb_devuelto2->pid));
+				log_info(kernel_log_debug, "Finaliza el proceso <%d> - Motivo: <INVALID_INTERFACE>, no lo encuentra.\n", pcb_devuelto2->pid);
 			}
 			else
 			{
@@ -165,6 +174,7 @@ void atender_kernel_dispatch()
 				{
 					printf("lo agrege a exit 2.0\n");
 					list_add(procesosEXIT, &(pcb_devuelto2->pid));
+					log_info(kernel_log_debug, "Finaliza el proceso <%d> - Motivo: <INVALID_INTERFACE>, no lo admite.\n", pcb_devuelto2->pid);
 				}
 				else
 				{

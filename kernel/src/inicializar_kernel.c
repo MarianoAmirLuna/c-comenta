@@ -30,7 +30,7 @@ void inicializar_configs(char* rutaconfig)
 {
 	//kernel_config = config_create(rutaconfig); //DES-COMENTAR PARA ENTREGA
 
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/edge.config");
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/io.config");
 
 	if (kernel_config == NULL)
 	{
@@ -81,7 +81,7 @@ void iniciar_semaforos()
 	procesosEXIT = list_create();
     lista_id_hilos = list_create();
 	procesos_READY_priori = list_create();
-
+	procesosFinalizadosPorConsola = list_create();
 	
 }
 

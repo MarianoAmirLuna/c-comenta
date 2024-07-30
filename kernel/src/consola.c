@@ -2,43 +2,43 @@
 #include "../include/funciones_kernel.h"
 #include <commons/log.h>
 
-
-//REVISAR
-void ejecutar_script(char* argumentos){ 
+// REVISAR
+void ejecutar_script(char *argumentos)
+{
     ejecutar_archivo(argumentos);
-    printf("El script es: %s\n", argumentos);       
+    printf("El script es: %s\n", argumentos);
 }
 
-void ejecutar_archivo(const char* filePath) {
+void ejecutar_archivo(const char *filePath)
+{
     // Abrir el archivo y obtener las instrucciones
-    FILE* file = fopen(filePath+1, "r");
-    if (file == NULL) {
+    FILE *file = fopen(filePath + 1, "r");
+    if (file == NULL)
+    {
         printf("No se pudo abrir el archivo de instrucciones.");
         return;
     }
 
     char lineas[256];
-    while (fgets(lineas, sizeof(lineas), file) != NULL) {
+    while (fgets(lineas, sizeof(lineas), file) != NULL)
+    {
         lineas[strcspn(lineas, "\n")] = '\0'; // Eliminar el salto de línea
         // Aquí puedes utilizar la variable "lineas" sin el salto de línea
-    
+
         // Ejecutar cada instrucción en la consola
         // Aquí puedes llamar a la función que ejecuta una instrucción en la consola
         // Pasando la línea como parámetro
-        //mensaje_a_consola(linea);
-        if(_validacion_de_instruccion_de_consola(lineas))
+        // mensaje_a_consola(linea);
+        if (_validacion_de_instruccion_de_consola(lineas))
         {
             _atender_instruccion_validada(lineas);
         }
-    
     }
-    
+
     fclose(file);
 
     // Terminar la función después de leer todas las líneas
-    
 }
-
 
 void iniciar_consola_interactiva()
 {
@@ -73,31 +73,33 @@ void listar_procesos_estado()
 
     for (int i = 0; i < list_size(procesosNEW); i++)
     {
-        int* pid = list_get(procesosNEW, i);
+        int *pid = list_get(procesosNEW, i);
         log_debug(kernel_log_debug, "PID: %d esta en NEW", *pid);
     }
 
     for (int i = 0; i < list_size(procesosREADY); i++)
     {
-        int* pid = list_get(procesosREADY, i);
+        int *pid = list_get(procesosREADY, i);
         log_debug(kernel_log_debug, "PID: %d esta en READY", *pid);
     }
 
     for (int i = 0; i < list_size(procesosEXIT); i++)
     {
-        int* pid = list_get(procesosEXIT, i);
+        int *pid = list_get(procesosEXIT, i);
         log_debug(kernel_log_debug, "PID: %d esta en EXIT", *pid);
     }
 
-    for(int i = 0; nombresRecursos[i] != NULL ; i++){
+    for (int i = 0; nombresRecursos[i] != NULL; i++)
+    {
 
-        t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i); //PREGUNTAR LUCA
+        t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i); // PREGUNTAR LUCA
 
         log_debug(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
 
-        for(int j = 0; j < list_size(lista_donde_agregar); j++){
+        for (int j = 0; j < list_size(lista_donde_agregar); j++)
+        {
 
-            int* numeroXD = list_get(lista_donde_agregar,j);
+            int *numeroXD = list_get(lista_donde_agregar, j);
             log_debug(kernel_log_debug, "PID: %d", *numeroXD);
         }
     }
@@ -106,9 +108,10 @@ void listar_procesos_estado()
     {
         interfaces_io *interfaz = list_get(lista_interfaces, i);
 
-        for(int j = 0; j < queue_size(interfaz->procesos_bloqueados); j++){
+        for (int j = 0; j < queue_size(interfaz->procesos_bloqueados); j++)
+        {
 
-            int* pid = list_get(interfaz->procesos_bloqueados->elements,j);
+            int *pid = list_get(interfaz->procesos_bloqueados->elements, j);
             log_debug(kernel_log_debug, "PID: %d esta BLOQUEADO por %s", *pid, interfaz->nombre_interfaz);
         }
     }
@@ -153,7 +156,7 @@ bool _validacion_de_instruccion_de_consola(char *leido)
     {
         resultado_validacion = true;
     }
-    else if(strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0)
+    else if (strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0)
     {
         resultado_validacion = true;
     }
@@ -179,8 +182,6 @@ void _atender_instruccion_validada(char *leido)
         printf("%s\n", comando_consola[1]);
 
         iniciar_proceso(comando_consola[1]);
-
-        log_trace(kernel_log_debug, "Se creo un proceso\n");
     }
     else if (strcmp(comando_consola[0], "FINALIZAR_PROCESO") == 0)
     {
@@ -188,14 +189,14 @@ void _atender_instruccion_validada(char *leido)
         int *pidComando = malloc(sizeof(int));
 
         *pidComando = atoi(comando_consola[1]);
-        liberarRecursosProceso(pidComando); //deadlock
+        liberarRecursosProceso(pidComando); // deadlock
         mandar_a_exit(pidComando);
+        finalizarProceso(*pidComando); // eliminar de la memoria
 
-        if(*pidComando != estaEJecutando){
-            finalizarProceso(*pidComando);  //eliminar de la memoria
-        }
-        
-        free(pidComando);
+        list_add(procesosFinalizadosPorConsola, pidComando);
+
+        log_info(kernel_log_debug, "Finaliza el proceso <%d> - Motivo: <INTERRUPTED_BY_USER>\n", *pidComando);
+
         ciclo_planificacion();
     }
     else if (strcmp(comando_consola[0], "DETENER_PLANIFICACION") == 0)
@@ -219,7 +220,7 @@ void _atender_instruccion_validada(char *leido)
 
         listar_procesos_estado();
     }
-    else if(strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0) 
+    else if (strcmp(comando_consola[0], "EJECUTAR_SCRIPT") == 0)
     {
         ejecutar_archivo(comando_consola[1]);
     }
@@ -230,7 +231,3 @@ void _atender_instruccion_validada(char *leido)
     }
     string_array_destroy(comando_consola);
 }
-
-
- 
-

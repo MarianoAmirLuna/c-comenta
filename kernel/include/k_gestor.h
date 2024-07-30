@@ -60,6 +60,7 @@ extern t_list *procesosSuspendidos;
 extern t_list *lista_interfaces;
 extern t_list *lista_id_hilos;
 extern t_list* procesos_READY_priori;
+extern t_list* procesosFinalizadosPorConsola;
 
 typedef struct{
     int pid;

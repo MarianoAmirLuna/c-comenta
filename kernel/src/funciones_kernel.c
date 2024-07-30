@@ -142,6 +142,17 @@ void planificacion()
   }
 }*/
 
+void mostrarUnaLista(t_list *lista, char *nombreLista)
+{ // EN
+  log_info(kernel_log_debug, "%s \n", nombreLista);
+
+  for (int i = 0; i < list_size(lista); i++)
+  {
+    int *pidEnLista = list_get(lista, i);
+    log_info(kernel_log_debug, "%d \n", *pidEnLista);
+  }
+}
+
 pidConQ *nuevoPidConQ(int pid)
 {
   pidConQ *ret = malloc(sizeof(pidConQ));
@@ -314,6 +325,7 @@ void atender_wait(char *recurso, int *pid) // FALTA PROBAR
     pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pid);
     pthread_mutex_unlock(&proteger_lista_ready);
+    mostrarUnaLista(procesosREADY, "Ready");
     // mostrarInstanciasTomadas(pid);
     *instanciasPedidasRecurso = (*instanciasPedidasRecurso) + 1;
     // printf("Instancias disponibles, se tomo el recurso\n");
@@ -359,6 +371,7 @@ void atender_signal(char *recurso, int *pid) // FALTA PROBAR
     pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
     pthread_mutex_unlock(&proteger_lista_ready);
+    mostrarUnaLista(procesosREADY, "Ready");
   }
   // estado_instancias();
   // mostrarInstanciasTomadas(*pid);
@@ -374,6 +387,7 @@ void sacarDeSuspension()
   pthread_mutex_lock(&proteger_lista_ready);
   list_add(procesosREADY, aux);
   pthread_mutex_unlock(&proteger_lista_ready);
+  mostrarUnaLista(procesosREADY, "Ready");
   // printf("proceso sacado de suspension: %d \n", *aux);
 }
 
@@ -430,7 +444,6 @@ void estadoPlani()
   imprimirLista(procesosREADY);
   printf(" exec: %d \n", procesoEXEC);
 }
-
 
 void iniciar_planificacion()
 {
@@ -630,6 +643,9 @@ void ciclo_plani_FIFO()
     list_add(listQPrimas, pqNuevo);
     pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pidNuevo);
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <NEW> - Estado Actual: <READY>\n", *pidNuevo);
+    mostrarUnaLista(procesosREADY, "Ready");
+
     pthread_mutex_unlock(&proteger_lista_ready);
     // mientras que haya cosas en new y el grado de multiprogramacion me lo permita, lo paso a ready
   }
@@ -640,6 +656,7 @@ void ciclo_plani_FIFO()
 
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <READY> - Estado Actual: <EXEC>\n", *exec);
     // estaEJecutando = procesoEXEC;
     // avisarDesalojo();
   }
@@ -674,6 +691,8 @@ void ciclo_plani_RR()
     list_add(listQPrimas, pqNuevo);
     pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pidNuevo);
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <NEW> - Estado Actual: <READY>\n", *pidNuevo);
+    mostrarUnaLista(procesosREADY, "Ready");
     pthread_mutex_unlock(&proteger_lista_ready);
   }
   pthread_mutex_lock(&mutexExec);
@@ -681,6 +700,7 @@ void ciclo_plani_RR()
   {
     int *exec = list_remove(procesosREADY, 0);
     procesoEXEC = *exec;
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <READY> - Estado Actual: <EXEC>\n", *exec);
     // estaEJecutando = procesoEXEC;
   }
   pthread_mutex_unlock(&mutexExec);
@@ -715,12 +735,14 @@ void ciclo_plani_VRR()
   }*/
 
   while (!list_is_empty(procesosNEW) && list_size(procesosREADY) < GRADO_MULTIPROGRAMACION)
-  { // si entrÃ³ un nuevo proceso y todavia no tengo el ready al maximo, lo mando
+  { // si entra un nuevo proceso y todavia no tengo el ready al maximo, lo mando
     int *pidNuevo = list_remove(procesosNEW, 0);
     pidConQ *pqNuevo = nuevoPidConQ(*pidNuevo);
     list_add(listQPrimas, pqNuevo);
     pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pidNuevo);
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <NEW> - Estado Actual: <READY>\n", *pidNuevo);
+    mostrarUnaLista(procesosREADY, "Ready");
     pthread_mutex_unlock(&proteger_lista_ready);
   }
 
@@ -731,10 +753,12 @@ void ciclo_plani_VRR()
     if (!list_is_empty(procesos_READY_priori))
     {
       exec = list_remove(procesos_READY_priori, 0);
+      log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <READY_PRIORITARIO> - Estado Actual: <EXEC>\n", *exec);
     }
     else
     {
       exec = list_remove(procesosREADY, 0);
+      log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <READY> - Estado Actual: <EXEC>\n", *exec);
     }
     procesoEXEC = *exec;
     // estaEJecutando = procesoEXEC;
@@ -880,6 +904,9 @@ void iniciar_proceso(char *path)
 
   list_add(procesosNEW, &(pcb->pid)); // agrego el pcb al planificador de pids
   nuevaListaRecursos(pcb->pid);
+
+  log_info(kernel_log_debug, "Se crea el proceso %d en NEW\n", pcb->pid);
+  // #NuevosLogs
 
   sem_post(&nuevo_bucle);
 }
@@ -1037,17 +1064,16 @@ void mandar_a_exit(int *pid_finalizado)
   printf("esta ejecutando: %d\n", estaEJecutando);
   printf("pid finalizado: %d\n", *pid_finalizado);
 
+  bool seEncontroElPid = false;
+  int *numero_desalojado = malloc(sizeof(int));
+  int *numerito;
+
   if (estaEJecutando == *pid_finalizado)
   {
     // estaEJecutando = 0;
     printf("mande a desalojar el que esta ejecutando\n");
     desalojoFinProceso();
   }
-
-  bool seEncontroElPid = false;
-  int *numero_desalojado = malloc(sizeof(int));
-  numero_desalojado = -1;
-  int *numerito;
 
   for (int i = 0; i < list_size(procesosNEW); i++)
   {
@@ -1058,7 +1084,8 @@ void mandar_a_exit(int *pid_finalizado)
     {
 
       numero_desalojado = list_remove(procesosNEW, i);
-      printf("elimine a un wachin de new\n");
+      log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <NEW> - Estado Actual: <EXIT>\n", *pid_finalizado);
+      list_add(procesosEXIT, numero_desalojado);
     }
   }
 
@@ -1072,7 +1099,8 @@ void mandar_a_exit(int *pid_finalizado)
       pthread_mutex_lock(&proteger_lista_ready);
       numero_desalojado = list_remove(procesosREADY, i);
       pthread_mutex_unlock(&proteger_lista_ready);
-      printf("elimine a un wachin de ready\n");
+      log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <READY> - Estado Actual: <EXIT>\n", *pid_finalizado);
+      list_add(procesosEXIT, numero_desalojado);
     }
   }
 
@@ -1083,7 +1111,7 @@ void mandar_a_exit(int *pid_finalizado)
 
     if (*numerito == *pid_finalizado)
     {
-
+      // #PreguntarLuca si es necesario esto || suspendido = bloqueado ? por los logs
       numero_desalojado = list_remove(procesosSuspendidos, i);
       printf("elimine a un wachin de suspended\n");
     }
@@ -1094,7 +1122,7 @@ void mandar_a_exit(int *pid_finalizado)
     printf("el pid: %d\n", *pid_finalizado);
     if (i < list_size(lista_recursos_y_bloqueados))
     {
-      t_list *lista = list_get(lista_recursos_y_bloqueados, i); // PREGUNTAR A LUCA ACA HAY UN SEGMENTATION
+      t_list *lista = list_get(lista_recursos_y_bloqueados, i);
 
       for (int j = 0; j < list_size(lista); j++)
       {
@@ -1105,7 +1133,7 @@ void mandar_a_exit(int *pid_finalizado)
         {
 
           numero_desalojado = list_remove(lista, j);
-          printf("elimine a un wachin del recurso\n");
+          log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <BLOCKED> - Estado Actual: <EXIT>\n", *pid_finalizado);
         }
       }
     }
@@ -1137,10 +1165,10 @@ void mandar_a_exit(int *pid_finalizado)
     }
 
     seEncontroElPid = list_remove_element(interfaz->procesos_bloqueados->elements, pid_finalizado);
-  }
-
-  if (numero_desalojado != -1)
-  {
-    list_add(procesosEXIT, pid_finalizado);
+    if (seEncontroElPid)
+    {
+      list_add(procesosEXIT, pid_finalizado);
+      log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <BLOCKED> - Estado Actual: <EXIT>\n", *pid_finalizado);
+    }
   }
 }

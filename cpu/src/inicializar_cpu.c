@@ -29,7 +29,7 @@ void iniciar_logs(){
 void iniciar_config_cpu(char* rutaconfig){
 
     //cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
-    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/edge.config");
+    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/io.config");
 
 	if ( cpu_config == NULL)	
 	{

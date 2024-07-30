@@ -34,6 +34,7 @@ int buscarQPrima(int pid);
 pidConQ *buscarPidConQ(int);
 int buscarQPrimaNEW(int);
 void restaurarQPrima(int);
+void mostrarUnaLista (t_list* lista, char* nombreLista);
 
 
 //int seguirPlanificando;

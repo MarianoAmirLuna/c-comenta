@@ -21,11 +21,13 @@ void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
 		if (strcmp(ALGORITMO_PLANIFICACION, "VRR") == 0 && qPrimaNueva != QUANTUM)
 		{
 			list_add(procesos_READY_priori, pid);
+			mostrarUnaLista(procesos_READY_priori, "Ready Prioritario");
 			log_trace(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
 		}
 		else
 		{
 			list_add(procesosREADY, pid);
+			mostrarUnaLista(procesosREADY, "Ready");
 		}
     }
 	
