@@ -430,24 +430,13 @@ void estadoPlani()
   imprimirLista(procesosREADY);
   printf(" exec: %d \n", procesoEXEC);
 }
-/*
-void iniciar_bucle()
-{
-  while (1)
-  {
-    sem_wait(&sem_seguir_planificando);
-    ciclo_planificacion();
-    sem_post(&sem_seguir_planificando);
-    usleep(100000);
-  }
-}*/
+
 
 void iniciar_planificacion()
 {
   while (1)
   {
     sem_wait(&nuevo_bucle);
-    // printf("se hizo un bucle!!");
     sem_wait(&sem_seguir_planificando);
     ciclo_planificacion();
     sem_post(&sem_seguir_planificando);

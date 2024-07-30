@@ -31,7 +31,7 @@ void iniciar_logs(){
 void iniciar_config(char* rutaconfig){
 	//memoria_config = config_create(rutaconfig); 
 
-	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/planificacion.config");
+	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/io.config");
 
 
 	if (memoria_config == NULL)
@@ -57,7 +57,6 @@ void imprimir_config(){
 void iniciar_semaforos(){
     sem_init(&esperar_df,1,0);
 }
-
 
 void inicializar_memoria(char* rutaconfig){
 	iniciar_listas();

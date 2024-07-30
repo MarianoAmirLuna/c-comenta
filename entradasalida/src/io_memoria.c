@@ -35,6 +35,8 @@ void atender_interfaz_memoria(int *arg)
 		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
 			int inutil = extraer_int_del_buffer(un_buffer);
             avisarKernelTerminoEjecutarIO();
+			
+			break;
 		case DEVOLVER_STRING_FS:
 		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
 			palabraIOWrite = extraer_string_del_buffer(un_buffer);

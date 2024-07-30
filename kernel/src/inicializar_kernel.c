@@ -30,14 +30,13 @@ void inicializar_configs(char* rutaconfig)
 {
 	//kernel_config = config_create(rutaconfig); //DES-COMENTAR PARA ENTREGA
 
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/planificacion.config");
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/io.config");
 
 	if (kernel_config == NULL)
 	{
 		perror("Hay un error al iniciar el config.");
 		exit(EXIT_FAILURE);
 	}
-	
 
 	PUERTO_ESCUCHA = config_get_string_value(kernel_config, "PUERTO_ESCUCHA");
 	IP_MEMORIA = config_get_string_value(kernel_config, "IP_MEMORIA");
