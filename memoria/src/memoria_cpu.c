@@ -7,7 +7,7 @@
 
 char *obtenerInstruccion(char *path, int programCounter)
 { // devuelve la instrucción que está en la fila que indica el program counter
-	FILE *archivo = fopen(path+1, "r");
+	FILE *archivo = fopen(path + 1, "r");
 	if (archivo == NULL)
 	{
 		perror("Error al abrir el archivo");
@@ -77,7 +77,6 @@ void devolver_instruccion(t_buffer *un_buffer)
 	// printf("el program counter es:%d\n",program_counter);
 
 	char *instruccion = obtenerInstruccion(path_instruccion, program_counter);
-
 
 	// printf("la instruccion es: %s\n",instruccion);
 
@@ -231,7 +230,7 @@ void escribirDato(t_buffer *un_buffer)
 	printf("El valor de uint8_t es: %u\n", data8);
 	printf("El valor de uint32_t es: %u\n", data32);
 
-	//Le mando la dirección física a CPU para los LOGs obligatorios
+	// Le mando la dirección física a CPU para los LOGs obligatorios
 	cargar_int_al_buffer(a_enviar, direccion_fisica);
 
 	if (tamanio_a_escribir == 1)
@@ -239,10 +238,9 @@ void escribirDato(t_buffer *un_buffer)
 		memcpy((memoriaPrincipal + direccion_fisica), &data8, tamanio_a_escribir);
 		tamanioRestantePagina = tamanioRestantePagina - 1;
 
-		//Le mando el dato escrito a CPU
+		// Le mando el dato escrito a CPU
 		cargar_int_al_buffer(a_enviar, tamanio_a_escribir);
 		cargar_uint8_al_buffer(a_enviar, data8);
-
 	}
 	else
 	{
@@ -270,7 +268,7 @@ void escribirDato(t_buffer *un_buffer)
 
 			printf("El valor de ECX despues de reconstruirlo: %d \n", data32_reconstruido);
 
-			//Le mando el dato escrito a CPU
+			// Le mando el dato escrito a CPU
 			cargar_int_al_buffer(a_enviar, tamanio_a_escribir);
 			cargar_uint32_al_buffer(a_enviar, data32_reconstruido);
 
@@ -289,7 +287,7 @@ void escribirDato(t_buffer *un_buffer)
 		{
 			memcpy((memoriaPrincipal + direccion_fisica), &data32, tamanio_a_escribir);
 
-			//Le mando el dato escrito a CPU
+			// Le mando el dato escrito a CPU
 			cargar_int_al_buffer(a_enviar, tamanio_a_escribir);
 			cargar_uint32_al_buffer(a_enviar, data32);
 		}
@@ -377,15 +375,53 @@ void imprimirBitmapMemoriaPrincipal()
 	}
 }
 
+int calcularEspacioDisponibleEnMemoria()
+{
+	bool estaOcupado;
+	int acumulador = 0;
+
+	size_t numeroMax = bitarray_get_max_bit(frames_ocupados_ppal);
+
+	for (size_t i = 0; i < numeroMax; i++)
+	{
+		estaOcupado = bitarray_test_bit(frames_ocupados_ppal, i);
+
+		if (!estaOcupado)
+		{
+			acumulador = acumulador + TAM_PAGINA;
+		}
+	}
+
+	printf("El espacio total Disponible en la memoria es de %d\n",acumulador);
+
+	return acumulador;
+}
+
 void resize(t_buffer *un_buffer)
 {
 
 	int pid = extraer_int_del_buffer(un_buffer);
 	int tamanioAModificar = extraer_int_del_buffer(un_buffer);
 
+	printf("se va a hacer un resize de: %d\n", tamanioAModificar);
+
+	tablaPaginas *tablaPag = obtener_tabla_pagina(pid);
+
+	printf("el pid de la tabla de paginas: %d\n", tablaPag->pid);
+
+	int cantBitsValidez = tablaPag->cantMarcos;
+
+	printf("la cant de bits de validez en 1: %d\n", cantBitsValidez);
+
+	int tamanioActual = cantBitsValidez * TAM_PAGINA;
+
+	int especioAumentar = tamanioAModificar - tamanioActual;
+
+	int espacioDisponibleMemoria = calcularEspacioDisponibleEnMemoria();
+
 	usleep(RETARDO_RESPUESTA * 1000);
 
-	if (tamanioAModificar > TAM_MEMORIA)
+	if (especioAumentar > espacioDisponibleMemoria)
 	{
 		t_buffer *buffer = crear_buffer();
 		buffer->size = 0;
@@ -395,21 +431,10 @@ void resize(t_buffer *un_buffer)
 
 		t_paquete *paquete = crear_super_paquete(OUT_OF_MEMORY, buffer);
 		enviar_paquete(paquete, fd_cpu);
-    	destruir_paquete(paquete);
+		destruir_paquete(paquete);
 	}
 	else
 	{
-		printf("se va a hacer un resize de: %d\n", tamanioAModificar);
-
-		tablaPaginas *tablaPag = obtener_tabla_pagina(pid);
-
-		printf("el pid de la tabla de paginas: %d\n", tablaPag->pid);
-
-		int cantBitsValidez = tablaPag->cantMarcos;
-
-		printf("la cant de bits de validez en 1: %d\n", cantBitsValidez);
-
-		int tamanioActual = cantBitsValidez * TAM_PAGINA;
 
 		printf("el tamanio actual es: %d\n", tamanioActual);
 		printf("el tamanio a modificar es: %d\n", tamanioAModificar);
@@ -480,14 +505,14 @@ void buscarMarco(t_buffer *un_buffer)
 void obtenerCantInstrucciones(int pid)
 {
 	pthread_mutex_t proteger_contador = PTHREAD_MUTEX_INITIALIZER;
-	
+
 	pthread_mutex_lock(&proteger_contador);
-    id_global = pid;
+	id_global = pid;
 
 	path_conID *elemento_lista = list_find(list_path_id, condition_id_igual_n);
 
 	int cantInstrucciones = contarInstrucciones(elemento_lista->path);
-    pthread_mutex_unlock(&proteger_contador);
+	pthread_mutex_unlock(&proteger_contador);
 
 	t_buffer *a_enviar = crear_buffer();
 
@@ -519,7 +544,7 @@ void obtenerCortesDePagina(t_list *lista, int tamanio_a_escribir, int restante_p
 			tamanio_a_escribir = tamanio_a_escribir - restante_pagina;
 			acumulador = acumulador + restante_pagina;
 		}
-		restante_pagina = TAM_PAGINA; // 60 32 => 28 32	
+		restante_pagina = TAM_PAGINA; // 60 32 => 28 32
 	}
 }
 

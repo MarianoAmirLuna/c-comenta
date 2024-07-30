@@ -1289,6 +1289,15 @@ void devolverPCBKernelEXit()
     destruir_paquete(un_paquete);
 }
 
+void devolverPCBKernelOutOfMemory(){
+
+    t_buffer *buffer = cargar_pcb_buffer(pcb_ejecucion);
+    cargar_int_al_buffer(buffer,numeroID_hilo);
+    t_paquete *un_paquete = crear_super_paquete(OUT_OF_MEMORY, buffer);
+    enviar_paquete(un_paquete, fd_kernel_dispatch);
+    destruir_paquete(un_paquete);
+}
+
 void procesar_instruccion()
 {
     printf("la cantidad de instrucciones son: %d\n", cantInstucciones);
@@ -1297,9 +1306,10 @@ void procesar_instruccion()
     terminaPorSenial = false;
     cambioContexto = false;
     ejecute_instruccion_tipo_io = false;
+    terminePorOutOfMemory = false;
+    yaDevolvioPcb = false;
 
-
-    while (!terminarPorExit && !cambioContexto && !terminaPorSenial && !ejecute_instruccion_tipo_io)
+    while (!terminarPorExit && !cambioContexto && !terminaPorSenial && !ejecute_instruccion_tipo_io && !terminePorOutOfMemory)
     {
 
         solicitar_instruccion(pcb_ejecucion.pid, pcb_ejecucion.program_counter);
@@ -1311,6 +1321,7 @@ void procesar_instruccion()
         if (instruccion_es_tipo_io(instruccion_actual)) // si se ejecuta algo de tipo io y lo desaloja
         {
             devolverPCBKernel_exit_o_bloqueado();
+            yaDevolvioPcb = true;
         }
 
         ejecutar_instruccion(instruccion_actual, &pcb_ejecucion);
@@ -1329,21 +1340,30 @@ void procesar_instruccion()
 
     // sale del while o porque se queda sin instrucciones o porque es desalojado
 
-    if (terminarPorExit) // si termina por wait o signal
+    if (terminarPorExit && !yaDevolvioPcb) // si termina por wait o signal
     {        
-        devolverPCBKernelEXit();         //verificar si esta bien
+        devolverPCBKernelEXit();
+        yaDevolvioPcb = true;     
     }
     else
     {
-        if (terminaPorSenial)
+        if (terminaPorSenial && !yaDevolvioPcb)
         {
              devolverPCBKernelSenial();
+             yaDevolvioPcb = true;
         }
         else
         {
-            if (cambioContexto && !ejecute_instruccion_tipo_io)
+            if (cambioContexto && !yaDevolvioPcb)
             {
                 devolverPCBKernelCambioContexto();
+                yaDevolvioPcb = true;
+            }
+            else{
+                if(terminePorOutOfMemory && !yaDevolvioPcb){
+
+                    devolverPCBKernelOutOfMemory();
+                }
             }
         }
     }

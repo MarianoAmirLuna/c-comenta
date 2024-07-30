@@ -29,10 +29,9 @@ void iniciar_logs(){
 }
 
 void iniciar_config(char* rutaconfig){
-	//memoria_config = config_create(rutaconfig); 
+	//memoria_config = config_create(rutaconfig);
 
-	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/io.config");
-
+	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/tlb.config");
 
 	if (memoria_config == NULL)
 	{

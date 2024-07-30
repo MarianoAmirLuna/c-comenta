@@ -115,7 +115,7 @@ void atender_cpu_memoria()
 		    un_buffer = recibir_todo_el_buffer(fd_memoria);
 			int valorRandom = extraer_int_del_buffer(un_buffer);
 			log_error(cpu_log_debug, "OUT OF MEMORY");
-			terminarPorExit = true;
+			terminePorOutOfMemory = true;
 			sem_post(&wait_instruccion);
 			break;
 		case HABILITAR_PID:

@@ -53,8 +53,10 @@ extern bool terminaPorSenial;
 extern int waitOSignal;
 extern uint8_t caracterGlobal;
 extern bool ejecute_instruccion_tipo_io;
+extern bool terminePorOutOfMemory;
 extern char* nombre_interfaz;
 extern char* tipo_instruccion;
+extern bool yaDevolvioPcb;
 
 extern t_list* procesosConPath;
 extern int numeroID_hilo;

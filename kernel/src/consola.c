@@ -42,8 +42,6 @@ void ejecutar_archivo(const char *filePath)
 
 void iniciar_consola_interactiva()
 {
-
-    // sleep(3);
     char *leido;
     leido = readline("> ");
     bool validacion_leido;
@@ -69,7 +67,9 @@ void iniciar_consola_interactiva()
 void listar_procesos_estado()
 {
 
-    log_debug(kernel_log_debug, "PID: %d esta en EJECUCION", estaEJecutando);
+    if(!estaCPULibre){ 
+        log_debug(kernel_log_debug, "PID: %d esta en EJECUCION", estaEJecutando);
+    }
 
     for (int i = 0; i < list_size(procesosNEW); i++)
     {
@@ -209,6 +209,7 @@ void _atender_instruccion_validada(char *leido)
 
         // iniciar_cpu();
         sem_post(&sem_seguir_planificando);
+        sem_post(&nuevo_bucle);
     }
     else if (strcmp(comando_consola[0], "MULTIPROGRAMACION") == 0)
     {

@@ -25,5 +25,6 @@ void obtenerCortesDePagina(t_list* lista,int tamanio_a_escribir, int restante_pa
 void imprimirBitmapMemoriaPrincipal();
 void terminoInstruccionMemoria();
 void leer_caracter(int df);
+int calcularEspacioDisponibleEnMemoria();
 
 #endif
