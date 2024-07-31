@@ -927,7 +927,9 @@ void atender_interfaz_kernel(int *arg)
 		case ENVIAR_IO_STDOUT_WRITE:
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 			pid = extraer_int_del_buffer(un_buffer);
-			int tamanioXD = extraer_int_del_buffer(un_buffer);
+			int tamanio_restante_pag_write = extraer_int_del_buffer(un_buffer);
+			int tamanio_escribir_write = extraer_int_del_buffer(un_buffer);
+			int cant_direcciones_write = extraer_int_del_buffer(un_buffer);
 
 			log_info(io_logger, "PID: %i - Operacion: IO_STDOUT_WRITE", pid);
 
@@ -936,16 +938,16 @@ void atender_interfaz_kernel(int *arg)
 			buffer2->stream = NULL;
 
 			cargar_string_al_buffer(buffer2, nombreInterACrear); // hay que pasar esto asi desp memoria sabe a quien responderle
-			cargar_int_al_buffer(buffer2, tamanioXD);
+			cargar_int_al_buffer(buffer2,tamanio_restante_pag_write);
+			cargar_int_al_buffer(buffer2,tamanio_escribir_write);
 
-			for (int i = 0; i < tamanioXD; i++)
+			for (int i = 0; i < cant_direcciones_write; i++)
 			{
-
 				numero = extraer_int_del_buffer(un_buffer);
 				cargar_int_al_buffer(buffer2, numero);
 			}
 
-			t_paquete *paquete2 = crear_super_paquete(LEER_MEMORIA_PALABRA, buffer2);
+			t_paquete *paquete2 = crear_super_paquete(LEER_EN_MEMORIA_UN_STRING, buffer2);
 			enviar_paquete(paquete2, fd_memoria);
 			destruir_paquete(paquete2);
 

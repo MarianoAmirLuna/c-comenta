@@ -286,8 +286,17 @@ void atender_kernel_dispatch()
 
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			nombre_interfaz = extraer_string_del_buffer(un_buffer);
-			int *tamanio_escribir2 = malloc(sizeof(int));
-			*tamanio_escribir2 = extraer_int_del_buffer(un_buffer);
+			int *tamanio_restante_pag_write = malloc(sizeof(int));
+			int *tamanio_escribir_write = malloc(sizeof(int));
+			int *cant_direcciones_write = malloc(sizeof(int));
+
+			*tamanio_restante_pag_write = extraer_int_del_buffer(un_buffer);
+			*tamanio_escribir_write = extraer_int_del_buffer(un_buffer);
+			*cant_direcciones_write = extraer_int_del_buffer(un_buffer);
+
+			printf("tamanio restante pagina write %d\n",*tamanio_restante_pag_write);
+			printf("tamanio escribir wrtie write %d\n",*tamanio_escribir_write);
+			printf("tamanio cant direcciones write %d\n",*cant_direcciones_write);
 
 			// sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz4 = encontrar_interfaz(nombre_interfaz);
@@ -300,9 +309,11 @@ void atender_kernel_dispatch()
 				instruccionXD3->nombre_archivo = "";
 				instruccionXD3->lista_enteros = list_create();
 
-				list_add(instruccionXD3->lista_enteros, tamanio_escribir2);
+				list_add(instruccionXD3->lista_enteros, tamanio_restante_pag_write);
+				list_add(instruccionXD3->lista_enteros, tamanio_escribir_write);
+				list_add(instruccionXD3->lista_enteros, cant_direcciones_write);
 
-				for (int i = 0; i < *tamanio_escribir2; i++)
+				for (int i = 0; i < *cant_direcciones_write; i++)
 				{
 					int *direccion_fisica_p = malloc(sizeof(int));
 					*direccion_fisica_p = extraer_int_del_buffer(un_buffer);

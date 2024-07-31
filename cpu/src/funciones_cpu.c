@@ -471,13 +471,17 @@ void leerCaracterMemoria(int direccionLogica)
 void _copy_string(char *tamanio)
 {
     // Leer del SI
-    int desplazamiento_en_pagina = (int)pcb_ejecucion.registros_cpu.DI % tamanio_pagina; // offset
-    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
+    int desplazamiento_en_pagina_read = (int)pcb_ejecucion.registros_cpu.SI % tamanio_pagina; // offset
+    int bytes_restantes_en_pagina_read = tamanio_pagina - desplazamiento_en_pagina_read;           // cuanto queda en la pagina
+
     int tamanioAEscribir = atoi(tamanio);
 
     int tamanioALeer = tamanioAEscribir;
-    logicaDeLeer( bytes_restantes_en_pagina, tamanioALeer);
+    logicaDeLeer(bytes_restantes_en_pagina_read, tamanioALeer);
     sem_wait(&esperarLecturaDeString);
+
+    int desplazamiento_en_pagina = (int)pcb_ejecucion.registros_cpu.DI % tamanio_pagina; // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
 
     // Escribir en el DI
     int cantDireccionesNecesarias = obtener_cant_direcciones((int)pcb_ejecucion.registros_cpu.DI, tamanioAEscribir, bytes_restantes_en_pagina);
@@ -516,7 +520,7 @@ void _copy_string(char *tamanio)
     destruir_paquete(paquete);
 }
 
-void logicaDeLeer(int bytes_restantes_en_pagina, int tamanioALeer){ //Cambiar .h
+void logicaDeLeer(int bytes_restantes_en_pagina, int tamanioALeer){ 
     int cantDireccionesNecesarias = obtener_cant_direcciones((int)pcb_ejecucion.registros_cpu.SI, tamanioALeer, bytes_restantes_en_pagina);
 
     t_buffer *buffer = crear_buffer(); 
@@ -591,33 +595,52 @@ int obtenerValorRegistro(char *registro)
 
 void io_stdout_write(char *nombreInterfaz, char *registro_direccionLogica, char *registro_tamanio)
 {
-
     int dirLogicaDelDato = obtenerValorRegistro(registro_direccionLogica);
     int tamanioDato = obtenerValorRegistro(registro_tamanio);
-
-    t_buffer *buffer_IOKernel = crear_buffer();
-    buffer_IOKernel->size = 0;
-    buffer_IOKernel->stream = NULL;
 
     printf("la dl es: %d\n", dirLogicaDelDato);
     printf("el tamanio es: %d\n", tamanioDato);
 
-    cargar_string_al_buffer(buffer_IOKernel, nombreInterfaz);
-    cargar_int_al_buffer(buffer_IOKernel, tamanioDato);
+    int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
+    int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
 
-    int df;
+    int cantDireccionesNecesarias = obtener_cant_direcciones(dirLogicaDelDato, tamanioDato, bytes_restantes_en_pagina);
 
-    for (int i = 0; i < tamanioDato; i++)
+    t_buffer *buffer = crear_buffer();
+    buffer->size = 0;
+    buffer->stream = NULL;
+
+    cargar_string_al_buffer(buffer, nombreInterfaz);
+    cargar_int_al_buffer(buffer, bytes_restantes_en_pagina); 
+    cargar_int_al_buffer(buffer, tamanioDato);
+    cargar_int_al_buffer(buffer, cantDireccionesNecesarias);
+
+    int flag = 0;
+
+    for (int i = 0; i < cantDireccionesNecesarias; i++)
     {
+        int df = traducir_dl(dirLogicaDelDato);
 
-        df = traducir_dl(dirLogicaDelDato); // obtengo todas las df que voy a necesitar para escribir en un futuro
-        cargar_int_al_buffer(buffer_IOKernel, df);
-        dirLogicaDelDato++;
+        printf("direccion fisica: %d\n", df);
+
+        cargar_int_al_buffer(buffer, df);
+
+        if (flag == 0)
+        {
+            dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
+            flag = 1;
+        }
+        else
+        {
+            dirLogicaDelDato = dirLogicaDelDato + tamanio_pagina;
+        }
+
+        printf("carge un int al buffer\n");
     }
 
-    t_paquete *paquete_IOKernel = crear_super_paquete(ENVIAR_IO_STDOUT_WRITE, buffer_IOKernel);
-    enviar_paquete(paquete_IOKernel, fd_kernel_dispatch);
-    destruir_paquete(paquete_IOKernel);
+    t_paquete *paquete = crear_super_paquete(ENVIAR_IO_STDOUT_WRITE, buffer);
+    enviar_paquete(paquete, fd_kernel_dispatch);
+    destruir_paquete(paquete);
 }
 
 void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_tamanio)

@@ -671,7 +671,6 @@ void leerMemoriaUnString(t_buffer *un_buffer)
 	t_paquete *un_paquete = crear_super_paquete(MANDAR_LECTURA_DE_STRING, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
 	destruir_paquete(un_paquete);
-
 }
 
 void leer_caracter(int df)

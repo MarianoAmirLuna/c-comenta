@@ -49,5 +49,6 @@ extern void* dataParte2Global;
 extern int cuantoFaltabaEscribir;
 extern int dirFisicaDondeHayQueAlmacenarGlobal;
 extern int cuantoFaltaLeer;
+extern char* string_global_auxiliar;
 
 #endif
