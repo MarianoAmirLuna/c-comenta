@@ -94,7 +94,7 @@ void listar_procesos_estado()
 
         t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i); // PREGUNTAR LUCA
 
-        log_debug(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
+        log_debug(kernel_log_debug, "Los procesos bloqueados por el recurso: %s son: ", nombresRecursos[i]);
 
         for (int j = 0; j < list_size(lista_donde_agregar); j++)
         {

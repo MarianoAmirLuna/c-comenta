@@ -126,6 +126,7 @@ void leerMemoriaFS(t_buffer *un_buffer)
 
 void leerMemoriaUnString_io(t_buffer *un_buffer)
 {
+	int pid = extraer_int_del_buffer(un_buffer);
 	char *nameInterface = extraer_string_del_buffer(un_buffer);
 	int fd_encontradoXD = encontrar_fd_interfaz(nameInterface);
 	int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
@@ -151,6 +152,7 @@ void leerMemoriaUnString_io(t_buffer *un_buffer)
 	char str[tamanioALeer + 1]; // Inicializa el string como vacío
 	str[0] = '\0';
 
+	log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA LECTURA DE TAMAÑO %d EN LAS DIRECCIONES FÍSICAS:", pid, tamanioALeer);
 	while (cantIteraciones < tamanioALeer)
 	{
 
@@ -159,7 +161,8 @@ void leerMemoriaUnString_io(t_buffer *un_buffer)
 			df = extraer_int_del_buffer(un_buffer);
 		}
 
-		printf("en la direccion fisica: %d\n", df);
+		log_info(memoria_log_debug, "DIRECCION FÍSICA: %d", df);
+		//printf("en la direccion fisica: %d\n", df);
 		memcpy(&infoLeida, memoriaPrincipal + df, 1);
 		concat_uint8_to_string(str, infoLeida);
 		cantIteraciones++;

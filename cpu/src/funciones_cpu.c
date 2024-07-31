@@ -102,6 +102,7 @@ void mandarDatoALeer(int dirFisicaDelDato, int segundaDF, int bytesALeer, int se
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
+    cargar_int_al_buffer(a_enviar, pcb_ejecucion.pid);
     cargar_int_al_buffer(a_enviar, dirFisicaDelDato);
     cargar_int_al_buffer(a_enviar, segundaDF);
     cargar_int_al_buffer(a_enviar, bytesALeer);
@@ -176,6 +177,7 @@ void mandarDatoAEscribir(int direccion_logica, int direccion_fisica, int segunda
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
+    cargar_int_al_buffer(a_enviar, pcb_ejecucion.pid);
     cargar_int_al_buffer(a_enviar, direccion_logica);
     cargar_int_al_buffer(a_enviar, direccion_fisica);
     cargar_int_al_buffer(a_enviar, segundaDF);
@@ -501,6 +503,7 @@ void _copy_string(char *tamanio)
     buffer->size = 0;
     buffer->stream = NULL;
     
+    cargar_int_al_buffer(buffer, pcb_ejecucion.pid);
     cargar_string_al_buffer(buffer, stringLeido);
     cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
     cargar_int_al_buffer(buffer, tamanioAEscribir);
@@ -528,7 +531,7 @@ void _copy_string(char *tamanio)
         }
         printf("carge un int al buffer\n");
     }
-
+    
     log_info(cpu_log_debug, "Valor escrito: %s", stringLeido);
 
     t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
@@ -542,6 +545,7 @@ void logicaDeLeer(int bytes_restantes_en_pagina, int tamanioALeer){
     t_buffer *buffer = crear_buffer(); 
     buffer->size = 0;
     buffer->stream = NULL;
+    cargar_int_al_buffer(buffer, pcb_ejecucion.pid);
     cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
     cargar_int_al_buffer(buffer, tamanioALeer);
 

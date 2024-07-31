@@ -132,6 +132,7 @@ void leerDato(t_buffer *un_buffer)
 
 	usleep(RETARDO_RESPUESTA * 1000);
 
+	int pid = extraer_int_del_buffer(un_buffer);
 	int dirFisicaDelDato = extraer_int_del_buffer(un_buffer);
 	int segundaDF = extraer_int_del_buffer(un_buffer);
 	int tamanioALeer = extraer_int_del_buffer(un_buffer);
@@ -140,14 +141,16 @@ void leerDato(t_buffer *un_buffer)
 	char *registroDatos = extraer_string_del_buffer(un_buffer);
 
 	printf("Llegaron los datos a leer.\n");
-	printf("la direccion fisica donde hay que leer es: %d\n", dirFisicaDelDato);
-	printf("el tamanio a leer: %d\n", tamanioALeer);
-	printf("el tamanio que resta de pag es: %d\n", tamanioRestantePagina);
+	//printf("la direccion fisica donde hay que leer es: %d\n", dirFisicaDelDato);
+	//printf("el tamanio a leer: %d\n", tamanioALeer);
+	//printf("el tamanio que resta de pag es: %d\n", tamanioRestantePagina);
 
 	if (tamanioALeer == 1) // Caso donde tenemos que leer algo de 1 byte
 	{
+		log_info(memoria_log_debug, "Se realizará una lectura en 1 páginas");
+		log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA LECTURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, tamanioALeer, dirFisicaDelDato);
 		memcpy(&datoLeido8, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
-		printf("############## EL DATO A LEER ES:%" PRIu8 "\n", datoLeido8);
+		//printf("############## EL DATO A LEER ES:%" PRIu8 "\n", datoLeido8);
 	}
 	else
 	{
@@ -155,20 +158,24 @@ void leerDato(t_buffer *un_buffer)
 		{ // caso turbio que hay que leer en 2 paginas diferentes
 			// ahora leo solo la parte 1 - escribo en el registro la 1ra parte del marco
 
-			printf("direcion fisica dato: %d\n", dirFisicaDelDato);
-			printf("segunda fd: %d\n", segundaDF);
-
-			printf("leyo el caso turbio\n");
+			log_info(memoria_log_debug, "Se realizará una lectura en 2 páginas");
+			//printf("direcion fisica dato: %d\n", dirFisicaDelDato);
+			//printf("segunda fd: %d\n", segundaDF);
+			//printf("leyo el caso turbio\n");
 
 			memcpy(&datoLeido32, memoriaPrincipal + dirFisicaDelDato, tamanioRestantePagina);
 			memcpy((uint8_t *)&datoLeido32 + tamanioRestantePagina, memoriaPrincipal + segundaDF, 4 - tamanioRestantePagina);
 
-			printf("############## EL DATO A LEER ES EN EL CASO TRUBIO:%" PRIu32 "\n", datoLeido32);
+			log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA LECTURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, tamanioRestantePagina, dirFisicaDelDato);
+			log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA LECTURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, 4 - tamanioRestantePagina, segundaDF);
+			//printf("############## EL DATO A LEER ES EN EL CASO TRUBIO:%" PRIu32 "\n", datoLeido32);
 		}
 		else // caso donde tenemos que leer algo de 4 bytes, pero está todo en 1 solo marco
 		{
+			log_info(memoria_log_debug, "Se realizará una lectura en 1 páginas");
+			log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA LECTURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, tamanioALeer, dirFisicaDelDato);
 			memcpy(&datoLeido32, (memoriaPrincipal + dirFisicaDelDato), tamanioALeer);
-			printf("############## EL DATO A LEER ES:%" PRIu32 "\n", datoLeido32);
+			//printf("############## EL DATO A LEER ES:%" PRIu32 "\n", datoLeido32);
 		}
 	}
 
@@ -203,7 +210,7 @@ void escribirDato(t_buffer *un_buffer)
 	uint32_t data32;
 
 	usleep(RETARDO_RESPUESTA * 1000);
-
+	int pid = extraer_int_del_buffer(un_buffer);
 	int direccion_logica = extraer_int_del_buffer(un_buffer);
 	int direccion_fisica = extraer_int_del_buffer(un_buffer);
 	int segundaDF = extraer_int_del_buffer(un_buffer);
@@ -225,8 +232,8 @@ void escribirDato(t_buffer *un_buffer)
 	int seEscribe2paginas = extraer_int_del_buffer(un_buffer);
 	int tamanioRestantePagina = extraer_int_del_buffer(un_buffer);
 
-	printf("la direccion fisica: %d\n", direccion_fisica);
-	printf("el tamanio a escribir: %d\n", tamanio_a_escribir);
+	//printf("la direccion fisica: %d\n", direccion_fisica);
+	//printf("el tamanio a escribir: %d\n", tamanio_a_escribir);
 	printf("El valor de uint8_t es: %u\n", data8);
 	printf("El valor de uint32_t es: %u\n", data32);
 
@@ -235,6 +242,8 @@ void escribirDato(t_buffer *un_buffer)
 
 	if (tamanio_a_escribir == 1)
 	{
+		log_info(memoria_log_debug, "Se realizará una escritura en 1 páginas");
+		log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA ESCRITURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, tamanio_a_escribir, direccion_fisica);
 		memcpy((memoriaPrincipal + direccion_fisica), &data8, tamanio_a_escribir);
 		tamanioRestantePagina = tamanioRestantePagina - 1;
 
@@ -277,6 +286,10 @@ void escribirDato(t_buffer *un_buffer)
 			printf("Primer df %d\n", direccion_fisica);
 			printf("Segunda df %d\n", segundaDF);
 
+			log_info(memoria_log_debug, "Se realizará una escritura en 2 páginas");
+			log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA ESCRITURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, tamanioRestantePagina, direccion_fisica);
+			log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA ESCRITURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid,  4 - tamanioRestantePagina, segundaDF);
+
 			memcpy(memoriaPrincipal + direccion_fisica, data32_parte_1, tamanioRestantePagina);
 			memcpy(memoriaPrincipal + segundaDF, data32_parte_2, 4 - tamanioRestantePagina);
 
@@ -285,6 +298,8 @@ void escribirDato(t_buffer *un_buffer)
 		}
 		else
 		{
+			log_info(memoria_log_debug, "Se realizará una escritura en 1 páginas");
+			log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA ESCRITURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, tamanio_a_escribir, direccion_fisica);
 			memcpy((memoriaPrincipal + direccion_fisica), &data32, tamanio_a_escribir);
 
 			// Le mando el dato escrito a CPU
@@ -441,7 +456,7 @@ void resize(t_buffer *un_buffer)
 
 		if (tamanioAModificar > tamanioActual)
 		{ // si necesitamos mas paginas
-			printf("ENTRE AL IFFFFFFFFFFFFF\n");
+			//printf("ENTRE AL IFFFFFFFFFFFFF\n");
 			log_debug(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, tamanioActual, tamanioAModificar);
 
 			int paginasNecesarias = ceil((double)tamanioAModificar / (double)TAM_PAGINA);
@@ -454,7 +469,7 @@ void resize(t_buffer *un_buffer)
 		{
 			if (tamanioAModificar <= tamanioActual)
 			{ // si quiero sacar paginas, tengo que cambiar los valores del bitarray & liberar las paginas
-				printf("ENTRE AL ELSEEEEEEEEE");
+				//printf("ENTRE AL ELSEEEEEEEEE");
 				log_debug(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Reducir: %d", pid, tamanioActual, tamanioAModificar);
 				int cantBytesModificar = tamanioActual - tamanioAModificar;
 				int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
@@ -567,6 +582,7 @@ bool necesitoNuevaDF(t_list *cortesPagina, int cantIteraciones)
 
 void escribirMemoria(t_buffer *un_buffer)
 {
+	int pid = extraer_int_del_buffer(un_buffer);
 	char *stringAEscribir = extraer_string_del_buffer(un_buffer);
 	int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
 	int tamanioAEscribir = extraer_int_del_buffer(un_buffer);
@@ -587,6 +603,8 @@ void escribirMemoria(t_buffer *un_buffer)
 
 	int df = extraer_int_del_buffer(un_buffer);
 
+	log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA ESCRITURA DE TAMAÑO %d EN LAS DIRECCIONES FÍSICAS:", pid, tamanioAEscribir);
+
 	while (cantIteraciones < tamanioAEscribir)
 	{
 
@@ -595,15 +613,17 @@ void escribirMemoria(t_buffer *un_buffer)
 			df = extraer_int_del_buffer(un_buffer);
 		}
 
-		printf("en la direccion fisica: %d\n", df);
+		log_info(memoria_log_debug, "DIRECCION FÍSICA: %d", df);
+
+		//printf("en la direccion fisica: %d\n", df);
 		printf("escribo: %c\n", stringAEscribir[cantIteraciones]);
 
+		
 		memcpy(memoriaPrincipal + df, &stringAEscribir[cantIteraciones], 1);
 
 		cantIteraciones++;
 		df++;
 	}
-
 	printf("cantidad de iteraciones: %d\n", cantIteraciones);
 }
 
@@ -619,6 +639,7 @@ void concat_uint8_to_string(char *str, uint8_t ch)
 
 void leerMemoriaUnString(t_buffer *un_buffer)
 {
+	int pid = extraer_int_del_buffer(un_buffer);
 	int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
 	int tamanioALeer = extraer_int_del_buffer(un_buffer);
 
@@ -629,18 +650,20 @@ void leerMemoriaUnString(t_buffer *un_buffer)
 
 	int longitud = list_size(cortesPagina);
 
-	for (int i = 0; i < longitud; i++)
+	/*for (int i = 0; i < longitud; i++)
 	{
 		int *pepe = (int *)list_get(cortesPagina, i);
 		printf("valor de la lista cortes: %d\n", *pepe);
-	}
+	}*/
 
-	printf("la longitud es: %d\n", longitud);
+	//printf("la longitud es: %d\n", longitud);
 
 	int df = extraer_int_del_buffer(un_buffer);
 	uint8_t infoLeida;
 	char str[tamanioALeer + 1]; // Inicializa el string como vacío
     str[0] = '\0';
+
+	log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA LECTURA DE TAMAÑO %d EN LAS DIRECCIONES FÍSICAS:", pid, tamanioALeer);
 
 	while (cantIteraciones < tamanioALeer)
 	{
@@ -650,7 +673,8 @@ void leerMemoriaUnString(t_buffer *un_buffer)
 			df = extraer_int_del_buffer(un_buffer);
 		}
 
-		printf("en la direccion fisica: %d\n", df);
+		log_info(memoria_log_debug, "DIRECCION FÍSICA: %d", df);
+		//printf("en la direccion fisica: %d\n", df);
 		memcpy(&infoLeida, memoriaPrincipal + df, 1);
 		concat_uint8_to_string(str, infoLeida);
 		cantIteraciones++;

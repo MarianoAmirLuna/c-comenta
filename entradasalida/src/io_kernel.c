@@ -904,6 +904,7 @@ void atender_interfaz_kernel(int *arg)
 			buffer->stream = NULL;
 
 			cargar_string_al_buffer(buffer, nombreInterACrear); // hay que pasar esto asi desp memoria sabe a quien responderle
+			cargar_int_al_buffer(buffer, pid);
 			cargar_string_al_buffer(buffer, input_usuario);
 			cargar_int_al_buffer(buffer, tamanio_restante_pag_read);
 			cargar_int_al_buffer(buffer, tamanio_escribir_read);
@@ -937,6 +938,7 @@ void atender_interfaz_kernel(int *arg)
 			buffer2->size = 0;
 			buffer2->stream = NULL;
 
+			cargar_int_al_buffer(buffer2,pid);
 			cargar_string_al_buffer(buffer2, nombreInterACrear); // hay que pasar esto asi desp memoria sabe a quien responderle
 			cargar_int_al_buffer(buffer2,tamanio_restante_pag_write);
 			cargar_int_al_buffer(buffer2,tamanio_escribir_write);
@@ -1083,12 +1085,12 @@ void atender_interfaz_kernel(int *arg)
 
 			log_info(io_logger, "PID: %i - Operacion: IO_FS_READ", pid); // falta pid
 
-			printf("el pid es %d\n", pid);
-			printf("el nombre del archivo es: %s\n", nombreArchivo);
-			printf("puntero read %d\n", punteroRead);
-			printf("byts restantes %d\n", bytesRestantesPagina);
-			printf("tamanio escribir %d\n", tamanioEscribirRead);
-			printf("cantidad direcciones %d\n", cantidadDireccionesXD);
+			printf("El pid es %d\n", pid);
+			printf("El nombre del archivo es: %s\n", nombreArchivo);
+			printf("Puntero read %d\n", punteroRead);
+			printf("Byts restantes %d\n", bytesRestantesPagina);
+			printf("Tamanio escribir %d\n", tamanioEscribirRead);
+			printf("Cantidad direcciones %d\n", cantidadDireccionesXD);
 
 			// printf("mensaje obtenido: %s\n",palabraIOWrite);
 
@@ -1100,6 +1102,7 @@ void atender_interfaz_kernel(int *arg)
 			bufferXDD->stream = NULL;
 
 			cargar_string_al_buffer(bufferXDD, nombreInterACrear);
+			cargar_int_al_buffer(bufferXDD, pid);
 			cargar_string_al_buffer(bufferXDD, leidoDelArchivo);
 			cargar_int_al_buffer(bufferXDD, bytesRestantesPagina);
 			cargar_int_al_buffer(bufferXDD, tamanioEscribirRead);
