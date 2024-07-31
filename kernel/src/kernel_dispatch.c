@@ -108,6 +108,14 @@ void atender_kernel_dispatch()
 			sem_post(&contador_q);
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
 			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
+			bool recursoEncontrado = false;
+			for(int i=0; nombresRecursos[i] != NULL; i++)
+			{
+				if(strcmp(nombre_recurso_wait, nombresRecursos[i])==0)
+				{
+					recursoEncontrado = true;
+				}
+			}			
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
 			pthread_mutex_lock(&proteger_lista_hilos);
 			removerNumeroLista(lista_id_hilos, numero_hiloXD);
@@ -120,8 +128,16 @@ void atender_kernel_dispatch()
 			// printf("ACAAAAAAAAAAAAAAAAAAAA\n");
 
 			// list_add(procesosREADY, &(pcb_devuelto_por_wait->pid));
-
-			atender_wait(nombre_recurso_wait, &(pcb_devuelto_por_wait->pid));
+			if (recursoEncontrado)
+			{
+				atender_wait(nombre_recurso_wait, &(pcb_devuelto_por_wait->pid));
+			}
+			else
+			{
+				log_info(kernel_log_debug, "Finaliza el proceso %d - Motivo: INVALID_RESOURCE\n", pcb_devuelto_por_wait->pid);
+				liberarRecursosProceso(&(pcb_devuelto_por_wait->pid));
+				mandar_a_exit(&(pcb_devuelto_por_wait->pid)); 
+			}
 			sem_post(&nuevo_bucle);
 			break;
 

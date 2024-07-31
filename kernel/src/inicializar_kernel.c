@@ -30,7 +30,7 @@ void inicializar_configs(char* rutaconfig)
 {
 	//kernel_config = config_create(rutaconfig); //DES-COMENTAR PARA ENTREGA
 
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/io.config");
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/fs.config");
 
 	if (kernel_config == NULL)
 	{
