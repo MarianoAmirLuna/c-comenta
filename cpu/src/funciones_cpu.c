@@ -133,6 +133,8 @@ void hacerMovIn(int dirLogicaDelDato, int tamanioDatoALeer, char *registroDatos)
     { // si es un u8
 
         mandarDatoALeer(dirFisicaDelDato, 0, 1, 0, bytes_restantes_en_pagina, registroDatos);
+        int valorReg = obtenerValorRegistro(registroDatos);
+        log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %d\n", pcb_ejecucion.pid, dirFisicaDelDato, valorReg);
     }
     else
     { // si es un u32
@@ -143,10 +145,14 @@ void hacerMovIn(int dirLogicaDelDato, int tamanioDatoALeer, char *registroDatos)
             dirLogicaDelDato = dirLogicaDelDato + bytes_restantes_en_pagina;
             int segundaDF = traducir_dl(dirLogicaDelDato);
             mandarDatoALeer(dirFisicaDelDato, segundaDF, 4, 1, bytes_restantes_en_pagina, registroDatos);
+            int valorReg = obtenerValorRegistro(registroDatos);
+            log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Direcciones Físicas: %d, %d - Valor: %d\n", pcb_ejecucion.pid, dirFisicaDelDato, segundaDF, valorReg);
         }
         else
         { // Entra entero, osea que no se tiene que escribir en 2 paginas diferentes
             mandarDatoALeer(dirFisicaDelDato, 0, 4, 0, bytes_restantes_en_pagina, registroDatos);
+            int valorReg = obtenerValorRegistro(registroDatos);
+            log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %d\n", pcb_ejecucion.pid, dirFisicaDelDato, valorReg);
         }
     }
 }
@@ -263,24 +269,27 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
 
     if (tamanio_dato == 1)
     { // si es un u8
-
         mandarDatoAEscribir(direccionLogica, direccion_fisica, 0, dato, 1, 0, bytes_restantes_en_pagina);
+        uint8_t datoParaMostrar = (uint8_t)dato;
+        log_info(cpu_log_debug, "PID: %d  - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, datoParaMostrar);
     }
     else
     { // si es un u32
+        uint32_t datoParaMostrar = (uint32_t)dato;
         printf("los bytes_restantes_en_pagina son: %d\n", bytes_restantes_en_pagina);
         if (bytes_restantes_en_pagina < 4)
         { // se tiene que escribir en 2 paginas diferentes
-
             printf("Entro al if turbio\n");
             direccionLogica = direccionLogica + bytes_restantes_en_pagina;
             int segundaDF = traducir_dl(direccionLogica);
             mandarDatoAEscribir(direccionLogica, direccion_fisica, segundaDF, dato, 4, 1, bytes_restantes_en_pagina);
+            log_info(cpu_log_debug, "PID: %d  - Acción: ESCRIBIR - Direcciones Físicas: %d, %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, segundaDF, datoParaMostrar);
         }
         else
         { // no se tiene que escribir en 2 paginas diferentes
             printf("Entro al else turbio\n");
             mandarDatoAEscribir(direccionLogica, direccion_fisica, 0, dato, 4, 0, bytes_restantes_en_pagina);
+            log_info(cpu_log_debug, "PID: %d  - Acción: ESCRIBIR - Direcciones Físicas: %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, datoParaMostrar);
         }
     }
 }
@@ -480,6 +489,8 @@ void _copy_string(char *tamanio)
     logicaDeLeer(bytes_restantes_en_pagina_read, tamanioALeer);
     sem_wait(&esperarLecturaDeString);
 
+    log_info(cpu_log_debug, "Valor leido: %s", stringLeido);
+
     int desplazamiento_en_pagina = (int)pcb_ejecucion.registros_cpu.DI % tamanio_pagina; // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina;           // cuanto queda en la pagina
 
@@ -498,10 +509,13 @@ void _copy_string(char *tamanio)
 
     int copiaDI = (int)pcb_ejecucion.registros_cpu.DI;
 
+    log_info(cpu_log_debug, "PID: %d  - Acción: ESCRIBIR ", pcb_ejecucion.pid);
+
     for (int i = 0; i < cantDireccionesNecesarias; i++)
     {
         int df = traducir_dl(copiaDI);
         cargar_int_al_buffer(buffer, df);
+        log_info(cpu_log_debug, "DIRECCIÓN FÍSICA: %d ", df);
 
         if (flag == 0)
         {
@@ -514,6 +528,8 @@ void _copy_string(char *tamanio)
         }
         printf("carge un int al buffer\n");
     }
+
+    log_info(cpu_log_debug, "Valor escrito: %s", stringLeido);
 
     t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
     enviar_paquete(paquete, fd_memoria);
@@ -548,6 +564,7 @@ void logicaDeLeer(int bytes_restantes_en_pagina, int tamanioALeer){
             copiaSI = copiaSI + tamanio_pagina;
         }
         printf("carge un int al buffer\n");
+        log_info(cpu_log_debug, "PID: %d  - Acción: LEER - Dirección Física: %d", pcb_ejecucion.pid, df);
     }
 
     t_paquete *paquete = crear_super_paquete(LEER_EN_MEMORIA_UN_STRING, buffer);
@@ -953,12 +970,13 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
         break;
     case IO_GEN_SLEEP:
         ioGenSleep(param1, param2);
-        log_info(cpu_logger, "PID: %d - Ejecutando: %s - <<%s, %s>>", pcb->pid, instruccion, param1, param2);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         establecerVariablesNecesarias("IO_GEN_SLEEP", param1);
         break;
     case IO_STDIN_READ:
         ioSTDINRead(param1, param2, param3);
         establecerVariablesNecesarias("IO_STDIN_READ", param1);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case IO_STDOUT_WRITE:
         io_stdout_write(param1, param2, param3);
@@ -968,21 +986,26 @@ void ejecutar_instruccion(char *instruccion, PCB *pcb)
     case IO_FS_CREATE:
         io_fs_create(param1,param2);
         establecerVariablesNecesarias("IO_FS_CREATE", param1);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case IO_FS_DELETE:
         io_fd_delete(param1,param2);
         establecerVariablesNecesarias("IO_FS_DELETE", param1);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case IO_FS_TRUNCATE:
         io_fd_truncate(param1,param2,param3);
         establecerVariablesNecesarias("IO_FS_TRUNCATE", param1);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case IO_FS_WRITE:
         io_fs_write(param1,param2,param3,param4,param5);
         establecerVariablesNecesarias("IO_FS_WRITE", param1);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         break;
     case IO_FS_READ:
         io_fs_read(param1,param2,param3,param4,param5);
+        log_info(cpu_logger, "PID: %d - Ejecutando: %s", pcb->pid, instruccion);
         establecerVariablesNecesarias("IO_FS_READ", param1);
         break;
     case EXIT:
@@ -1207,6 +1230,7 @@ int traducir_dl(int direccionLogica)
 
         if (marco != -1)
         { // Hubo un HIT
+            log_debug(cpu_log_debug, "PID: %d - OBTENER MARCO - Página: %d - Marco: %d", pcb_ejecucion.pid, num_pag, marco);
             return (marco * tamanio_pagina + desplazamiento);
         }
     }

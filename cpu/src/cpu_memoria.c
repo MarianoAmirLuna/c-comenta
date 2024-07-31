@@ -74,12 +74,12 @@ void atender_cpu_memoria()
 			if(tamanio == 1){
 				uint8_t dato8 = extraer_uint32_del_buffer(un_buffer);
 				memcpy(direccionRegistroDatos,&dato8,1);
-				log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato8);
+				//log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato8);
 			}
 			else{
                 uint32_t dato32 = extraer_uint32_del_buffer(un_buffer);
 				memcpy(direccionRegistroDatos,&dato32,4);
-				log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato32);
+				//log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato32);
 			}
 
 		    printf("Ya leyo el MOV_IN.\n");
