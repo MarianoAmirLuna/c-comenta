@@ -126,7 +126,7 @@ void crearArchivosInicialesFS()
 	FILE *archivoBloques = fopen(PATH_Bloques, "wb");
 	FILE *archivoBitmap = fopen(PATH_Bitmap, "wb");
 
-	// Inicio establecer tamaño maximo archivo bloques.dat
+	// Inicio establecer tamanio maximo archivo bloques.dat
 	int fd_BLoques = fileno(archivoBloques);
 
 	int Tamanio_BLoque = BLOCK_SIZE;
@@ -134,7 +134,7 @@ void crearArchivosInicialesFS()
 	int Cantidad_BLoques = BLOCK_COUNT;
 
 	ftruncate(fd_BLoques, Tamanio_BLoque * Cantidad_BLoques);
-	// Fin establecer tamaño maximo archivo bloques.dat
+	// Fin establecer tamanio maximo archivo bloques.dat
 
 	// Inicio bitmap.dat
 
@@ -303,11 +303,11 @@ void crearInterfaz(char *nombre_Interfaz)
 
 	//printf("se creo una interfaz de tipo %s\n", TIPO_INTERFAZ);
 
-	log_info(io_logger, "Creando conexión con Kernel");
+	log_info(io_logger, "Creando conexion con Kernel");
 	fd_kernel = crear_conexion(IP_KERNEL, PUERTO_KERNEL);
 	log_info(io_logger, "Conexion con kernel exitosa!");
 
-	log_info(io_logger, "Creando conexión con Memoria");
+	log_info(io_logger, "Creando conexion con Memoria");
 	fd_memoria = crear_conexion(IP_MEMORIA, PUERTO_MEMORIA);
 	log_info(io_logger, "Conexion con memoria exitosa!");
 

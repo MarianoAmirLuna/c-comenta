@@ -17,7 +17,7 @@ int bitarray_write_to_file(t_bitarray *bitarray, const char *filename) {
         return -1;
     }
 
-    // Asegurarse de que el archivo tenga el tamaño adecuado
+    // Asegurarse de que el archivo tenga el tamanio adecuado
     if (ftruncate(fd, bitarray->size) == -1) {
         perror("ftruncate");
         close(fd);

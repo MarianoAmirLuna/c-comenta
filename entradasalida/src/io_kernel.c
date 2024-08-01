@@ -48,11 +48,11 @@ void escribirCentinelaBLoquesDesdeHasta(char *PATH_bloques, int primerBloque, in
 		exit(EXIT_FAILURE);
 	}
 
-	// Obtener el tamaño del archivo
+	// Obtener el tamanio del archivo
 	struct stat sb;
 	if (fstat(fd, &sb) == -1)
 	{
-		perror("Error al obtener el tamaño del archivo");
+		perror("Error al obtener el tamanio del archivo");
 		close(fd);
 		exit(EXIT_FAILURE);
 	}
@@ -102,11 +102,11 @@ void escribirCentinelaInicialBLoques(char *PATH_FS, int numPagina, int tamanioBL
 		exit(EXIT_FAILURE);
 	}
 
-	// Obtener el tamaño del archivo
+	// Obtener el tamanio del archivo
 	struct stat sb;
 	if (fstat(fd, &sb) == -1)
 	{
-		perror("Error al obtener el tamaño del archivo");
+		perror("Error al obtener el tamanio del archivo");
 		close(fd);
 		exit(EXIT_FAILURE);
 	}
@@ -179,10 +179,10 @@ void guardar_en_bloque(const char *filename, const char *contenido, int bloque, 
 		exit(EXIT_FAILURE);
 	}
 
-	// Calcular la posición donde se debe escribir
+	// Calcular la posicion donde se debe escribir
 	int posicion = bloque * tamanio_bloque;
 
-	// Mover el puntero del archivo a la posición deseada
+	// Mover el puntero del archivo a la posicion deseada
 	if (fseek(file, posicion, SEEK_SET) != 0)
 	{
 		perror("Error al mover el puntero del archivo");
@@ -190,7 +190,7 @@ void guardar_en_bloque(const char *filename, const char *contenido, int bloque, 
 		exit(EXIT_FAILURE);
 	}
 
-	// Escribir el contenido en la posición deseada
+	// Escribir el contenido en la posicion deseada
 	size_t contenido_len = strlen(contenido);
 	if (fwrite(contenido, sizeof(char), contenido_len, file) != contenido_len)
 	{
@@ -231,10 +231,10 @@ char *leerArchivo(char *nombre_Archivo, int registro_puntero, int registro_taman
 		exit(EXIT_FAILURE);
 	}
 
-	// Calcular la posición desde donde se debe leer
+	// Calcular la posicion desde donde se debe leer
 	int posicion_lectura = (bloque_inicial * tamanio_de_bloque) + registro_puntero;
 
-	// Mover el puntero del archivo a la posición de lectura calculada
+	// Mover el puntero del archivo a la posicion de lectura calculada
 	if (fseek(archivo, posicion_lectura, SEEK_SET) != 0)
 	{
 		perror("Error al posicionarse en el archivo");
@@ -256,7 +256,7 @@ char *leerArchivo(char *nombre_Archivo, int registro_puntero, int registro_taman
 	{
 		if (feof(archivo))
 		{
-			printf("Se alcanzó el final del archivo antes de leer la cantidad solicitada.\n");
+			printf("Se alcanzo el final del archivo antes de leer la cantidad solicitada.\n");
 		}
 		else
 		{
@@ -267,11 +267,11 @@ char *leerArchivo(char *nombre_Archivo, int registro_puntero, int registro_taman
 		}
 	}
 
-	// Añadir terminador nulo al buffer para imprimirlo como cadena
+	// Aniadir terminador nulo al buffer para imprimirlo como cadena
 	buffer[registro_tamanio] = '\0';
 
-	// Mostrar el resultado leído en pantalla
-	log_info(io_logger, "Datos leídos: %s\n", buffer);
+	// Mostrar el resultado leido en pantalla
+	log_info(io_logger, "Datos leidos: %s\n", buffer);
 
 	// Liberar memoria y cerrar el archivo
 
@@ -313,10 +313,10 @@ void escribirArchivo(char *nombre_Archivo, int registro_puntero, char *texto_a_e
 		exit(EXIT_FAILURE);
 	}
 
-	// Calcular la posición desde donde se debe escribir
+	// Calcular la posicion desde donde se debe escribir
 	int posicion_escritura = (bloque_inicial * tamanio_de_bloque) + registro_puntero;
 
-	// Mover el puntero del archivo a la posición de escritura calculada
+	// Mover el puntero del archivo a la posicion de escritura calculada
 	if (fseek(archivo, posicion_escritura, SEEK_SET) != 0)
 	{
 		perror("Error al posicionarse en el archivo");
@@ -324,7 +324,7 @@ void escribirArchivo(char *nombre_Archivo, int registro_puntero, char *texto_a_e
 		exit(EXIT_FAILURE);
 	}
 
-	// Escribir el texto en la posición calculada
+	// Escribir el texto en la posicion calculada
 	size_t texto_len = strlen(texto_a_escribir);
 	size_t escrito = fwrite(texto_a_escribir, sizeof(char), texto_len, archivo);
 	if (escrito != texto_len)
@@ -356,11 +356,11 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		exit(EXIT_FAILURE);
 	}
 
-	// Obtener el tamaño del archivo
+	// Obtener el tamanio del archivo
 	struct stat sb;
 	if (fstat(fd, &sb) == -1)
 	{
-		perror("Error al obtener el tamaño del archivo");
+		perror("Error al obtener el tamanio del archivo");
 		close(fd);
 		exit(EXIT_FAILURE);
 	}
@@ -442,10 +442,10 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 			for (int i = bloqueInicial * tamanioBloque; i < (bloque_Final_del_archivo + 1) * tamanioBloque; i++)
 			{
 				char c = map[i];
-				char str[2]; // Necesitamos 2 espacios: uno para el carácter y otro para el carácter nulo
+				char str[2]; // Necesitamos 2 espacios: uno para el caracter y otro para el caracter nulo
 
 				str[0] = c;
-				str[1] = '\0'; // Terminador nulo para que sea una cadena válida
+				str[1] = '\0'; // Terminador nulo para que sea una cadena valida
 				string_append(&contenido, str);
 			}
 
@@ -467,7 +467,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 
 	closedir(dir);
 
-	//----------FIN 1er parte de la compactacion: Crear diccionario con todos los archivos--------
+	//----------FIN 1er parte de la compactacion: Crear cola con todos los archivos--------
 	char *PATH_bitmap = string_duplicate(PATH_FS);
 	string_append(&PATH_bitmap, "/bitmap.dat");
 
@@ -520,12 +520,12 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		guardar_en_bloque(PATH_bloques, archivo_NO_truncar->contenido, bloqueLibre, tamanioBloque);
 
 		primerBloqueLibre = bloque_Final_del_archivo_no_truncar + 1;
-		// free(archivo_NO_truncar->PATH);
-		// free(archivo_NO_truncar->contenido);
-		// free(archivo_NO_truncar);
+		free(archivo_NO_truncar->PATH);
+		free(archivo_NO_truncar->contenido);
+		free(archivo_NO_truncar);
 	}
 
-	// queue_destroy(colaArchivos);
+	queue_destroy(colaArchivos);
 
 	// guaro en el ultimo bloque libre que me quedo el contenido del archivo a truncar y ademas los trunco
 	char *PATH_archivo_truncar;
@@ -549,10 +549,10 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 	for (int i = bloqueInicialTruncar * tamanioBloque; i < (bloque_Final_del_archivo_truncar + 1) * tamanioBloque; i++)
 	{
 		char c = map[i];
-		char str[2]; // Necesitamos 2 espacios: uno para el carácter y otro para el carácter nulo
+		char str[2]; // Necesitamos 2 espacios: uno para el caracter y otro para el caracter nulo
 
 		str[0] = c;
-		str[1] = '\0'; // Terminador nulo para que sea una cadena válida
+		str[1] = '\0'; // Terminador nulo para que sea una cadena valida
 		string_append(&contenidoTruncable, str);
 	}
 
@@ -582,7 +582,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		bitarray_clean_bit(copia_bitmap,i);
 	}
 	*/
-	log_info(io_logger, "PID: %i - Fin Compactación.", pid);
+	log_info(io_logger, "PID: %i - Fin Compactacion.", pid);
 
 	log_info(io_logger, "Aplicando retraso de compactacion");
 
@@ -755,7 +755,7 @@ void eliminarArchivo(char *nombre_Archivo)
 	else
 	{
 		int tamanioBloque = BLOCK_SIZE;
-		// 0-1-2 64 64/16 = 4 el archivo ocupa 4 bloques, osea, ocupa los bloque 2,3,4,5 .... 5= 2+3 = 2 + (4-1) bloqeu final = bloque inicial + (tamaño_en_bloques -1)
+		// 0-1-2 64 64/16 = 4 el archivo ocupa 4 bloques, osea, ocupa los bloque 2,3,4,5 .... 5= 2+3 = 2 + (4-1) bloqeu final = bloque inicial + (tamanio_en_bloques -1)
 
 		// bloque_inicial = 0,  el archivo mide 64, 64/16 = 4, el archivo mide 4 bloques: 0-1-2-3, bloque_final = 3, 3 = 0 + 3 = 0 + (4-1) ---> bloque_final = bloque_inicial + (tamanio_en_bloques-1)
 
@@ -970,9 +970,9 @@ void atender_interfaz_kernel(int *arg)
 			printf("el nombre del archivo es: %s\n", nombreArchivo);
 			printf("el path: %s\n", PATH_BASE_DIALFS);
 
-			// log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
+			log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
 
-			// log_info(io_logger, "PID: %i - Crear Archivo: %s",nombreArchivo);
+			log_info(io_logger, "PID: %i - Crear Archivo: %s",pid, nombreArchivo);
 			crearArchivo(nombreArchivo);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
@@ -988,12 +988,12 @@ void atender_interfaz_kernel(int *arg)
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
 			printf("ejecute un delete\n");
 
-			// log_info(io_logger, "PID: %i - Operacion: IO_FS_DELETE",pid);
+			log_info(io_logger, "PID: %i - Operacion: IO_FS_DELETE",pid);
 
 			printf("el pid es %d\n", pid);
 			printf("el nombre del archivo es: %s\n", nombreArchivo);
 
-			// log_info(io_logger, "PID: %i - Eliminar Archivo: %s",nombreArchivo);
+			log_info(io_logger, "PID: %i - Eliminar Archivo: %s",pid, nombreArchivo);
 			eliminarArchivo(nombreArchivo);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
@@ -1010,13 +1010,13 @@ void atender_interfaz_kernel(int *arg)
 			registro_tamanio = extraer_int_del_buffer(un_buffer);
 			printf("ejecute un truncate\n");
 
-			// log_info(io_logger, "PID: %i - Operacion: IO_FS_TRUNCATE",pid);
+			log_info(io_logger, "PID: %i - Operacion: IO_FS_TRUNCATE",pid);
 
 			printf("el pid es %d\n", pid);
 			printf("el nombre del archivo es: %s\n", nombreArchivo);
 			printf("el registro tamanio es: %d\n", registro_tamanio);
 
-			// log_info(io_logger, "PID: %i - Truncar Archivo: %s - Tamaño: %i",pid,nombreArchivo,registro_tamanio);
+			log_info(io_logger, "PID: %i - Truncar Archivo: %s - Tamanio: %i",pid,nombreArchivo,registro_tamanio);
 			truncarArchivo(nombreArchivo, registro_tamanio, pid);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
@@ -1088,7 +1088,7 @@ void atender_interfaz_kernel(int *arg)
 
 			printf("mensaje obtenido: %s\n", palabraIOWrite);
 
-			log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamaño a Escribir: %i - Puntero Archivo: %i", pid, nombreArchivo, tamanio_write, registro_puntero_write);
+			log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamanio a Escribir: %i - Puntero Archivo: %i", pid, nombreArchivo, tamanio_write, registro_puntero_write);
 			escribirArchivo(nombreArchivo, registro_puntero_write, palabraIOWrite);
 
 			log_info(io_logger, "Consumiendo unidad de tiempo");
@@ -1121,7 +1121,7 @@ void atender_interfaz_kernel(int *arg)
 
 			// printf("mensaje obtenido: %s\n",palabraIOWrite);
 
-			// log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamaño a Escribir: %i - Puntero Archivo: %i",pid,nombreArchivo,tamanio_write,registro_puntero_write);
+			log_info(io_logger, "PID: %i - Leer Archivo: %s - Tamanio a leer: %i - Puntero Archivo: %i", pid, nombreArchivo, registro_tamanio, registro_puntero_write);
 			char *leidoDelArchivo = leerArchivo(nombreArchivo, registro_puntero_write, registro_tamanio);
 
 			t_buffer *bufferXDD = crear_buffer();
