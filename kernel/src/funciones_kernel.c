@@ -239,7 +239,7 @@ void actualizarQPrimaProceso(int pid, int tiempo)
   pidConQ *pidConQEXEC = buscarPidConQ(pid);                      // obtener el pid_qprima
   int qPrimaNueva = pidConQEXEC->qPrima - tiempo;                 // obtengo el nuevo quantum
   pidConQEXEC->qPrima = qPrimaNueva <= 0 ? QUANTUM : qPrimaNueva; // en el caso de que sea 0, lo pongo en QUANTUM
-  printf("el nuevo tiempo es: \n", pidConQEXEC->qPrima);
+  //printf("el nuevo tiempo es: \n", pidConQEXEC->qPrima);
 }
 
 void bloquearPorRecurso(char *nombre) // FALTA PROBAR
@@ -253,7 +253,7 @@ void bloquearPorRecurso(char *nombre) // FALTA PROBAR
     ; // PREGUNTAR LUCA, antes estaba en ==
   t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
 
-  printf("lo agrege a la lista nro: %d\n", i);
+  //printf("lo agrege a la lista nro: %d\n", i);
 
   int *aux = malloc(sizeof(int));
   *aux = estaEJecutando;
@@ -267,7 +267,7 @@ void estado_instancias()
   for (int i = 0; nombresRecursos[i] != NULL; i++)
   {
     int *aux = list_get(instanciasRecursos, i);
-    printf("recurso: %s, instancias: %d \n", nombresRecursos[i], *aux);
+    //printf("recurso: %s, instancias: %d \n", nombresRecursos[i], *aux);
   }
 }
 
@@ -489,7 +489,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
   if (strcmp(instruccionXD->nombre_instruccion, "IO_GEN_SLEEP") == 0)
   {
-    printf("voy a ejecutar un gen_sleep\n");
+    //printf("voy a ejecutar un gen_sleep\n");
 
     int *unidades_trabajo = list_get(instruccionXD->lista_enteros, 0);
 
@@ -523,7 +523,7 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
     enviar_paquete(paquete, interfaz.fd_interfaz);
     destruir_paquete(paquete);
 
-    printf("mande el paquete a kernel en write\n");
+    //printf("mande el paquete a kernel en write\n");
   }
 
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_CREATE") == 0)
@@ -573,21 +573,21 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
   else if (strcmp(instruccionXD->nombre_instruccion, "IO_FS_READ") == 0)
   {
     cargar_string_al_buffer(buffer, instruccionXD->nombre_archivo);
-    printf("el nombre del archivo antes de mandar: %s\n", instruccionXD->nombre_archivo);
+    //printf("el nombre del archivo antes de mandar: %s\n", instruccionXD->nombre_archivo);
 
     for (int i = 0; i < list_size(instruccionXD->lista_enteros); i++)
     {
       int *numerito = list_get(instruccionXD->lista_enteros, i);
       cargar_int_al_buffer(buffer, *numerito);
 
-      printf("carge los datos: %d\n", *numerito);
+      //printf("carge los datos: %d\n", *numerito);
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_READ, buffer);
     enviar_paquete(paquete, interfaz.fd_interfaz);
     destruir_paquete(paquete);
 
-    printf("mande un buffer al IO_FS_READ");
+    //printf("mande un buffer al IO_FS_READ");
   }
 
   //free_instruccion(instruccionXD);
@@ -607,7 +607,7 @@ void iniciar_planificacion_io()
       if (interfaz->estaLibre && queue_size(interfaz->instrucciones_ejecutar) > 0)
       { // si esta libre la interfaz y tenes instrucciones para ejecutar
 
-        printf("ejecute una instruccion de tipo io\n");
+        //printf("ejecute una instruccion de tipo io\n");
 
         ejectuar_siguiente_instruccion_io(*interfaz);
         interfaz->estaLibre = false;
@@ -827,7 +827,7 @@ void *contador_tiempos(void *arg)
   }
   else
   {
-    printf("NOOO aviso un desalojo\n");
+    //printf("NOOO aviso un desalojo\n");
   }
 
   free(args);
@@ -908,7 +908,7 @@ void nuevaListaRecursos(int pid)
 void iniciar_proceso(char *path)
 {
   PCB *pcb = iniciar_PCB(path);
-  printf("el pid es %d\n", pcb->pid);
+  //printf("el pid es %d\n", pcb->pid);
 
   pthread_mutex_lock(&lista_pcb_mutex);
   list_add(listaPCBs, pcb);
@@ -966,8 +966,8 @@ int obtener_fd_interfaz(char *nombre_interfaz)
     return -1; // o algún valor de error apropiado
   }
 
-  printf("nombre de la interfaz: ######%s\n", interfazADS->nombre_interfaz);
-  printf("tipo de la interfaz:###### %s\n", interfazADS->tipo_interfaz);
+  //printf("nombre de la interfaz: ######%s\n", interfazADS->nombre_interfaz);
+  //printf("tipo de la interfaz:###### %s\n", interfazADS->tipo_interfaz);
   return interfazADS->fd_interfaz;
 }
 
@@ -1066,17 +1066,17 @@ void consultar_pid_cpu()
   enviar_paquete(un_paquete, fd_cpu_dispatch);
   destruir_paquete(un_paquete);
 
-  printf("toy esperando\n");
+  //printf("toy esperando\n");
   // sem_wait(&esperar_consulta_pid);
-  printf("pase el semaforo\n");
+  //printf("pase el semaforo\n");
 }
 
 void mandar_a_exit(int *pid_finalizado)
 {
 
   // consultar_pid_cpu();
-  printf("esta ejecutando: %d\n", estaEJecutando);
-  printf("pid finalizado: %d\n", *pid_finalizado);
+  //printf("esta ejecutando: %d\n", estaEJecutando);
+  //printf("pid finalizado: %d\n", *pid_finalizado);
 
   bool seEncontroElPid = false;
   int *numero_desalojado;
@@ -1085,7 +1085,7 @@ void mandar_a_exit(int *pid_finalizado)
   if (estaEJecutando == *pid_finalizado)
   {
     // estaEJecutando = 0;
-    printf("mande a desalojar el que esta ejecutando\n");
+    //printf("mande a desalojar el que esta ejecutando\n");
     desalojoFinProceso();
   }
 
@@ -1127,13 +1127,13 @@ void mandar_a_exit(int *pid_finalizado)
     {
       // #PreguntarLuca si es necesario esto || suspendido = bloqueado ? por los logs
       numero_desalojado = list_remove(procesosSuspendidos, i);
-      printf("elimine a un wachin de suspended\n");
+      //printf("elimine a un wachin de suspended\n");
     }
   }
 
   for (int i = 0; nombresRecursos[i] != NULL; i++) // mira los bloqueados por recursos
   {
-    printf("el pid: %d\n", *pid_finalizado);
+    //printf("el pid: %d\n", *pid_finalizado);
     if (i < list_size(lista_recursos_y_bloqueados))
     {
       t_list *lista = list_get(lista_recursos_y_bloqueados, i);

@@ -27,7 +27,7 @@ void atender_kernel_dispatch()
 			//
 			break;
 		case OUT_OF_MEMORY:
-			printf("llege wey\n");
+			//printf("llege wey\n");
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_out_memory = atender_recibir_pcb(un_buffer);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
@@ -204,7 +204,7 @@ void atender_kernel_dispatch()
 
 			if (interfaz == NULL) // si es NULL no la encuentra en la lista por lo tanto esta desconectada
 			{
-				printf("lo agrege a exit\n");
+				//printf("lo agrege a exit\n");
 				list_add(procesosEXIT, &(pcb_devuelto2->pid));
 				log_info(kernel_log_debug, "Finaliza el proceso <%d> - Motivo: <INVALID_INTERFACE>, no lo encuentra.\n", pcb_devuelto2->pid);
 			}
@@ -212,14 +212,14 @@ void atender_kernel_dispatch()
 			{
 				if (!admiteOperacionInterfaz(nombre_interfaz, tipo_instruccion))
 				{
-					printf("lo agrege a exit 2.0\n");
+					//printf("lo agrege a exit 2.0\n");
 					list_add(procesosEXIT, &(pcb_devuelto2->pid));
 					log_info(kernel_log_debug, "Finaliza el proceso <%d> - Motivo: <INVALID_INTERFACE>, no lo admite.\n", pcb_devuelto2->pid);
 				}
 				else
 				{
-					printf("lo agrege a la queue de procesos bloqueados\n");
-					printf("de la interfaz: %s\n", interfaz->nombre_interfaz);
+					//printf("lo agrege a la queue de procesos bloqueados\n");
+					//printf("de la interfaz: %s\n", interfaz->nombre_interfaz);
 					queue_push(interfaz->procesos_bloqueados, &(pcb_devuelto2->pid)); // agrego el pid a la queue de bloqueados de dicha interfaz
 				}
 			}
@@ -237,8 +237,8 @@ void atender_kernel_dispatch()
 			// sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz2 = encontrar_interfaz(nombre_interfaz);
 
-			printf("el nombre de la insterfaz es: %s\n", nombre_interfaz);
-			printf("las unidades de trabajo son: %d\n", *unidades_trabajo);
+			//printf("el nombre de la insterfaz es: %s\n", nombre_interfaz);
+			//printf("las unidades de trabajo son: %d\n", *unidades_trabajo);
 
 			if (interfaz2 != NULL && admiteOperacionInterfaz(nombre_interfaz, "IO_GEN_SLEEP"))
 			{
@@ -267,9 +267,9 @@ void atender_kernel_dispatch()
 			*tamanio_escribir = extraer_int_del_buffer(un_buffer);
 			*cant_direcciones = extraer_int_del_buffer(un_buffer);
 
-			printf("restante escribir: %d\n", *tamanio_restante_pag);
-			printf("tamanio_escribir: %d\n", *tamanio_escribir);
-			printf("cant direcciones: %d\n", *cant_direcciones);
+			//printf("restante escribir: %d\n", *tamanio_restante_pag);
+			//printf("tamanio_escribir: %d\n", *tamanio_escribir);
+			//printf("cant direcciones: %d\n", *cant_direcciones);
 
 			// sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz3 = encontrar_interfaz(nombre_interfaz);
@@ -290,13 +290,13 @@ void atender_kernel_dispatch()
 					int *df_p = malloc(sizeof(int));
 					*df_p = extraer_int_del_buffer(un_buffer);
 
-					printf("la df es: %d\n", *df_p);
+					//printf("la df es: %d\n", *df_p);
 					list_add(instruccionXD2->lista_enteros, df_p);
 				}
 
 				queue_push(interfaz3->instrucciones_ejecutar, instruccionXD2);
 				sem_post(&ciclo_instruccion_io);
-				printf("lo agrege a la queue\n");
+				//printf("lo agrege a la queue\n");
 			}
 
 			break;
@@ -312,9 +312,9 @@ void atender_kernel_dispatch()
 			*tamanio_escribir_write = extraer_int_del_buffer(un_buffer);
 			*cant_direcciones_write = extraer_int_del_buffer(un_buffer);
 
-			printf("tamanio restante pagina write %d\n", *tamanio_restante_pag_write);
-			printf("tamanio escribir wrtie write %d\n", *tamanio_escribir_write);
-			printf("tamanio cant direcciones write %d\n", *cant_direcciones_write);
+			//printf("tamanio restante pagina write %d\n", *tamanio_restante_pag_write);
+			//printf("tamanio escribir wrtie write %d\n", *tamanio_escribir_write);
+			//printf("tamanio cant direcciones write %d\n", *cant_direcciones_write);
 
 			// sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz4 = encontrar_interfaz(nombre_interfaz);
@@ -336,13 +336,13 @@ void atender_kernel_dispatch()
 					int *direccion_fisica_p = malloc(sizeof(int));
 					*direccion_fisica_p = extraer_int_del_buffer(un_buffer);
 
-					printf("la df es: %d\n", *direccion_fisica_p);
+					//printf("la df es: %d\n", *direccion_fisica_p);
 					list_add(instruccionXD3->lista_enteros, direccion_fisica_p);
 				}
 
 				queue_push(interfaz4->instrucciones_ejecutar, instruccionXD3);
 				sem_post(&ciclo_instruccion_io);
-				printf("lo agrege a la queue\n");
+				//printf("lo agrege a la queue\n");
 			}
 
 			break;
@@ -363,7 +363,7 @@ void atender_kernel_dispatch()
 
 				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
 				sem_post(&ciclo_instruccion_io);
-				printf("lo agrege a la queue\n");
+				//("lo agrege a la queue\n");
 			}
 
 			break;
@@ -385,7 +385,7 @@ void atender_kernel_dispatch()
 
 				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
 				sem_post(&ciclo_instruccion_io);
-				printf("lo agrege a la queue\n");
+				//printf("lo agrege a la queue\n");
 			}
 
 			break;
@@ -410,7 +410,7 @@ void atender_kernel_dispatch()
 
 				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
 				sem_post(&ciclo_instruccion_io);
-				printf("lo agrege a la queue\n");
+				//printf("lo agrege a la queue\n");
 			}
 
 			break;
@@ -450,13 +450,13 @@ void atender_kernel_dispatch()
 					int *direccion_fisica_write = malloc(sizeof(int));
 					*direccion_fisica_write = extraer_int_del_buffer(un_buffer);
 
-					printf("la df es: %d\n", *direccion_fisica_write);
+					//printf("la df es: %d\n", *direccion_fisica_write);
 					list_add(instruccion_io->lista_enteros, direccion_fisica_write);
 				}
 
 				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
 				sem_post(&ciclo_instruccion_io);
-				printf("lo agrege a la queue\n");
+				//printf("lo agrege a la queue\n");
 			}
 
 			break;
@@ -475,9 +475,9 @@ void atender_kernel_dispatch()
 			*tamanio_escribirXD = extraer_int_del_buffer(un_buffer);
 			*cant_direccionesXD = extraer_int_del_buffer(un_buffer);
 
-			printf("restante escribir: %d\n", *bytes_restantes);
-			printf("tamanio_escribir: %d\n", *tamanio_escribirXD);
-			printf("cant direcciones: %d\n", *cant_direccionesXD);
+			//printf("restante escribir: %d\n", *bytes_restantes);
+			//printf("tamanio_escribir: %d\n", *tamanio_escribirXD);
+			//printf("cant direcciones: %d\n", *cant_direccionesXD);
 
 			// sem_post(&esperar_devolucion_pcb);
 			interfazXD = encontrar_interfaz(nombre_interfaz);
@@ -499,13 +499,13 @@ void atender_kernel_dispatch()
 					int *df_read = malloc(sizeof(int));
 					*df_read = extraer_int_del_buffer(un_buffer);
 
-					printf("la df es: %d\n", *df_read);
+					//printf("la df es: %d\n", *df_read);
 					list_add(instruccion_io->lista_enteros, df_read);
 				}
 
 				queue_push(interfazXD->instrucciones_ejecutar, instruccion_io);
 				sem_post(&ciclo_instruccion_io);
-				printf("lo agrege a la queue\n");
+				//printf("lo agrege a la queue\n");
 			}
 			break;
 		case CONSULTA_PLANIFICACION:

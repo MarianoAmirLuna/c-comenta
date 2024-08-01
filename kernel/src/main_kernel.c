@@ -55,7 +55,7 @@ int main()
 
 	while(1) {
 
-        printf("entre al while\n");
+        //printf("entre al while\n");
 
         int* socket_cliente = malloc(sizeof(int));
 
@@ -64,11 +64,11 @@ int main()
             return EXIT_FAILURE;
         }
 
-		printf("un instante antes del accept\n");
+		//printf("un instante antes del accept\n");
         *socket_cliente = accept(fd_kernel, NULL, NULL); //en el momento que recibe una nueva conexion por parte de io pasa el accept y crea un nuevo hilo
-		printf("un instante despues del accept\n");
+		//printf("un instante despues del accept\n");
 
-        printf("el socket del cliente es: %d\n",*socket_cliente);
+       // printf("el socket del cliente es: %d\n",*socket_cliente);
 
         if (*socket_cliente < 0) {
             perror("Error en accept()");

@@ -164,7 +164,7 @@ void _mov_in(char *registroDatos, char *registroDireccion)
     void *direccionLogicaDelDato = (void *)get_registry(registroDireccion);
 
     int tamanioDatoALeer = conocerTamanioDeLosRegistros(registroDatos); // para saber el tamaño de lo que voy a leer
-    printf("el tamanio del dato: %d\n", tamanioDatoALeer);
+    //printf("el tamanio del dato: %d\n", tamanioDatoALeer);
 
     int *dirLogicaDelDato = (int *)direccionLogicaDelDato;
 
@@ -248,7 +248,7 @@ void escribir_string_memoria(char *datoEscribir, int direccionLogica)
         {
             direccionLogica = direccionLogica + tamanio_pagina;
         }
-        printf("carge un int al buffer\n");
+        //printf("carge un int al buffer\n");
     }
 
     t_paquete *paquete = crear_super_paquete(ESCRIBIR_MEMORIA, buffer);
@@ -273,25 +273,26 @@ void hacerMovOut(int direccionLogica, void *dato, int tamanio_dato)
     { // si es un u8
         mandarDatoAEscribir(direccionLogica, direccion_fisica, 0, dato, 1, 0, bytes_restantes_en_pagina);
         uint8_t datoParaMostrar = (uint8_t)dato;
-        log_info(cpu_logger, "PID: %d  - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, datoParaMostrar);
+        
+        //log_info(cpu_logger, "PID: %d  - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, datoParaMostrar);
     }
     else
     { // si es un u32
         uint32_t datoParaMostrar = (uint32_t)dato;
-        printf("los bytes_restantes_en_pagina son: %d\n", bytes_restantes_en_pagina);
+        //printf("los bytes_restantes_en_pagina son: %d\n", bytes_restantes_en_pagina);
         if (bytes_restantes_en_pagina < 4)
         { // se tiene que escribir en 2 paginas diferentes
-            printf("Entro al if turbio\n");
+            //printf("Entro al if turbio\n");
             direccionLogica = direccionLogica + bytes_restantes_en_pagina;
             int segundaDF = traducir_dl(direccionLogica);
             mandarDatoAEscribir(direccionLogica, direccion_fisica, segundaDF, dato, 4, 1, bytes_restantes_en_pagina);
-            log_info(cpu_logger, "PID: %d  - Acción: ESCRIBIR - Direcciones Físicas: %d, %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, segundaDF, datoParaMostrar);
+            //log_info(cpu_logger, "PID: %d  - Acción: ESCRIBIR - Direcciones Físicas: %d, %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, segundaDF, datoParaMostrar);
         }
         else
         { // no se tiene que escribir en 2 paginas diferentes
-            printf("Entro al else turbio\n");
+            //printf("Entro al else turbio\n");
             mandarDatoAEscribir(direccionLogica, direccion_fisica, 0, dato, 4, 0, bytes_restantes_en_pagina);
-            log_info(cpu_logger, "PID: %d  - Acción: ESCRIBIR - Direcciones Físicas: %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, datoParaMostrar);
+            //log_info(cpu_logger, "PID: %d  - Acción: ESCRIBIR - Direcciones Físicas: %d - Valor: %u", pcb_ejecucion.pid, direccion_fisica, datoParaMostrar);
         }
     }
 }
@@ -433,7 +434,7 @@ void concat_uint8_to_string(char *str, uint8_t ch)
 {
     size_t len = strlen(str); // Encuentra la longitud actual del string
 
-    printf("el caracter es: %c\n", (char)ch);
+    //printf("el caracter es: %c\n", (char)ch);
 
     str[len] = (char)ch; // Añade el carácter al final del string
     str[len + 1] = '\0'; // Añade el terminador nulo
@@ -470,7 +471,7 @@ void leerCaracterMemoria(int direccionLogica)
 
     cargar_int_al_buffer(buffer, df);
 
-    printf("la direccion fisica: %d\n", df);
+    //printf("la direccion fisica: %d\n", df);
 
     t_paquete *paquete = crear_super_paquete(LEER_CARACTER_MEMORIA, buffer);
     enviar_paquete(paquete, fd_memoria);
@@ -529,7 +530,7 @@ void _copy_string(char *tamanio)
         {
             copiaDI = copiaDI + tamanio_pagina;
         }
-        printf("carge un int al buffer\n");
+        //printf("carge un int al buffer\n");
     }
     
     log_info(cpu_logger, "Valor escrito: %s", stringLeido);
@@ -567,7 +568,7 @@ void logicaDeLeer(int bytes_restantes_en_pagina, int tamanioALeer){
         {
             copiaSI = copiaSI + tamanio_pagina;
         }
-        printf("carge un int al buffer\n");
+        //printf("carge un int al buffer\n");
         log_info(cpu_logger, "PID: %d  - Acción: LEER - Dirección Física: %d", pcb_ejecucion.pid, df);
     }
 
@@ -619,8 +620,8 @@ void io_stdout_write(char *nombreInterfaz, char *registro_direccionLogica, char 
     int dirLogicaDelDato = obtenerValorRegistro(registro_direccionLogica);
     int tamanioDato = obtenerValorRegistro(registro_tamanio);
 
-    printf("la dl es: %d\n", dirLogicaDelDato);
-    printf("el tamanio es: %d\n", tamanioDato);
+    //printf("la dl es: %d\n", dirLogicaDelDato);
+    //printf("el tamanio es: %d\n", tamanioDato);
 
     int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
@@ -642,7 +643,7 @@ void io_stdout_write(char *nombreInterfaz, char *registro_direccionLogica, char 
     {
         int df = traducir_dl(dirLogicaDelDato);
 
-        printf("direccion fisica: %d\n", df);
+        //printf("direccion fisica: %d\n", df);
 
         cargar_int_al_buffer(buffer, df);
 
@@ -656,7 +657,7 @@ void io_stdout_write(char *nombreInterfaz, char *registro_direccionLogica, char 
             dirLogicaDelDato = dirLogicaDelDato + tamanio_pagina;
         }
 
-        printf("carge un int al buffer\n");
+        //printf("carge un int al buffer\n");
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_STDOUT_WRITE, buffer);
@@ -675,8 +676,8 @@ void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_
     int dirLogicaDelDato = obtenerValorRegistro(registro_direccion);
     int tamanioDato = obtenerValorRegistro(registro_tamanio);
 
-    printf("la dl es: %d\n", dirLogicaDelDato);
-    printf("el tamanio es: %d\n", tamanioDato);
+    //printf("la dl es: %d\n", dirLogicaDelDato);
+    //printf("el tamanio es: %d\n", tamanioDato);
 
     int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
@@ -698,7 +699,7 @@ void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_
     {
         int df = traducir_dl(dirLogicaDelDato);
 
-        printf("direccion fisica: %d\n", df);
+        //printf("direccion fisica: %d\n", df);
 
         cargar_int_al_buffer(buffer, df);
 
@@ -712,7 +713,7 @@ void ioSTDINRead(char *nombreInterfaz, char *registro_direccion, char *registro_
             dirLogicaDelDato = dirLogicaDelDato + tamanio_pagina;
         }
 
-        printf("carge un int al buffer\n");
+        //printf("carge un int al buffer\n");
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_STDIN_READ, buffer);
@@ -854,7 +855,7 @@ void io_fs_write(char* interfaz, char* nombreArchivo, char* registroDireccion, c
     {
         int df = traducir_dl(dirLogicaDelDato);
 
-        printf("direccion fisica: %d\n", df);
+        //printf("direccion fisica: %d\n", df);
 
         cargar_int_al_buffer(buffer, df);
 
@@ -868,7 +869,7 @@ void io_fs_write(char* interfaz, char* nombreArchivo, char* registroDireccion, c
             dirLogicaDelDato = dirLogicaDelDato + tamanio_pagina;
         }
 
-        printf("carge un int al buffer\n");
+        //printf("carge un int al buffer\n");
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_WRITE, buffer);
@@ -888,8 +889,8 @@ void io_fs_read(char* interfaz,char* nombreArchivo,char* registroDireccion,char*
     int tamanioDato = obtenerValorRegistro(registroTamanio);
     int registroPuntero = obtenerValorRegistro(registroPunteroArchivo);
 
-    printf("la dl es: %d\n", dirLogicaDelDato);
-    printf("el tamanio es: %d\n", tamanioDato);
+    //printf("la dl es: %d\n", dirLogicaDelDato);
+    //printf("el tamanio es: %d\n", tamanioDato);
 
     int desplazamiento_en_pagina = dirLogicaDelDato % tamanio_pagina;          // offset
     int bytes_restantes_en_pagina = tamanio_pagina - desplazamiento_en_pagina; // cuanto queda en la pagina
@@ -913,7 +914,7 @@ void io_fs_read(char* interfaz,char* nombreArchivo,char* registroDireccion,char*
     {
         int df = traducir_dl(dirLogicaDelDato);
 
-        printf("direccion fisica: %d\n", df);
+        //printf("direccion fisica: %d\n", df);
 
         cargar_int_al_buffer(buffer, df);
 
@@ -927,7 +928,7 @@ void io_fs_read(char* interfaz,char* nombreArchivo,char* registroDireccion,char*
             dirLogicaDelDato = dirLogicaDelDato + tamanio_pagina;
         }
 
-        printf("carge un int al buffer\n");
+        //printf("carge un int al buffer\n");
     }
 
     t_paquete *paquete = crear_super_paquete(ENVIAR_IO_FS_READ, buffer);
@@ -1056,7 +1057,7 @@ void solicitar_instruccion(int pid, int program_counter)
     a_enviar->stream = NULL;
 
     // printf("el pid en solicitar_instruccion es: %d\n", pid);
-    printf("el program counter en solicitar instrucciones: %d\n", program_counter);
+    //printf("el program counter en solicitar instrucciones: %d\n", program_counter);
     log_info(cpu_logger, "PID: %d - FETCH - Program Counter: %d", pcb_ejecucion.pid, pcb_ejecucion.program_counter);
 
     cargar_int_al_buffer(a_enviar, pid);
@@ -1109,7 +1110,7 @@ void termino_ejecutar()
     a_enviar->size = 0;
     a_enviar->stream = NULL;
 
-    printf("envie el mensaje de CPU LISTA\n");
+    //printf("envie el mensaje de CPU LISTA\n");
 
     cargar_string_al_buffer(a_enviar, "mariano es fachero");
 
@@ -1133,11 +1134,11 @@ void enviar_pedido_marco(int num_pag, int pid)
     enviar_paquete(un_paquete, fd_memoria);
     destruir_paquete(un_paquete);
 
-    printf("Antes del semanforo\n");
+    //printf("Antes del semanforo\n");
 
     sem_wait(&esperarMarco);
 
-    printf("Pase el semanforo\n");
+    //printf("Pase el semanforo\n");
 }
 
 //////////////////////TLB///////////////////////////
@@ -1187,7 +1188,7 @@ void actualizarPrioridadesTLB(lineaTLB *lineaTL)
     if (index != -1)
     {                                                                     // Verifica que el elemento esté en la lista
         lineaTLB *lineaRemovida = list_remove(cola_tlb->elements, index); // Lo borro
-        printf("agrege al final por LRU la pag: %d\n", lineaRemovida->pagina);
+        //printf("agrege al final por LRU la pag: %d\n", lineaRemovida->pagina);
         queue_push(cola_tlb, lineaRemovida); // Lo vuelvo a agregar al final
     }
 }
@@ -1199,15 +1200,15 @@ void agregarPaginaTLB(int pid, int pagina, int marco)
     if (queue_size(cola_tlb) < CANTIDAD_ENTRADAS_TLB)
     { // Si entra acá es porque no hay que hacer ningún reemplazo
         queue_push(cola_tlb, lineaTL);
-        printf("agrege la pagina %d\n", lineaTL->pagina);
+        //printf("agrege la pagina %d\n", lineaTL->pagina);
     }
     else
     {                                                 // Significa que ya se llenó la TLB entonces hay que reemplazar una
         lineaTLB *lineaABorrar = queue_pop(cola_tlb); // Eliminar el elemento más antiguo (FIFO)
-        printf("saque la pagina %d\n", lineaABorrar->pagina);
+        //printf("saque la pagina %d\n", lineaABorrar->pagina);
         free(lineaABorrar);
         queue_push(cola_tlb, lineaTL);
-        printf("agrege la pagina %d\n", lineaTL->pagina);
+        //printf("agrege la pagina %d\n", lineaTL->pagina);
     }
 }
 
@@ -1345,7 +1346,7 @@ void devolverPCBKernel_exit_o_bloqueado()
     enviar_paquete(paquete, fd_kernel_dispatch);
     destruir_paquete(paquete);
 
-    printf("desaloje al proceso al ejectuar una instruccion de tipo IO\n");
+    //printf("desaloje al proceso al ejectuar una instruccion de tipo IO\n");
 }
 
 bool instruccion_es_tipo_io(char *instruccion_actual)
@@ -1361,8 +1362,8 @@ bool instruccion_es_tipo_io(char *instruccion_actual)
     strcpy(nombre_interfaz, nombre_interfazXD);
     strcpy(tipo_instruccion, instr);
 
-    printf("el nombre de la interfaz: %s\n", nombre_interfazXD);
-    printf("la instruccion es: %s\n", instr);
+    //printf("el nombre de la interfaz: %s\n", nombre_interfazXD);
+    //printf("la instruccion es: %s\n", instr);
 
     if (strcmp(instr, "IO_GEN_SLEEP") == 0 || strcmp(instr, "IO_STDIN_READ") == 0 || strcmp(instr, "IO_STDOUT_WRITE") == 0 || strcmp(instr, "IO_FS_CREATE") == 0 || strcmp(instr, "IO_FS_DELETE") == 0 || strcmp(instr, "IO_FS_TRUNCATE") == 0 || strcmp(instr, "IO_FS_WRITE") == 0 || strcmp(instr, "IO_FS_READ") == 0)
     {
@@ -1405,7 +1406,7 @@ void devolverPCBKernelOutOfMemory(){
 
 void procesar_instruccion()
 {
-    printf("la cantidad de instrucciones son: %d\n", cantInstucciones);
+    //printf("la cantidad de instrucciones son: %d\n", cantInstucciones);
 
     terminarPorExit = false;
     terminaPorSenial = false;
@@ -1421,7 +1422,7 @@ void procesar_instruccion()
 
         sem_wait(&wait_instruccion);
 
-        printf("se ejecuto la instruccion\n");
+        //printf("se ejecuto la instruccion\n");
 
         if (instruccion_es_tipo_io(instruccion_actual)) // si se ejecuta algo de tipo io y lo desaloja
         {
@@ -1473,5 +1474,5 @@ void procesar_instruccion()
         }
     }
 
-    printf("termino de ejecutar\n");
+    printf("volvi al kernel\n");
 }

@@ -58,7 +58,7 @@ void atender_eliminar_proceso(t_buffer *un_buffer)
 			bitarray_clean_bit(frames_ocupados_ppal, numMarcoABorrar);
 		}
 
-		//imprimirBitmapMemoriaPrincipal();
+		imprimirBitmapMemoriaPrincipal();
 	}
 	// Liberamos porque tabla era un maloc
 	free(tablaABorrar);
@@ -80,12 +80,12 @@ void atender_memoria_kernel()
 
 			break;
 		case CREAR_PROCESO_KM:
-			printf("llego el path a memoria\n");
+			//printf("llego el path a memoria\n");
 			un_buffer = recibir_todo_el_buffer(fd_kernel);
 			atender_crear_proceso(un_buffer);
 			break;
 		case ELIMINAR_PROCESO:
-			printf("llego el pid para eliminar el proceso\n");
+			//printf("llego el pid para eliminar el proceso\n");
 			un_buffer = recibir_todo_el_buffer(fd_kernel);
 			atender_eliminar_proceso(un_buffer);
 			break;

@@ -142,15 +142,15 @@ void liberarFrames(tablaPaginas *tablaPags, int cantidadPaginasBorrar)
 	int delta = cantBitsValidez - cantidadPaginasBorrar; //32 - 30 => 2
 	cantBitsValidez--;
 
-	printf("cantbits validez: %d\n",cantBitsValidez);
-	printf("deta: %d\n",delta);
+	//printf("cantbits validez: %d\n",cantBitsValidez);
+	//printf("deta: %d\n",delta);
 													
 	for (int i = cantBitsValidez; i >= delta; i--)
 	{
 
-		bitarray_clean_bit(frames_ocupados_ppal, i);
+		bitarray_clean_bit(frames_ocupados_ppal, tablaPags->array[i].marco);
 
-		printf("el index es:%d\n",i);
+		//printf("el index es:%d\n",i);
 
 		tablaPags->array[i].bitValidez = false;
 		tablaPags->array[i].marco = 0;
@@ -160,10 +160,10 @@ void liberarFrames(tablaPaginas *tablaPags, int cantidadPaginasBorrar)
 
 void iniciarPaginacion()
 {
-	printf("entre a iniciar paginacion\n");
+	//printf("entre a iniciar paginacion\n");
 
-	printf("tamanio de memoria es: %d\n", TAM_MEMORIA);
-	printf("tamanio de pagina es: %d\n", TAM_PAGINA);
+	//printf("tamanio de memoria es: %d\n", TAM_MEMORIA);
+	//printf("tamanio de pagina es: %d\n", TAM_PAGINA);
 
 	memoriaPrincipal = malloc(TAM_MEMORIA);
 

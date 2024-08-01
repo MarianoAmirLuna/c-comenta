@@ -23,7 +23,7 @@ int encontrar_fd_interfaz(char *nombre_buscado)
 
 		if (strcmp(elemento->nombre_interfaz, nombre_buscado) == 0)
 		{
-			printf("encontre el fd\n");
+			//printf("encontre el fd\n");
 			return elemento->fd_interfaz;
 		}
 	}
@@ -36,15 +36,15 @@ void leerMemoria(t_buffer *un_buffer)
 	char *nombre_interfaz = extraer_string_del_buffer(un_buffer);
 	int fd_encontrado = encontrar_fd_interfaz(nombre_interfaz);
 
-	printf("el nombre_interfaz: %s\n", nombre_interfaz);
-	printf("su fd %d\n", fd_encontrado);
+	//printf("el nombre_interfaz: %s\n", nombre_interfaz);
+	//printf("su fd %d\n", fd_encontrado);
 
 	int length = extraer_int_del_buffer(un_buffer);
 
-	printf("llegue a leer memoria\n");
+	//printf("llegue a leer memoria\n");
 
 	usleep(1000 * RETARDO_RESPUESTA);
-	printf("me fui a mimir 1 sg\n");
+	//printf("me fui a mimir 1 sg\n");
 
 	char palabra[length + 1];
 	palabra[length] = '\0';
@@ -58,7 +58,7 @@ void leerMemoria(t_buffer *un_buffer)
 		palabra[i] = (char)datoLeido;
 	}
 
-	printf("la palabra es: %s\n", palabra);
+	//printf("la palabra es: %s\n", palabra);
 
 	char *palabra_final = (char *)malloc(length + 1);
 
@@ -82,15 +82,15 @@ void leerMemoriaFS(t_buffer *un_buffer)
 	char *nombre_interfaz = extraer_string_del_buffer(un_buffer);
 	int fd_encontrado = encontrar_fd_interfaz(nombre_interfaz);
 
-	printf("el nombre_interfaz: %s\n", nombre_interfaz);
-	printf("su fd %d\n", fd_encontrado);
+	//printf("el nombre_interfaz: %s\n", nombre_interfaz);
+	//printf("su fd %d\n", fd_encontrado);
 
 	int length = extraer_int_del_buffer(un_buffer);
 
-	printf("llegue a leer memoria\n");
+	//printf("llegue a leer memoria\n");
 
 	usleep(1000 * RETARDO_RESPUESTA);
-	printf("me fui a mimir 1 sg\n");
+	//printf("me fui a mimir 1 sg\n");
 
 	char palabra[length + 1];
 	palabra[length] = '\0';
@@ -104,7 +104,7 @@ void leerMemoriaFS(t_buffer *un_buffer)
 		palabra[i] = (char)datoLeido;
 	}
 
-	printf("la palabra es: %s\n", palabra);
+	//printf("la palabra es: %s\n", palabra);
 
 	char *palabra_final = (char *)malloc(length + 1);
 
@@ -141,10 +141,10 @@ void leerMemoriaUnString_io(t_buffer *un_buffer)
 	for (int i = 0; i < longitud; i++)
 	{
 		int *pepe = (int *)list_get(cortesPagina, i);
-		printf("valor de la lista cortes: %d\n", *pepe);
+		//printf("valor de la lista cortes: %d\n", *pepe);
 	}
 
-	printf("la longitud es: %d\n", longitud);
+	//printf("la longitud es: %d\n", longitud);
 
 	int df = extraer_int_del_buffer(un_buffer);
 	uint8_t infoLeida;
@@ -168,9 +168,9 @@ void leerMemoriaUnString_io(t_buffer *un_buffer)
 		df++;
 	}
 
-	printf("cantidad de iteraciones: %d\n", cantIteraciones);
+	//printf("cantidad de iteraciones: %d\n", cantIteraciones);
 
-	printf("###################### MENSAJE LEIDO: %s \n", str);
+	//printf("###################### MENSAJE LEIDO: %s \n", str);
 
 	t_buffer *buffer = crear_buffer();
 	buffer->size = 0;
@@ -202,10 +202,10 @@ void leerMemoriaUnString_fs(t_buffer *un_buffer)
 	for (int i = 0; i < longitud; i++)
 	{
 		int *pepe = (int *)list_get(cortesPagina, i);
-		printf("valor de la lista cortes: %d\n", *pepe);
+		//printf("valor de la lista cortes: %d\n", *pepe);
 	}
 
-	printf("la longitud es: %d\n", longitud);
+	//printf("la longitud es: %d\n", longitud);
 
 	int df = extraer_int_del_buffer(un_buffer);
 	uint8_t infoLeida;
@@ -229,9 +229,9 @@ void leerMemoriaUnString_fs(t_buffer *un_buffer)
 		df++;
 	}
 
-	printf("cantidad de iteraciones: %d\n", cantIteraciones);
+	//printf("cantidad de iteraciones: %d\n", cantIteraciones);
 
-	printf("###################### MENSAJE LEIDO: %s \n", str);
+	//printf("###################### MENSAJE LEIDO: %s \n", str);
 
 	t_buffer *buffer = crear_buffer();
 	buffer->size = 0;
@@ -255,11 +255,11 @@ void atender_creacion_interfaz(int *arg)
 	while (control_key)
 	{
 		int cod_op = recibir_operacion(fd_entradasalida_memoria);
-		printf("el codigo de operacion es: %d\n", cod_op);
+		//printf("el codigo de operacion es: %d\n", cod_op);
 		switch (cod_op)
 		{
 		case CREAR_INTERFAZ:
-			printf("estoy por crear la interfaz\n");
+			//printf("estoy por crear la interfaz\n");
 
 			interfaces_io_memoria *nueva_interfaz = (interfaces_io_memoria *)malloc(sizeof(interfaces_io_memoria));
 
@@ -267,18 +267,18 @@ void atender_creacion_interfaz(int *arg)
 
 			char *nombre_interfaz = extraer_string_del_buffer(un_buffer);
 
-			printf("el nombre dela interfaz: %s\n", nombre_interfaz);
+			//printf("el nombre dela interfaz: %s\n", nombre_interfaz);
 
 			nueva_interfaz->fd_interfaz = fd_entradasalida_memoria;
 			nueva_interfaz->nombre_interfaz = nombre_interfaz;
 
 			list_add(lista_interfaces, nueva_interfaz);
 
-			printf("agrege la nueva interfaz a la queue\n");
+			//printf("agrege la nueva interfaz a la queue\n");
 
 			int size = list_size(lista_interfaces);
 
-			printf("el tamanio de la list interfaces: %d\n", size);
+			//printf("el tamanio de la list interfaces: %d\n", size);
 
 			break;
 

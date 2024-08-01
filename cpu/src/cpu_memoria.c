@@ -9,7 +9,7 @@ void atender_cpu_memoria()
 	while (control_key)
 	{
 		int cod_op = recibir_operacion(fd_memoria);
-		printf("codigo de operacion: %d\n",cod_op);
+		//printf("codigo de operacion: %d\n",cod_op);
 		switch (cod_op)
 		{
 		case MENSAJE:
@@ -19,7 +19,7 @@ void atender_cpu_memoria()
 
 			break;
 		case RECIBIR_INSTRUCCION:
-			printf("llego la instruccion a cpu\n");
+			//printf("llego la instruccion a cpu\n");
 			un_buffer = recibir_todo_el_buffer(fd_memoria);
 
             instruccion_actual = extraer_string_del_buffer(un_buffer);
@@ -35,7 +35,7 @@ void atender_cpu_memoria()
 
 			tamanio_pagina = extraer_int_del_buffer(un_buffer);
 
-		    printf("llego el tamanio a cpu %d\n", tamanio_pagina);
+		    //printf("llego el tamanio a cpu %d\n", tamanio_pagina);
 
 			sem_post(&esperarTamanioDePagina);
 			
@@ -74,15 +74,15 @@ void atender_cpu_memoria()
 			if(tamanio == 1){
 				uint8_t dato8 = extraer_uint32_del_buffer(un_buffer);
 				memcpy(direccionRegistroDatos,&dato8,1);
-				//log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato8);
+				log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato8);
 			}
 			else{
                 uint32_t dato32 = extraer_uint32_del_buffer(un_buffer);
 				memcpy(direccionRegistroDatos,&dato32,4);
-				//log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato32);
+				log_debug(cpu_log_debug, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, dirFisicaDelDato, dato32);
 			}
 
-		    printf("Ya leyo el MOV_IN.\n");
+		    //printf("Ya leyo el MOV_IN.\n");
 
 			sem_post(&esperarLecturaDeMemoria);
 			

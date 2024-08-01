@@ -49,7 +49,7 @@ char *obtener_instruccion_lista(int pid, int program_counter)
 
 	path_conID *elemento_lista = list_find(list_path_id, condition_id_igual_n);
 
-	printf("el path es: %s\n", elemento_lista->path); // si rompe esto es probablemente porque saco algo inexistente de la lista
+	//printf("el path es: %s\n", elemento_lista->path); // si rompe esto es probablemente porque saco algo inexistente de la lista
 
 	return elemento_lista->path;
 }
@@ -82,7 +82,7 @@ void devolver_instruccion(t_buffer *un_buffer)
 
 	cargar_string_al_buffer(a_enviar, instruccion);
 
-	printf("la instruccion es: %s\n", instruccion);
+	//printf("la instruccion es: %s\n", instruccion);
 
 	t_paquete *un_paquete = crear_super_paquete(RECIBIR_INSTRUCCION, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
@@ -117,9 +117,9 @@ void solicitarDireccion(int direccion_logica)
 	enviar_paquete(un_paquete, fd_cpu);
 	destruir_paquete(un_paquete);
 
-	printf("toy esperando\n");
+	//printf("toy esperando\n");
 	sem_wait(&esperar_df);
-	printf("pase el semaforo\n");
+	//printf("pase el semaforo\n");
 }
 
 void leerDato(t_buffer *un_buffer)
@@ -140,7 +140,7 @@ void leerDato(t_buffer *un_buffer)
 	int tamanioRestantePagina = extraer_int_del_buffer(un_buffer);
 	char *registroDatos = extraer_string_del_buffer(un_buffer);
 
-	printf("Llegaron los datos a leer.\n");
+	//printf("Llegaron los datos a leer.\n");
 	//printf("la direccion fisica donde hay que leer es: %d\n", dirFisicaDelDato);
 	//printf("el tamanio a leer: %d\n", tamanioALeer);
 	//printf("el tamanio que resta de pag es: %d\n", tamanioRestantePagina);
@@ -234,8 +234,8 @@ void escribirDato(t_buffer *un_buffer)
 
 	//printf("la direccion fisica: %d\n", direccion_fisica);
 	//printf("el tamanio a escribir: %d\n", tamanio_a_escribir);
-	printf("El valor de uint8_t es: %u\n", data8);
-	printf("El valor de uint32_t es: %u\n", data32);
+	//printf("El valor de uint8_t es: %u\n", data8);
+	//printf("El valor de uint32_t es: %u\n", data32);
 
 	// Le mando la dirección física a CPU para los LOGs obligatorios
 	cargar_int_al_buffer(a_enviar, direccion_fisica);
@@ -268,23 +268,23 @@ void escribirDato(t_buffer *un_buffer)
 			memcpy(data32_parte_1, data32_puntero, tamanioRestantePagina);
 			memcpy(data32_parte_2, data32_puntero + tamanioRestantePagina, 4 - tamanioRestantePagina);
 
-			printf("El valor de ECX completo es: %d \n", data32);
-			printf("El valor de ECX antes de reconstruirlo: %d \n", data32_reconstruido);
+			//printf("El valor de ECX completo es: %d \n", data32);
+			//printf("El valor de ECX antes de reconstruirlo: %d \n", data32_reconstruido);
 
 			// estos sirven para reconstruir el puntero
 			memcpy(data32_reconstruido_puntero, data32_parte_1, tamanioRestantePagina);
 			memcpy(data32_reconstruido_puntero + tamanioRestantePagina, data32_parte_2, 4 - tamanioRestantePagina);
 
-			printf("El valor de ECX despues de reconstruirlo: %d \n", data32_reconstruido);
+			//printf("El valor de ECX despues de reconstruirlo: %d \n", data32_reconstruido);
 
 			// Le mando el dato escrito a CPU
 			cargar_int_al_buffer(a_enviar, tamanio_a_escribir);
 			cargar_uint32_al_buffer(a_enviar, data32_reconstruido);
 
 			// ahora escribo posta en la memoria solo la parte 1
-			printf("Escribie en el caso turbio\n");
-			printf("Primer df %d\n", direccion_fisica);
-			printf("Segunda df %d\n", segundaDF);
+			//printf("Escribie en el caso turbio\n");
+			//printf("Primer df %d\n", direccion_fisica);
+			//printf("Segunda df %d\n", segundaDF);
 
 			log_info(memoria_log_debug, "Se realizará una escritura en 2 páginas");
 			log_info(memoria_log_debug, "El PID: %d - REALIZARÁ UNA ESCRITURA DE TAMAÑO %d EN LA DIRECCION FÍSICA %d", pid, tamanioRestantePagina, direccion_fisica);
@@ -310,12 +310,12 @@ void escribirDato(t_buffer *un_buffer)
 		tamanioRestantePagina = tamanioRestantePagina - 4;
 	}
 
-	int num_pag = direccion_logica / TAM_PAGINA;
+	//int num_pag = direccion_logica / TAM_PAGINA;
 
-	if (tamanioRestantePagina <= 0)
-	{ // me quede sin espacio en la pagina y tengo que setear el marco como "no disponible"
-		bitarray_set_bit(frames_ocupados_ppal, num_pag);
-	}
+	//if (tamanioRestantePagina <= 0)
+	//{ // me quede sin espacio en la pagina y tengo que setear el marco como "no disponible"
+	//	bitarray_set_bit(frames_ocupados_ppal, num_pag);
+	//}
 
 	/* Mandamos basura, para hacer el sem_post
 	t_buffer *a_enviar = crear_buffer();
@@ -365,8 +365,8 @@ void imprimirBitsValidez(tablaPaginas p)
 	printf("PID: %d\n", p.pid);
 	for (int i = 0; i < 40; i++)
 	{
-		printf("Bit de validez del marco %d: %d\n", i, p.array[i].bitValidez);
-		printf("El nro de marco asignado: %d:\n", p.array[i].marco);
+		//printf("Bit de validez del marco %d: %d\n", i, p.array[i].bitValidez);
+		//printf("El nro de marco asignado: %d:\n", p.array[i].marco);
 	}
 }
 
@@ -381,11 +381,11 @@ void imprimirBitmapMemoriaPrincipal()
 		estaOcupado = bitarray_test_bit(frames_ocupados_ppal, i);
 		if (estaOcupado)
 		{
-			printf("El bit: %d esta ocupado.\n", i);
+			//printf("El bit: %d esta ocupado.\n", i);
 		}
 		else
 		{
-			printf("El bit: %d esta libre.\n", i);
+			//printf("El bit: %d esta libre.\n", i);
 		}
 	}
 }
@@ -407,7 +407,7 @@ int calcularEspacioDisponibleEnMemoria()
 		}
 	}
 
-	printf("El espacio total Disponible en la memoria es de %d\n", acumulador);
+	//printf("El espacio total Disponible en la memoria es de %d\n", acumulador);
 
 	return acumulador;
 }
@@ -418,15 +418,15 @@ void resize(t_buffer *un_buffer)
 	int pid = extraer_int_del_buffer(un_buffer);
 	int tamanioAModificar = extraer_int_del_buffer(un_buffer);
 
-	printf("se va a hacer un resize de: %d\n", tamanioAModificar);
+	//printf("se va a hacer un resize de: %d\n", tamanioAModificar);
 
 	tablaPaginas *tablaPag = obtener_tabla_pagina(pid);
 
-	printf("el pid de la tabla de paginas: %d\n", tablaPag->pid);
+	//printf("el pid de la tabla de paginas: %d\n", tablaPag->pid);
 
 	int cantBitsValidez = tablaPag->cantMarcos;
 
-	printf("la cant de bits de validez en 1: %d\n", cantBitsValidez);
+	//printf("la cant de bits de validez en 1: %d\n", cantBitsValidez);
 
 	int tamanioActual = cantBitsValidez * TAM_PAGINA;
 
@@ -451,8 +451,8 @@ void resize(t_buffer *un_buffer)
 	else
 	{
 
-		printf("el tamanio actual es: %d\n", tamanioActual);
-		printf("el tamanio a modificar es: %d\n", tamanioAModificar);
+		//printf("el tamanio actual es: %d\n", tamanioActual);
+		//printf("el tamanio a modificar es: %d\n", tamanioAModificar);
 
 		if (tamanioAModificar > tamanioActual)
 		{ // si necesitamos mas paginas
@@ -461,7 +461,7 @@ void resize(t_buffer *un_buffer)
 
 			int paginasNecesarias = ceil((double)tamanioAModificar / (double)TAM_PAGINA);
 
-			printf("se van a solicitar: %d\n", paginasNecesarias);
+			//printf("se van a solicitar: %d\n", paginasNecesarias);
 
 			t_list* listaXD = reservarFrames(tablaPag, paginasNecesarias, cantBitsValidez);
 			//safe_list_destroy_and_destroy_elements(listaXD, safe_int_destroyer);
@@ -478,16 +478,16 @@ void resize(t_buffer *un_buffer)
 			}
 		}
 
-		printf("-------------------------------");
+		//printf("-------------------------------");
 
-		printf("PID: %d\n", tablaPag->pid);
-		for (int i = 0; i < 40; i++)
-		{
-			printf("Bit de validez del marco %d: %d\n", i, tablaPag->array[i].bitValidez);
-			printf("El nro de marco asignado: %d\n", tablaPag->array[i].marco);
-		}
+		//printf("PID: %d\n", tablaPag->pid);
+		//for (int i = 0; i < 40; i++)
+		//{
+			//printf("Bit de validez del marco %d: %d\n", i, tablaPag->array[i].bitValidez);
+			//printf("El nro de marco asignado: %d\n", tablaPag->array[i].marco);
+		//}
 
-		printf("-------------------------------");
+		//printf("-------------------------------");
 
 		terminoInstruccionMemoria();
 		//imprimirBitmapMemoriaPrincipal();
@@ -597,10 +597,10 @@ void escribirMemoria(t_buffer *un_buffer)
 	for (int i = 0; i < longitud; i++)
 	{
 		int *pepe = (int *)list_get(cortesPagina, i);
-		printf("valor de la lista cortes: %d\n", *pepe);
+		//printf("valor de la lista cortes: %d\n", *pepe);
 	}
 
-	printf("la longitud es: %d\n", longitud);
+	//printf("la longitud es: %d\n", longitud);
 
 	int df = extraer_int_del_buffer(un_buffer);
 
@@ -617,7 +617,7 @@ void escribirMemoria(t_buffer *un_buffer)
 		log_info(memoria_log_debug, "DIRECCION FÍSICA: %d", df);
 
 		//printf("en la direccion fisica: %d\n", df);
-		printf("escribo: %c\n", stringAEscribir[cantIteraciones]);
+		//printf("escribo: %c\n", stringAEscribir[cantIteraciones]);
 
 		
 		memcpy(memoriaPrincipal + df, &stringAEscribir[cantIteraciones], 1);
@@ -627,14 +627,14 @@ void escribirMemoria(t_buffer *un_buffer)
 	}
 
 	//safe_list_destroy_and_destroy_elements(cortesPagina, safe_int_destroyer);
-	printf("cantidad de iteraciones: %d\n", cantIteraciones);
+	//printf("cantidad de iteraciones: %d\n", cantIteraciones);
 }
 
 void concat_uint8_to_string(char *str, uint8_t ch)
 {
     size_t len = strlen(str); // Encuentra la longitud actual del string
 
-    printf("el caracter es: %c\n", (char)ch);
+    //printf("el caracter es: %c\n", (char)ch);
 
     str[len] = (char)ch; // Añade el carácter al final del string
     str[len + 1] = '\0'; // Añade el terminador nulo
@@ -684,9 +684,9 @@ void leerMemoriaUnString(t_buffer *un_buffer)
 		df++;
 	}
 
-	printf("cantidad de iteraciones: %d\n", cantIteraciones);
+	//printf("cantidad de iteraciones: %d\n", cantIteraciones);
 
-	printf("###################### MENSAJE LEIDO: %s \n",str);
+	//printf("###################### MENSAJE LEIDO: %s \n",str);
 
 	t_buffer *a_enviar = crear_buffer();
 	a_enviar->size = 0;
@@ -713,7 +713,7 @@ void leer_caracter(int df)
 
 	cargar_uint8_al_buffer(a_enviar, datoLeido);
 
-	printf("se encontro el caracter %u\n", datoLeido);
+	//printf("se encontro el caracter %u\n", datoLeido);
 
 	t_paquete *un_paquete = crear_super_paquete(RECIBIR_CARACTER, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
@@ -738,7 +738,7 @@ void atender_memoria_cpu()
 
 			break;
 		case SOLICITUD_INSTRUCCION:
-			printf("se solicito instruccion a memoria\n");
+			//printf("se solicito instruccion a memoria\n");
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			devolver_instruccion(un_buffer);
 			break;
@@ -779,7 +779,7 @@ void atender_memoria_cpu()
 		case LEER_CARACTER_MEMORIA:
 			un_buffer = recibir_todo_el_buffer(fd_cpu);
 			int df = extraer_int_del_buffer(un_buffer);
-			printf("la df recibida es: %d\n");
+			//printf("la df recibida es: %d\n");
 			leer_caracter(df);
 			break;
 		case -1:

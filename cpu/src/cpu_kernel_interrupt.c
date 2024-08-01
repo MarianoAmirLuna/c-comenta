@@ -17,7 +17,7 @@ void atender_cpu_kernel_interrupt(){
 		    un_buffer = recibir_todo_el_buffer(fd_kernel_interrupt);
 			int pid = extraer_int_del_buffer(un_buffer);
 			cambioContexto = true;
-			printf("FUI DESALOJADOOOOOOOOOOOOOOOOOOOOOOOOOOOO F\n");
+			//printf("FUI DESALOJADOOOOOOOOOOOOOOOOOOOOOOOOOOOO F\n");
 		    break;
 
 		case AVISO_DESALOJO_FIN_PROCESO:

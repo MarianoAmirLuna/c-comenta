@@ -15,7 +15,7 @@ void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
 	{
 		pid = (int *)queue_pop(interfaz->procesos_bloqueados);
 
-		printf("el pid que fue liberado %d\n", *pid);
+		//printf("el pid que fue liberado %d\n", *pid);
 
 		int qPrimaNueva = buscarQPrima(*pid);
 		if (strcmp(ALGORITMO_PLANIFICACION, "VRR") == 0 && qPrimaNueva != QUANTUM)
@@ -51,11 +51,11 @@ void atender_creacion_interfaz(int *arg)
 	while (control_key)
 	{
 		int cod_op = recibir_operacion(fd_entradasalida_kernel);
-		printf("el codigo de operacion es: %d\n", cod_op);
+		//printf("el codigo de operacion es: %d\n", cod_op);
 		switch (cod_op)
 		{
 		case CREAR_INTERFAZ:
-			printf("estoy por crear la interfaz\n");
+			//printf("estoy por crear la interfaz\n");
 
 			interfaces_io *nueva_interfaz = (interfaces_io *)malloc(sizeof(interfaces_io));
 
@@ -64,8 +64,8 @@ void atender_creacion_interfaz(int *arg)
 			char *nombre_interfaz = extraer_string_del_buffer(un_buffer);
 			char *tipo_interfaz = extraer_string_del_buffer(un_buffer);
 
-			printf("el nombre dela interfaz: %s\n", nombre_interfaz);
-			printf("el tipo dela interfaz: %s\n", tipo_interfaz);
+			//printf("el nombre dela interfaz: %s\n", nombre_interfaz);
+			//printf("el tipo dela interfaz: %s\n", tipo_interfaz);
 
 			nueva_interfaz->fd_interfaz = fd_entradasalida_kernel;
 			nueva_interfaz->nombre_interfaz = nombre_interfaz;
@@ -76,11 +76,11 @@ void atender_creacion_interfaz(int *arg)
 
 			list_add(lista_interfaces, nueva_interfaz);
 
-			printf("agrege la nueva interfaz a la queue\n");
+			//printf("agrege la nueva interfaz a la queue\n");
 
 			int size = list_size(lista_interfaces);
 
-			printf("el tamanio de la list interfaces: %d\n", size);
+			//printf("el tamanio de la list interfaces: %d\n", size);
 			break;
 		case LIBERAR_INTERFAZ:
 
