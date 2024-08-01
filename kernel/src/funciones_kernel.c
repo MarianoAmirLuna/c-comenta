@@ -589,6 +589,8 @@ void ejectuar_siguiente_instruccion_io(interfaces_io interfaz)
 
     printf("mande un buffer al IO_FS_READ");
   }
+
+  //free_instruccion(instruccionXD);
 }
 
 void iniciar_planificacion_io()
@@ -827,6 +829,8 @@ void *contador_tiempos(void *arg)
   {
     printf("NOOO aviso un desalojo\n");
   }
+
+  free(args);
 }
 
 void mandarNuevoPCB()
@@ -876,8 +880,12 @@ void mandarNuevoPCB()
   }
 
   // pthread_mutex_lock(&modificarLista);
-  list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
+  //list_remove_element(procesosREADY, (void *)pcb_a_enviar->pid);
+  removerNumeroLista(procesosREADY,pcb_a_enviar->pid);
   list_remove_element(listaPCBs, (void *)pcb_a_enviar);
+
+  free(pcb_a_enviar);
+
   // pthread_mutex_unlock(&modificarLista);
   contador_hilos++;
 }
@@ -1071,7 +1079,7 @@ void mandar_a_exit(int *pid_finalizado)
   printf("pid finalizado: %d\n", *pid_finalizado);
 
   bool seEncontroElPid = false;
-  int *numero_desalojado = malloc(sizeof(int));
+  int *numero_desalojado;
   int *numerito;
 
   if (estaEJecutando == *pid_finalizado)
@@ -1145,19 +1153,6 @@ void mandar_a_exit(int *pid_finalizado)
       }
     }
   }
-  /*
-    for(int i = 0; nombresRecursos[i] != NULL ; i++){
-
-          t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
-
-          log_info(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
-
-          for(int j = 0; j < list_size(lista_donde_agregar); j++){
-
-              int* numeroXD = list_get(lista_donde_agregar,j);
-              log_info(kernel_log_debug, "PID: %d", *numeroXD);
-          }
-      }*/
 
   for (int i = 0; i < list_size(lista_interfaces); i++) // mira los bloqueados por IO
   {

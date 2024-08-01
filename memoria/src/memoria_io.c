@@ -181,6 +181,7 @@ void leerMemoriaUnString_io(t_buffer *un_buffer)
 	t_paquete *paquete = crear_super_paquete(DEVOLVER_STRING_STDOUT, buffer);
 	enviar_paquete(paquete, fd_encontradoXD);
 	destruir_paquete(paquete);
+	//safe_list_destroy_and_destroy_elements(cortesPagina, safe_int_destroyer);
 }
 
 void leerMemoriaUnString_fs(t_buffer *un_buffer)
@@ -241,6 +242,7 @@ void leerMemoriaUnString_fs(t_buffer *un_buffer)
 	t_paquete *paquete = crear_super_paquete(DEVOLVER_STRING_FS, buffer);
 	enviar_paquete(paquete, fd_encontradoXD);
 	destruir_paquete(paquete);
+	//safe_list_destroy_and_destroy_elements(cortesPagina, safe_int_destroyer);
 }
 
 void atender_creacion_interfaz(int *arg)

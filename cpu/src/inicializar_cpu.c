@@ -29,7 +29,7 @@ void iniciar_logs(){
 void iniciar_config_cpu(char* rutaconfig){
 
     //cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
-    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/deadlock.config");
+    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/edge.config");
 
 	if ( cpu_config == NULL)	
 	{
@@ -37,13 +37,13 @@ void iniciar_config_cpu(char* rutaconfig){
 		exit(EXIT_FAILURE);
 	}
 	
-
 	IP_MEMORIA = config_get_string_value(cpu_config, "IP_MEMORIA");
 	PUERTO_MEMORIA = config_get_string_value(cpu_config, "PUERTO_MEMORIA");
 	PUERTO_ESCUCHA_DISPATCH = config_get_string_value(cpu_config, "PUERTO_ESCUCHA_DISPATCH");
 	PUERTO_ESCUCHA_INTERRUPT = config_get_string_value(cpu_config, "PUERTO_ESCUCHA_INTERRUPT");
 	ALGORITMO_TLB = config_get_string_value(cpu_config, "ALGORITMO_TLB");
     CANTIDAD_ENTRADAS_TLB = config_get_int_value(cpu_config, "CANTIDAD_ENTRADAS_TLB");
+
 }
 void imprimir_config(){
 	log_info(cpu_logger, "IP_MEMORIA: %s", IP_MEMORIA);

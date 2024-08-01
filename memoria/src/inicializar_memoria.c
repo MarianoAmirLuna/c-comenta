@@ -31,7 +31,7 @@ void iniciar_logs(){
 void iniciar_config(char* rutaconfig){
 	//memoria_config = config_create(rutaconfig);
 
-	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/deadlock.config");
+	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/edge.config");
 
 	if (memoria_config == NULL)
 	{
@@ -44,6 +44,8 @@ void iniciar_config(char* rutaconfig){
     TAM_PAGINA = config_get_int_value(memoria_config,"TAM_PAGINA");
     PATH_INSTRUCCIONES = config_get_string_value(memoria_config,"PATH_INSTRUCCIONES");
     RETARDO_RESPUESTA = config_get_int_value(memoria_config,"RETARDO_RESPUESTA");
+
+	//config_destroy(memoria_config);
 }
 
 void imprimir_config(){    	

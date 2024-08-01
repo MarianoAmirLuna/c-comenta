@@ -8,7 +8,7 @@ void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
 	interfaces_io *interfaz = encontrar_interfaz(nombre_interfaz);
 
 	// busco la interfaz en de la lista y lo mando al planificador otra vez
-	int *pid = malloc(sizeof(int));
+	int *pid;
 
 
 	if (list_size(interfaz->procesos_bloqueados->elements) > 0)

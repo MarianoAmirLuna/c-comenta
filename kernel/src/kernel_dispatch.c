@@ -47,6 +47,7 @@ void atender_kernel_dispatch()
 			list_add(procesosEXIT, &(pcb_out_memory->pid));
 			log_error(kernel_log_debug, "Finaliza el proceso <%d> - Motivo: <OUT_OF_MEMORY>\n", pcb_out_memory->pid);
 			finalizarProceso(pcb_out_memory->pid);
+			sem_post(&nuevo_bucle);
 			break;
 		case RECIBIR_PCB:
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);

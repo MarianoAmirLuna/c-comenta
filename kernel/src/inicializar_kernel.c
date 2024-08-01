@@ -30,7 +30,7 @@ void inicializar_configs(char* rutaconfig)
 {
 	//kernel_config = config_create(rutaconfig); //DES-COMENTAR PARA ENTREGA
 
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/deadlock.config");
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/edge.config");
 
 	if (kernel_config == NULL)
 	{
@@ -49,6 +49,7 @@ void inicializar_configs(char* rutaconfig)
 	RECURSOS = config_get_string_value(kernel_config, "RECURSOS");
 	INSTANCIAS_RECURSOS = config_get_string_value(kernel_config, "INSTANCIAS_RECURSOS");
 	GRADO_MULTIPROGRAMACION = config_get_int_value(kernel_config, "GRADO_MULTIPROGRAMACION");
+
 }
 
 void imprimir_configs()

@@ -58,7 +58,7 @@ void atender_eliminar_proceso(t_buffer *un_buffer)
 			bitarray_clean_bit(frames_ocupados_ppal, numMarcoABorrar);
 		}
 
-		imprimirBitmapMemoriaPrincipal();
+		//imprimirBitmapMemoriaPrincipal();
 	}
 	// Liberamos porque tabla era un maloc
 	free(tablaABorrar);

@@ -463,7 +463,8 @@ void resize(t_buffer *un_buffer)
 
 			printf("se van a solicitar: %d\n", paginasNecesarias);
 
-			reservarFrames(tablaPag, paginasNecesarias, cantBitsValidez); // aca esta el error
+			t_list* listaXD = reservarFrames(tablaPag, paginasNecesarias, cantBitsValidez);
+			//safe_list_destroy_and_destroy_elements(listaXD, safe_int_destroyer);
 		}
 		else
 		{
@@ -489,7 +490,7 @@ void resize(t_buffer *un_buffer)
 		printf("-------------------------------");
 
 		terminoInstruccionMemoria();
-		imprimirBitmapMemoriaPrincipal();
+		//imprimirBitmapMemoriaPrincipal();
 	}
 }
 
@@ -624,6 +625,8 @@ void escribirMemoria(t_buffer *un_buffer)
 		cantIteraciones++;
 		df++;
 	}
+
+	//safe_list_destroy_and_destroy_elements(cortesPagina, safe_int_destroyer);
 	printf("cantidad de iteraciones: %d\n", cantIteraciones);
 }
 
@@ -648,7 +651,7 @@ void leerMemoriaUnString(t_buffer *un_buffer)
 
 	obtenerCortesDePagina(cortesPagina, tamanioALeer, bytes_restantes_en_pagina); // [10,42,74] Cada cuantos bytes necesitas un nuevo marco (osea una nueva df)
 
-	int longitud = list_size(cortesPagina);
+	//int longitud = list_size(cortesPagina);
 
 	/*for (int i = 0; i < longitud; i++)
 	{
@@ -695,6 +698,7 @@ void leerMemoriaUnString(t_buffer *un_buffer)
 	t_paquete *un_paquete = crear_super_paquete(MANDAR_LECTURA_DE_STRING, a_enviar);
 	enviar_paquete(un_paquete, fd_cpu);
 	destruir_paquete(un_paquete);
+	//safe_list_destroy_and_destroy_elements(cortesPagina, safe_int_destroyer);
 }
 
 void leer_caracter(int df)

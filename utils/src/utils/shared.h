@@ -260,5 +260,9 @@ int contarInstrucciones(char *path);
 t_buffer* cargar_pcb_buffer(PCB pcb);
 bool contiene_numero(t_list *lista, int numero);
 void removerNumeroLista(t_list* lista,int numero);
+void safe_int_destroyer(void* data);
+void safe_list_destroy_and_destroy_elements(t_list* list, void(*element_destroyer)(void*));
+void free_instruccion(instruccion* inst);
+
 
 #endif /* UTILS_H_ */

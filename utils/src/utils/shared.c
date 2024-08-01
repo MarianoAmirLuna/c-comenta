@@ -856,8 +856,89 @@ void removerNumeroLista(t_list* lista,int numero){
 		int* numeroXD = list_get(lista,i);
 
 		if(*numeroXD == numero){
-			list_remove(lista,i);
-			//printf("removi el elemento AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%d\n",numero);
+
+			int* numerillo = list_remove(lista,i);
+			free(numerillo);
 		}
 	}
+}
+
+void safe_int_destroyer(void* data) {
+    if (data != NULL) {
+        // Asegúrate de que el puntero no sea nulo antes de liberar
+        // printf("Destruyendo entero: %d\n", *(int*)data);
+        free(data);
+    }
+}
+
+// Función para destruir la lista y sus elementos con manejo de errores
+void safe_list_destroy_and_destroy_elements(t_list* list, void(*element_destroyer)(void*)) {
+    if (list == NULL) {
+        return;
+    }
+
+    if (element_destroyer == NULL) {
+        return;
+    }
+
+    int size = list_size(list);
+    void** elements = malloc(size * sizeof(void*)); // Array para almacenar los elementos
+
+    if (elements == NULL) {
+        // Manejo de errores si malloc falla
+        return;
+    }
+
+    // Copiar elementos de la lista a un array
+    for (int i = 0; i < size; ++i) {
+        elements[i] = list_get(list, i);
+    }
+
+    // Destruir cada elemento y evitar doble liberación
+    for (int i = 0; i < size; ++i) {
+        if (elements[i] != NULL) {
+            element_destroyer(elements[i]);
+            elements[i] = NULL; // Marcar como liberado
+        }
+    }
+
+    // Liberar el array de elementos
+    free(elements);
+
+    // Destruir la lista
+    list_destroy(list);
+}
+
+void free_instruccion(instruccion* inst) {
+    if (inst == NULL) {
+        return;
+    }
+
+    // Liberar nombre_instruccion si no es nulo
+    if (inst->nombre_instruccion != NULL) {
+        free(inst->nombre_instruccion);
+        inst->nombre_instruccion = NULL; // Marcamos el puntero como NULL para evitar problemas
+    }
+
+    // Liberar nombre_archivo si no es nulo
+    if (inst->nombre_archivo != NULL) {
+        free(inst->nombre_archivo);
+        inst->nombre_archivo = NULL; // Marcamos el puntero como NULL para evitar problemas
+    }
+
+    // Liberar lista_enteros si no es nulo
+    if (inst->lista_enteros != NULL) {
+        int size = list_size(inst->lista_enteros);
+        for (int i = 0; i < size; ++i) {
+            void* element = list_get(inst->lista_enteros, i);
+            if (element != NULL) {
+                free(element); // Suponiendo que los elementos son punteros a enteros o a otros datos dinámicos
+            }
+        }
+        list_destroy(inst->lista_enteros); // Destruir la lista
+        inst->lista_enteros = NULL; // Marcamos la lista como NULL
+    }
+
+    // Finalmente liberar la estructura misma
+    free(inst);
 }

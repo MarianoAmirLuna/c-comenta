@@ -27,31 +27,6 @@ char *asignarMemoriaBits(int bits) // recibe bits asigna bytes
 	return aux;
 }
 
-/*
-t_list *buscarFramesSinOcupar()
-{
-	t_list *framesLibres = list_create();
-
-	int base = 0;
-
-	// ver si es necesario un semaforo
-
-	while (base < cant_frames_ppal)
-	{
-		if (bitarray_test_bit(frames_ocupados_ppal, base) == 0)
-		{
-			list_add(framesLibres, base);
-		}
-		base++;
-	}
-
-	int marcosLibres = list_size(framesLibres);
-
-	printf("la cantidad de marcos libres es: %d\n", marcosLibres);
-
-	return framesLibres;
-} // funca */
-
 t_list *buscarFramesSinOcupar()
 {
 	t_list *framesLibres = list_create();
@@ -156,33 +131,10 @@ t_list *reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias, i
 		printf("no hay memoria suficiente\n");
 	}
 
+	//safe_list_destroy_and_destroy_elements(framesLibres, safe_int_destroyer);
+
 	return framesParaUsar;
 }
-
-/*
-void reservarFrames(tablaPaginas *tablaPags, int cantidadPaginasNecesarias)
-{ // revisar si esto anda bien
-	t_list *framesLibres = buscarFramesSinOcupar();
-
-	for (int i = 0; i < cantidadPaginasNecesarias; i++)
-	{
-		marcoBit* marcobit = malloc(sizeof(marcoBit));
-		int *frame = list_get(framesLibres, i);
-
-		bitarray_set_bit(frames_ocupados_ppal, *frame);
-
-		marcobit->bitValidez = true;
-		marcobit->marco = *frame;
-
-		list_add(&(tablaPags->marco_bit), marcobit);
-	}
-
-	int tamanioReservarFrames = list_size(&(tablaPags->marco_bit));
-
-	printf("el tamanio al reservar frames: %d\n",tamanioReservarFrames);
-}*/
-
-
 
 void liberarFrames(tablaPaginas *tablaPags, int cantidadPaginasBorrar)
 {
@@ -233,41 +185,5 @@ void iniciarPaginacion()
 	memset(data, 0, cant_frames_ppal / 8);
 
 	frames_ocupados_ppal = bitarray_create_with_mode(data, cant_frames_ppal / 8, MSB_FIRST);
-	/*
-	for (int i = 0; i < cant_frames_ppal; i++)
-	{
-		// Reservar memoria para la estructura de la página
-		t_page *page = malloc(sizeof(t_page));
-		if (page == NULL)
-		{
-			printf("Error al reservar memoria para la pagina");
-		}
-
-		// Asignar la parte correspondiente de memoryBytes a la página
-		page->data = memoriaPrincipal + i * TAM_PAGINA;
-
-		// Añadir la página a la lista
-		list_add(listaPaginas, page);
-	}
-	*/
-	// Utilizar la lista de páginas (por ejemplo, imprimir las direcciones)
-	// for (int i = 0; i < list_size(listaPaginas); i++)
-	//{
-	// t_page *page = list_get(listaPaginas, i);
-	// printf("Página %d en dirección %p\n", i, page->data);
-	//}
-
-	// tablaPaginas tablita = inicializarTablaPaginas(1);
-
-	// t_list* listaxd = reservarFrames(tablita, 3);
-
-	// int tamanioListaxd = list_size(listaxd);
-
-	// buscarFramesSinOcupar();
-
-	// printf("el tamanio de la listaxd es: %d\n",tamanioListaxd);
-
-	//free(memoriaPrincipal);
-
-	// list_destroy_and_destroy_elements(listaPaginas, free); esto se tiene que liberar desp de que se termine el programa
+	
 }
