@@ -28,9 +28,9 @@ void inicializar_logs()
 
 void inicializar_configs(char* rutaconfig)
 {
-	//kernel_config = config_create(rutaconfig); //DES-COMENTAR PARA ENTREGA
+	kernel_config = config_create(rutaconfig);
 
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/edge.config");
+	//kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/edge.config");
 
 	if (kernel_config == NULL)
 	{
