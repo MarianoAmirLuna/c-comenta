@@ -325,13 +325,18 @@ void atender_wait(char *recurso, int *pid) // FALTA PROBAR
     pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, pid);
     pthread_mutex_unlock(&proteger_lista_ready);
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <READY>\n", *pid);
     mostrarUnaLista(procesosREADY, "Ready");
+
+
     // mostrarInstanciasTomadas(pid);
     *instanciasPedidasRecurso = (*instanciasPedidasRecurso) + 1;
     // printf("Instancias disponibles, se tomo el recurso\n");
   }
   else
   {
+    log_info(kernel_log_debug, "PID: %d - Bloqueado por Recurso:%s", *pid, nombresRecursos[i]);
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <BLOCKED>\n", *pid);
     bloquearPorRecurso(recurso);
     // printf("NO hay instancias disponibles, se bloqueo el proceso \n");
   }
@@ -370,6 +375,7 @@ void atender_signal(char *recurso, int *pid) // FALTA PROBAR
   {
     pthread_mutex_lock(&proteger_lista_ready);
     list_add(procesosREADY, list_remove(bloqueados_por_este_recurso, 0));
+    log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <BLOCKED> - Estado Actual: <READY>\n", *pid);
     pthread_mutex_unlock(&proteger_lista_ready);
     mostrarUnaLista(procesosREADY, "Ready");
   }
@@ -1134,6 +1140,7 @@ void mandar_a_exit(int *pid_finalizado)
 
           numero_desalojado = list_remove(lista, j);
           log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <BLOCKED> - Estado Actual: <EXIT>\n", *pid_finalizado);
+          list_add(procesosEXIT, numero_desalojado);
         }
       }
     }

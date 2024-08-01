@@ -22,13 +22,17 @@ void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
 		{
 			list_add(procesos_READY_priori, pid);
 			mostrarUnaLista(procesos_READY_priori, "Ready Prioritario");
-			log_info(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
+			//log_info(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
+			log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <BLOCKED> - Estado Actual: <READY (PRIORITARIO)>\n", *pid);
+    		mostrarUnaLista(procesosREADY, "Ready");
 		}
 		else
 		{
 			list_add(procesosREADY, pid);
+			log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <BLOCKED> - Estado Actual: <READY>\n", *pid);
 			mostrarUnaLista(procesosREADY, "Ready");
 		}
+		
     }
 	
 	interfaz->estaLibre = true;

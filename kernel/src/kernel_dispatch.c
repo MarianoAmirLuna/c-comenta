@@ -75,8 +75,8 @@ void atender_kernel_dispatch()
 				log_info(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pcb_devuelto->pid);
 				pthread_mutex_lock(&proteger_lista_ready);
 				list_add(procesosREADY, &(pcb_devuelto->pid));
-				mostrarUnaLista(procesosREADY, "Ready");
 				log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <READY>\n", pcb_devuelto->pid);
+				mostrarUnaLista(procesosREADY, "Ready");
 				pthread_mutex_unlock(&proteger_lista_ready);
 				restaurarQPrima(pcb_devuelto->pid);
 			}
@@ -189,7 +189,8 @@ void atender_kernel_dispatch()
 
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
 			actualizarQPrimaProceso(pcb_devuelto2->pid, tiempo_q_prima);
-			log_info(kernel_log_debug, "PID: %d - Desalojado por IO", pcb_devuelto2->pid);
+			log_info(kernel_log_debug, "PID: %d - Bloqueado por Interfaz:%s", pcb_devuelto2->pid, nombre_interfaz);
+			log_info(kernel_log_debug, "PID: <%d> - Estado Anterior: <EXEC> - Estado Actual: <BLOCKED>\n", pcb_devuelto2->pid);
 
 			// printf("el contador dio: %d\n", tiempo_q_prima);
 			// printf("ACAAAAAAAAAAAAAAAAAAAA\n");
