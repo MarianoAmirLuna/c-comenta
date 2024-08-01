@@ -1030,8 +1030,33 @@ void atender_interfaz_kernel(int *arg)
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 			pid = extraer_int_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
+
 			int registro_puntero_write = extraer_int_del_buffer(un_buffer);
+			int bytes_restantes_pagina = extraer_int_del_buffer(un_buffer);
 			int tamanio_write = extraer_int_del_buffer(un_buffer);
+			int direccionesNecesarias = extraer_int_del_buffer(un_buffer);
+			/*
+			cargar_int_al_buffer(buffer,registroPuntero);
+	        cargar_int_al_buffer(buffer, bytes_restantes_en_pagina);
+	        cargar_int_al_buffer(buffer, tamanioDato);
+	        cargar_int_al_buffer(buffer, cantDireccionesNecesarias);
+			*/
+
+		    /*
+			int pid = extraer_int_del_buffer(un_buffer);
+	        char *nameInterface = extraer_string_del_buffer(un_buffer);
+	        int fd_encontradoXD = encontrar_fd_interfaz(nameInterface);
+	        int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
+	        int tamanioALeer = extraer_int_del_buffer(un_buffer);
+			*/
+		    printf("el pid: %d\n",pid);
+			printf("nombre ar %s\n",nombreArchivo);
+
+		    printf("registro_puntero_write %d\n",registro_puntero_write);
+			printf("bytes_restantes_pagina %d\n",bytes_restantes_pagina);
+			printf("tamanio_write %d\n",tamanio_write);
+			printf("direccionesNecesarias %d\n",direccionesNecesarias);
+
 
 			log_info(io_logger, "PID: %i - Operacion: IO_FS_WRITE", pid);
 
@@ -1039,18 +1064,20 @@ void atender_interfaz_kernel(int *arg)
 			buffer3->size = 0;
 			buffer3->stream = NULL;
 
+            cargar_int_al_buffer(buffer3,pid);
 			cargar_string_al_buffer(buffer3, nombreInterACrear); // hay que pasar esto asi desp memoria sabe a quien responderle
+			cargar_int_al_buffer(buffer3,bytes_restantes_pagina);
 			cargar_int_al_buffer(buffer3, tamanio_write);
 
-			for (int i = 0; i < tamanio_write; i++)
+			for (int i = 0; i < direccionesNecesarias; i++)
 			{
 
 				numero = extraer_int_del_buffer(un_buffer);
-				printf("el numero %d\n", numero);
+				printf("la DF %d\n", numero);
 				cargar_int_al_buffer(buffer3, numero);
 			}
 
-			t_paquete *paquete3 = crear_super_paquete(LEER_MEMORIA_PALABRA_DIALS_FS, buffer3);
+			t_paquete *paquete3 = crear_super_paquete(LEER_MEMORIA_UN_STRING_FS, buffer3);
 			enviar_paquete(paquete3, fd_memoria);
 			destruir_paquete(paquete3);
 

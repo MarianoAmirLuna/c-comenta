@@ -28,7 +28,7 @@ void atender_cpu_kernel_interrupt(){
 			break;
 
 		case -1:
-			log_trace(cpu_log_debug, "Desconexion de KERNEL - Interrupt");
+			log_info(cpu_logger, "Desconexion de KERNEL - Interrupt");
 			control_key = 0;
 			break;
 		default:

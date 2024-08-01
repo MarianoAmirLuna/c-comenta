@@ -56,8 +56,8 @@ void iniciar_config_io(char* rutaConfig){
 }
 
 void imprimir_config(){
-	log_debug(io_log_debug, "IP_MEMORIA: %s", IP_MEMORIA);
-	log_debug(io_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
-	log_debug(io_log_debug, "TIEMPO_UNIDAD_TRABAJO: %d", TIEMPO_UNIDAD_TRABAJO);
-	log_debug(io_log_debug, "BLOCK_COUNT: %d", BLOCK_COUNT);
+	log_info(io_log_debug, "IP_MEMORIA: %s", IP_MEMORIA);
+	log_info(io_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
+	log_info(io_log_debug, "TIEMPO_UNIDAD_TRABAJO: %d", TIEMPO_UNIDAD_TRABAJO);
+	log_info(io_log_debug, "BLOCK_COUNT: %d", BLOCK_COUNT);
 }

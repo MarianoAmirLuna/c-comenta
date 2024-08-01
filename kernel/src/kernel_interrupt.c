@@ -14,7 +14,7 @@ void atender_kernel_interrupt(){
             //
 			break;
 		case -1:
-			log_trace(kernel_log_debug, "Desconexion de KERNEL - Interrupt");
+			log_info(kernel_log_debug, "Desconexion de KERNEL - Interrupt");
 			//control_key = 0;
 			break;
 		default:

@@ -19,7 +19,7 @@ void atender_crear_proceso(t_buffer *un_buffer)
 	path_conID *path_con_id = iniciar_path_id(pid, path);
 	tablaPaginas *tabla = inicializarTablaPaginas(pid);
 
-	log_debug(memoria_log_debug, "Creación de la Tabla de Páginas del PID: %d - Tamaño: 0", pid);
+	log_info(memoria_log_debug, "Creación de la Tabla de Páginas del PID: %d - Tamaño: 0", pid);
 
 	list_add(list_path_id, path_con_id);
 	list_add(listaTablaPaginas, tabla);
@@ -45,7 +45,7 @@ void atender_eliminar_proceso(t_buffer *un_buffer)
 	// log obligatorio de destruccion
 	if (tablaABorrar != NULL)
 	{
-		log_debug(memoria_log_debug, "Destruccion de la Tabla de Páginas del PID: %d - Tamaño: %d", pid, tablaABorrar->cantMarcos);
+		log_info(memoria_log_debug, "Destruccion de la Tabla de Páginas del PID: %d - Tamaño: %d", pid, tablaABorrar->cantMarcos);
 
 		list_remove_element(listaTablaPaginas, tablaABorrar); // Eliminamos 1ro la tabla de paginas de la lista de tabla de paginas
 		int cantidadDeBitsVal = contarBitValidez(tablaABorrar);
@@ -90,7 +90,7 @@ void atender_memoria_kernel()
 			atender_eliminar_proceso(un_buffer);
 			break;
 		case -1:
-			log_trace(memoria_log_debug, "Desconexion de Kernel - Memoria");
+			log_info(memoria_log_debug, "Desconexion de Kernel - Memoria");
 			control_key = 0;
 			break;
 		default:

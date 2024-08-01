@@ -30,7 +30,7 @@ void inicializar_configs(char* rutaconfig)
 {
 	//kernel_config = config_create(rutaconfig); //DES-COMENTAR PARA ENTREGA
 
-	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/io.config");
+	kernel_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/kernel/fs.config");
 
 	if (kernel_config == NULL)
 	{
@@ -53,10 +53,10 @@ void inicializar_configs(char* rutaconfig)
 
 void imprimir_configs()
 {
-	log_debug(kernel_log_debug, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
-	log_debug(kernel_log_debug, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
-	log_debug(kernel_log_debug, "RECURSOS: %s", RECURSOS);
-	log_debug(kernel_log_debug, "QUANTUM: %d", QUANTUM);
+	log_info(kernel_log_debug, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
+	log_info(kernel_log_debug, "PUERTO_CPU_DISPATCH: %s", PUERTO_CPU_DISPATCH);
+	log_info(kernel_log_debug, "RECURSOS: %s", RECURSOS);
+	log_info(kernel_log_debug, "QUANTUM: %d", QUANTUM);
 }
 
 void iniciar_semaforos()

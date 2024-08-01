@@ -457,7 +457,7 @@ void resize(t_buffer *un_buffer)
 		if (tamanioAModificar > tamanioActual)
 		{ // si necesitamos mas paginas
 			//printf("ENTRE AL IFFFFFFFFFFFFF\n");
-			log_debug(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, tamanioActual, tamanioAModificar);
+			log_info(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, tamanioActual, tamanioAModificar);
 
 			int paginasNecesarias = ceil((double)tamanioAModificar / (double)TAM_PAGINA);
 
@@ -470,7 +470,7 @@ void resize(t_buffer *un_buffer)
 			if (tamanioAModificar <= tamanioActual)
 			{ // si quiero sacar paginas, tengo que cambiar los valores del bitarray & liberar las paginas
 				//printf("ENTRE AL ELSEEEEEEEEE");
-				log_debug(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Reducir: %d", pid, tamanioActual, tamanioAModificar);
+				log_info(memoria_log_debug, "PID: %d - Tamaño Actual: %d - Tamaño a Reducir: %d", pid, tamanioActual, tamanioAModificar);
 				int cantBytesModificar = tamanioActual - tamanioAModificar;
 				int cantPaginasABorrar = ceil((double)cantBytesModificar / (double)TAM_PAGINA);
 				liberarFrames(tablaPag, cantPaginasABorrar);
@@ -508,7 +508,7 @@ void buscarMarco(t_buffer *un_buffer)
 	int marco = tablaDePaginas->array[num_pag].marco;
 	// Si estan pasando cosas raras con el marco que va a recibir el cpu. Puede ser que no se haya inicializado bien el array.
 
-	log_debug(memoria_log_debug, "PID: %d - Pagina: %d - Marco: %d", pid, num_pag, marco);
+	log_info(memoria_log_debug, "PID: %d - Pagina: %d - Marco: %d", pid, num_pag, marco);
 
 	cargar_int_al_buffer(a_enviar, marco);
 
@@ -779,7 +779,7 @@ void atender_memoria_cpu()
 			leer_caracter(df);
 			break;
 		case -1:
-			log_trace(memoria_log_debug, "Desconexion de CPU - MEMORIA");
+			log_info(memoria_log_debug, "Desconexion de CPU - MEMORIA");
 			control_key = 0;
 			break;
 		default:

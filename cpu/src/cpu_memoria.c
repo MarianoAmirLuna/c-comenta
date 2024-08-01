@@ -50,12 +50,12 @@ void atender_cpu_memoria()
 			if (tamanio_a_escribir == 1)
 			{
 				uint8_t dato8 = extraer_uint8_del_buffer(un_buffer);
-				log_debug(cpu_log_debug, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, direccion_fisica, dato8);
+				log_info(cpu_logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, direccion_fisica, dato8);
 			}
 			else
 			{
 				uint32_t dato32 = extraer_uint32_del_buffer(un_buffer);
-				log_debug(cpu_log_debug, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, direccion_fisica, dato32);
+				log_info(cpu_logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %u\n", pcb_ejecucion.pid, direccion_fisica, dato32);
 			}
 
 		    //printf("A memoria le llegó lo que tenía que escribir.\n");
@@ -130,7 +130,7 @@ void atender_cpu_memoria()
 			list_add(procesosConPath,pid_habilita);
 		    break;
 		case -1:
-			log_trace(cpu_log_debug, "Desconexion de CPU - MEMORIA");
+			log_info(cpu_logger, "Desconexion de CPU - MEMORIA");
 			control_key = 0;
 			break;
 		default:

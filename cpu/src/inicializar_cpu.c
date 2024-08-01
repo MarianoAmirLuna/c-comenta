@@ -29,7 +29,7 @@ void iniciar_logs(){
 void iniciar_config_cpu(char* rutaconfig){
 
     //cpu_config = config_create(rutaconfig); //esto te pide la ruta del config
-    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/io.config");
+    cpu_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/cpu/fs.config");
 
 	if ( cpu_config == NULL)	
 	{
@@ -46,10 +46,10 @@ void iniciar_config_cpu(char* rutaconfig){
     CANTIDAD_ENTRADAS_TLB = config_get_int_value(cpu_config, "CANTIDAD_ENTRADAS_TLB");
 }
 void imprimir_config(){
-	log_debug(cpu_log_debug, "IP_MEMORIA: %s", IP_MEMORIA);
-	log_debug(cpu_log_debug, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
-	log_debug(cpu_log_debug, "PUERTO_ESCUCHA_DISPATCH: %s", PUERTO_ESCUCHA_DISPATCH);
-	log_debug(cpu_log_debug, "PUERTO_ESCUCHA_INTERRUPT: %s", PUERTO_ESCUCHA_INTERRUPT);
+	log_info(cpu_logger, "IP_MEMORIA: %s", IP_MEMORIA);
+	log_info(cpu_logger, "PUERTO_MEMORIA: %s", PUERTO_MEMORIA);
+	log_info(cpu_logger, "PUERTO_ESCUCHA_DISPATCH: %s", PUERTO_ESCUCHA_DISPATCH);
+	log_info(cpu_logger, "PUERTO_ESCUCHA_INTERRUPT: %s", PUERTO_ESCUCHA_INTERRUPT);
 }
 
 void iniciar_semaforos(){

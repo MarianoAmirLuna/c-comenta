@@ -623,7 +623,7 @@ void avisarDesalojo(int pid)
 
 void desalojoFinProceso()
 {
-  // log_trace(kernel_log_debug, "PID: %d - Terminado por Fin de Programa (success)", estaEJecutando);
+  // log_info(kernel_log_debug, "PID: %d - Terminado por Fin de Programa (success)", estaEJecutando);
   t_buffer *buffer = crear_buffer();
   buffer->size = 0;
   buffer->stream = NULL;
@@ -856,7 +856,7 @@ void mandarNuevoPCB()
     {
       // pidConQ *aux = buscarPidConQ(pcb_a_enviar->pid);
       args->tiempo = buscarQPrima(pcb_a_enviar->pid);
-      // log_trace(kernel_log_debug, "PID: %d - EL Q PRIMA QUE ASIGNE ES: %d", args->pid,args->tiempo);
+      // log_info(kernel_log_debug, "PID: %d - EL Q PRIMA QUE ASIGNE ES: %d", args->pid,args->tiempo);
     }
 
     int *numerillo = malloc(sizeof(int));
@@ -1143,12 +1143,12 @@ void mandar_a_exit(int *pid_finalizado)
 
           t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i);
 
-          log_debug(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
+          log_info(kernel_log_debug, "Esta bloqueado por el recurso: %s", nombresRecursos[i]);
 
           for(int j = 0; j < list_size(lista_donde_agregar); j++){
 
               int* numeroXD = list_get(lista_donde_agregar,j);
-              log_debug(kernel_log_debug, "PID: %d", *numeroXD);
+              log_info(kernel_log_debug, "PID: %d", *numeroXD);
           }
       }*/
 

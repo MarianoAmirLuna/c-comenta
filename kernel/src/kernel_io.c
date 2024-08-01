@@ -22,7 +22,7 @@ void desbloquear_el_proceso_de_la_iterfaz(char *nombre_interfaz)
 		{
 			list_add(procesos_READY_priori, pid);
 			mostrarUnaLista(procesos_READY_priori, "Ready Prioritario");
-			log_trace(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
+			log_info(kernel_log_debug, "PID: %d - agrege a q prima y le di un tiempo de %d", *pid, qPrimaNueva);
 		}
 		else
 		{
@@ -87,7 +87,7 @@ void atender_creacion_interfaz(int *arg)
 
 			break;
 		case -1:
-			log_trace(kernel_log_debug, "Desconexion de KERNEL - IO");
+			log_info(kernel_log_debug, "Desconexion de KERNEL - IO");
 			control_key = 0;
 			break;
 		default:

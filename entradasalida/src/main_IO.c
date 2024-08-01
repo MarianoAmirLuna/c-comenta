@@ -63,7 +63,7 @@ void ejecutarInterfazGenerica(char *nombre, t_config *config_interface)
 	usleep(Unidades_De_Trabajo * (TIEMPO_UNIDAD_TRABAJOO * 1000)); // esta funcion anda con microsegundos, por eso se multiplican por 1000, asi cada unidad de trabajo equivale a un milisegundo
 	log_info(io_logger, "Fin de sleep");
 
-	log_trace(io_log_debug, "Fin de Interfaz Generica");
+	log_info(io_log_debug, "Fin de Interfaz Generica");
 }
 */
 void escribirEnMemoria(int direccionLogica, char *texto, int tamanio)

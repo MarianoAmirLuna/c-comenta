@@ -24,11 +24,11 @@ int main()
 	
 	fd_memoria = iniciar_servidor(PUERTO_ESCUCHA);
    
-	log_trace(memoria_log_debug, "listo para escuchar al CPU");
+	log_info(memoria_log_debug, "listo para escuchar al CPU");
 	
 	fd_cpu = esperar_cliente(fd_memoria);  
 
-	log_trace(memoria_log_debug, "listo para escuchar al KERNEL");
+	log_info(memoria_log_debug, "listo para escuchar al KERNEL");
 	fd_kernel = esperar_cliente(fd_memoria);
 
 	//Atender los mensajes del kernel

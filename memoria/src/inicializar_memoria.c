@@ -31,7 +31,7 @@ void iniciar_logs(){
 void iniciar_config(char* rutaconfig){
 	//memoria_config = config_create(rutaconfig);
 
-	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/io.config");
+	memoria_config = config_create("/home/utnso/Desktop/ClonOperativos/tp-2024-1c-Granizado/memoria/fs.config");
 
 	if (memoria_config == NULL)
 	{
@@ -47,10 +47,10 @@ void iniciar_config(char* rutaconfig){
 }
 
 void imprimir_config(){    	
-	log_debug(memoria_log_debug, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
-	log_debug(memoria_log_debug, "TAM_MEMORIA: %d", TAM_MEMORIA);
-	log_debug(memoria_log_debug, "TAM_PAGINA: %d", TAM_PAGINA);
-	log_debug(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
+	log_info(memoria_log_debug, "PUERTO_ESCUCHA: %s", PUERTO_ESCUCHA);
+	log_info(memoria_log_debug, "TAM_MEMORIA: %d", TAM_MEMORIA);
+	log_info(memoria_log_debug, "TAM_PAGINA: %d", TAM_PAGINA);
+	log_info(memoria_log_debug, "RETARDO_RESPUESTA: %d", RETARDO_RESPUESTA);
 }
 
 void iniciar_semaforos(){

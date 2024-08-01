@@ -27,12 +27,12 @@ void atender_kernel_dispatch()
 			//
 			break;
 		case OUT_OF_MEMORY:
-		    printf("llege wey\n");
+			printf("llege wey\n");
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			PCB *pcb_out_memory = atender_recibir_pcb(un_buffer);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
 
-            list_add(listaPCBs, pcb_out_memory);
+			list_add(listaPCBs, pcb_out_memory);
 			pthread_mutex_lock(&proteger_lista_hilos);
 			removerNumeroLista(lista_id_hilos, numero_hiloXD);
 			pthread_mutex_unlock(&proteger_lista_hilos);
@@ -53,7 +53,7 @@ void atender_kernel_dispatch()
 			PCB *pcb_devuelto = atender_recibir_pcb(un_buffer);
 			list_add(listaPCBs, pcb_devuelto);
 
-			// log_debug(kernel_log_debug, "PCB de pid:%d devuelto", pcb_devuelto->pid);
+			//log_info(kernel_log_debug, "PCB de pid:%d devuelto", pcb_devuelto->pid);
 
 			int codigo = extraer_int_del_buffer(un_buffer);
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
@@ -68,11 +68,11 @@ void atender_kernel_dispatch()
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
 
 			detener_tiempo();
-			// log_trace(kernel_log_debug, "PID: %d - Desalojado por ", pcb_devuelto->pid);
+			// log_info(kernel_log_debug, "PID: %d - Desalojado por ", pcb_devuelto->pid);
 
 			if (codigo == 1)
 			{ // si hay cambio de contexto envio un 1 osea fue desalojado => le faltan instrucciones por ejecutar
-				log_trace(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pcb_devuelto->pid);
+				log_info(kernel_log_debug, "PID: %d - Desalojado por fin de Quantum", pcb_devuelto->pid);
 				pthread_mutex_lock(&proteger_lista_ready);
 				list_add(procesosREADY, &(pcb_devuelto->pid));
 				mostrarUnaLista(procesosREADY, "Ready");
@@ -109,13 +109,13 @@ void atender_kernel_dispatch()
 			sem_post(&esperar_termine_ejecutar_pcb_cpu);
 			char *nombre_recurso_wait = extraer_string_del_buffer(un_buffer);
 			bool recursoEncontrado = false;
-			for(int i=0; nombresRecursos[i] != NULL; i++)
+			for (int i = 0; nombresRecursos[i] != NULL; i++)
 			{
-				if(strcmp(nombre_recurso_wait, nombresRecursos[i])==0)
+				if (strcmp(nombre_recurso_wait, nombresRecursos[i]) == 0)
 				{
 					recursoEncontrado = true;
 				}
-			}			
+			}
 			numero_hiloXD = extraer_int_del_buffer(un_buffer);
 			pthread_mutex_lock(&proteger_lista_hilos);
 			removerNumeroLista(lista_id_hilos, numero_hiloXD);
@@ -136,7 +136,7 @@ void atender_kernel_dispatch()
 			{
 				log_info(kernel_log_debug, "Finaliza el proceso %d - Motivo: INVALID_RESOURCE\n", pcb_devuelto_por_wait->pid);
 				liberarRecursosProceso(&(pcb_devuelto_por_wait->pid));
-				mandar_a_exit(&(pcb_devuelto_por_wait->pid)); 
+				mandar_a_exit(&(pcb_devuelto_por_wait->pid));
 			}
 			sem_post(&nuevo_bucle);
 			break;
@@ -189,7 +189,7 @@ void atender_kernel_dispatch()
 
 			tiempo_q_prima = tiempo_transcurrido_milisegundos(start_time, end_time);
 			actualizarQPrimaProceso(pcb_devuelto2->pid, tiempo_q_prima);
-			log_trace(kernel_log_debug, "PID: %d - Desalojado por IO", pcb_devuelto2->pid);
+			log_info(kernel_log_debug, "PID: %d - Desalojado por IO", pcb_devuelto2->pid);
 
 			// printf("el contador dio: %d\n", tiempo_q_prima);
 			// printf("ACAAAAAAAAAAAAAAAAAAAA\n");
@@ -310,9 +310,9 @@ void atender_kernel_dispatch()
 			*tamanio_escribir_write = extraer_int_del_buffer(un_buffer);
 			*cant_direcciones_write = extraer_int_del_buffer(un_buffer);
 
-			printf("tamanio restante pagina write %d\n",*tamanio_restante_pag_write);
-			printf("tamanio escribir wrtie write %d\n",*tamanio_escribir_write);
-			printf("tamanio cant direcciones write %d\n",*cant_direcciones_write);
+			printf("tamanio restante pagina write %d\n", *tamanio_restante_pag_write);
+			printf("tamanio escribir wrtie write %d\n", *tamanio_escribir_write);
+			printf("tamanio cant direcciones write %d\n", *cant_direcciones_write);
 
 			// sem_post(&esperar_devolucion_pcb);
 			interfaces_io *interfaz4 = encontrar_interfaz(nombre_interfaz);
@@ -417,11 +417,16 @@ void atender_kernel_dispatch()
 			un_buffer = recibir_todo_el_buffer(fd_cpu_dispatch);
 			nombre_interfaz = extraer_string_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
+
 			int *registro_puntero_write = malloc(sizeof(int));
+			int *bytes_restantes_pagina_write = malloc(sizeof(int));
 			int *tamanio_write = malloc(sizeof(int));
+			int *cant_direcciones_necesarias_write = malloc(sizeof(int));
 
 			*registro_puntero_write = extraer_int_del_buffer(un_buffer);
+			*bytes_restantes_pagina_write = extraer_int_del_buffer(un_buffer);
 			*tamanio_write = extraer_int_del_buffer(un_buffer);
+			*cant_direcciones_necesarias_write = extraer_int_del_buffer(un_buffer);
 
 			interfazXD = encontrar_interfaz(nombre_interfaz);
 
@@ -434,9 +439,11 @@ void atender_kernel_dispatch()
 				instruccion_io->lista_enteros = list_create();
 
 				list_add(instruccion_io->lista_enteros, registro_puntero_write);
+				list_add(instruccion_io->lista_enteros, bytes_restantes_pagina_write);
 				list_add(instruccion_io->lista_enteros, tamanio_write);
+				list_add(instruccion_io->lista_enteros, cant_direcciones_necesarias_write);
 
-				for (int i = 0; i < *tamanio_write; i++)
+				for (int i = 0; i < *cant_direcciones_necesarias_write; i++)
 				{
 					int *direccion_fisica_write = malloc(sizeof(int));
 					*direccion_fisica_write = extraer_int_del_buffer(un_buffer);
@@ -517,7 +524,7 @@ void atender_kernel_dispatch()
 			// sem_post(&esperar_consulta_pid);
 			break;
 		case -1:
-			log_trace(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
+			log_info(kernel_log_debug, "Desconexion de KERNEL - Dispatch");
 			// control_key = 0;
 			break;
 		default:

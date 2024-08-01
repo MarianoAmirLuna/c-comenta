@@ -68,25 +68,25 @@ void listar_procesos_estado()
 {
 
     if(!estaCPULibre){ 
-        log_debug(kernel_log_debug, "PID: %d esta en EJECUCION", estaEJecutando);
+        log_info(kernel_log_debug, "PID: %d esta en EJECUCION", estaEJecutando);
     }
 
     for (int i = 0; i < list_size(procesosNEW); i++)
     {
         int *pid = list_get(procesosNEW, i);
-        log_debug(kernel_log_debug, "PID: %d esta en NEW", *pid);
+        log_info(kernel_log_debug, "PID: %d esta en NEW", *pid);
     }
 
     for (int i = 0; i < list_size(procesosREADY); i++)
     {
         int *pid = list_get(procesosREADY, i);
-        log_debug(kernel_log_debug, "PID: %d esta en READY", *pid);
+        log_info(kernel_log_debug, "PID: %d esta en READY", *pid);
     }
 
     for (int i = 0; i < list_size(procesosEXIT); i++)
     {
         int *pid = list_get(procesosEXIT, i);
-        log_debug(kernel_log_debug, "PID: %d esta en EXIT", *pid);
+        log_info(kernel_log_debug, "PID: %d esta en EXIT", *pid);
     }
 
     for (int i = 0; nombresRecursos[i] != NULL; i++)
@@ -94,13 +94,13 @@ void listar_procesos_estado()
 
         t_list *lista_donde_agregar = list_get(lista_recursos_y_bloqueados, i); // PREGUNTAR LUCA
 
-        log_debug(kernel_log_debug, "Los procesos bloqueados por el recurso: %s son: ", nombresRecursos[i]);
+        log_info(kernel_log_debug, "Los procesos bloqueados por el recurso: %s son: ", nombresRecursos[i]);
 
         for (int j = 0; j < list_size(lista_donde_agregar); j++)
         {
 
             int *numeroXD = list_get(lista_donde_agregar, j);
-            log_debug(kernel_log_debug, "PID: %d", *numeroXD);
+            log_info(kernel_log_debug, "PID: %d", *numeroXD);
         }
     }
 
@@ -112,7 +112,7 @@ void listar_procesos_estado()
         {
 
             int *pid = list_get(interfaz->procesos_bloqueados->elements, j);
-            log_debug(kernel_log_debug, "PID: %d esta BLOQUEADO por %s", *pid, interfaz->nombre_interfaz);
+            log_info(kernel_log_debug, "PID: %d esta BLOQUEADO por %s", *pid, interfaz->nombre_interfaz);
         }
     }
 }
