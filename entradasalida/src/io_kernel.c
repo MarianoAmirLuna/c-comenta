@@ -206,7 +206,7 @@ void guardar_en_bloque(const char *filename, const char *contenido, int bloque, 
 char *leerArchivo(char *nombre_Archivo, int registro_puntero, int registro_tamanio)
 {
 
-	log_info(io_logger, "Iniciando lectura de archivo %s", nombre_Archivo);
+	//log_info(io_logger, "Iniciando lectura de archivo %s", nombre_Archivo);
 
 	char *PATH_FS = PATH_BASE_DIALFS;
 
@@ -218,7 +218,7 @@ char *leerArchivo(char *nombre_Archivo, int registro_puntero, int registro_taman
 	string_append(&PATH_metadata, direccionMetadata);
 
 	t_config *config_metadata = config_create(PATH_metadata);
-	printf("PATH_metadata: %s\n", PATH_metadata);
+	//printf("PATH_metadata: %s\n", PATH_metadata);
 
 	int bloque_inicial = config_get_int_value(config_metadata, "BLOQUE_INICIAL");
 
@@ -271,14 +271,14 @@ char *leerArchivo(char *nombre_Archivo, int registro_puntero, int registro_taman
 	buffer[registro_tamanio] = '\0';
 
 	// Mostrar el resultado leido en pantalla
-	log_info(io_logger, "Datos leidos: %s\n", buffer);
+	//log_info(io_logger, "Datos leidos: %s\n", buffer);
 
 	// Liberar memoria y cerrar el archivo
 
 	fclose(archivo);
 	config_destroy(config_metadata);
 
-	log_info(io_logger, "Fin de lectura");
+	//log_info(io_logger, "Fin de lectura");
 
 	return buffer;
 }
@@ -286,8 +286,8 @@ char *leerArchivo(char *nombre_Archivo, int registro_puntero, int registro_taman
 void escribirArchivo(char *nombre_Archivo, int registro_puntero, char *texto_a_escribir)
 {
 
-	log_info(io_logger, "Iniciando escritura de archivo");
-	log_info(io_logger, "Se va a escribir %s en el archivo %s", texto_a_escribir, nombre_Archivo);
+	//log_info(io_logger, "Iniciando escritura de archivo");
+	//log_info(io_logger, "Se va a escribir %s en el archivo %s", texto_a_escribir, nombre_Archivo);
 
 	char *PATH_FS = PATH_BASE_DIALFS;
 
@@ -299,7 +299,7 @@ void escribirArchivo(char *nombre_Archivo, int registro_puntero, char *texto_a_e
 	string_append(&PATH_metadata, direccionMetadata);
 
 	t_config *config_metadata = config_create(PATH_metadata);
-	printf("PATH_metadata: %s\n", PATH_metadata);
+	//printf("PATH_metadata: %s\n", PATH_metadata);
 
 	int bloque_inicial = config_get_int_value(config_metadata, "BLOQUE_INICIAL");
 
@@ -337,7 +337,7 @@ void escribirArchivo(char *nombre_Archivo, int registro_puntero, char *texto_a_e
 	// Cerrar el archivo
 	fclose(archivo);
 	config_destroy(config_metadata);
-	log_info(io_logger, "Fin de escritura");
+	//log_info(io_logger, "Fin de escritura");
 }
 
 void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar, int pid)
@@ -392,6 +392,8 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 
 		// Saltar ".", "..", "bitmap.dat" y "bloques.dat"
 		// strcmp(entry->d_name, ".") == 0 //devuelve true cuando "."
+
+		/*
 		printf("-----------------------------------------------------------\n");
 		printf("entry no se cuanto: %s\n", entry->d_name);
 		printf("-----------------------------------------------------------\n");
@@ -400,6 +402,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		printf(" strcmp(entry->d_name, bloques.dat) %i\n", strcmp(entry->d_name, "bloques.dat"));
 		printf(" strcmp(entry->d_name, bitmap.dat) %i\n", strcmp(entry->d_name, "bitmap.dat"));
 		printf(" strcmp(entry->d_name, nombre_ArchivoCompactar %i\n", strcmp(entry->d_name, nombre_ArchivoCompactar));
+		*/
 
 		/*
 		if ( strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, "bloques.dat") == 0 || strcmp(entry->d_name, "bitmap.dat") || strcmp(entry->d_name, nombre_ArchivoCompactar)== 0 )
@@ -412,19 +415,19 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		}
 		*/
 
-		printf("el if tira esto: %i\n", !(strcmp(entry->d_name, ".") == 0) && !(strcmp(entry->d_name, "..") == 0) && !(strcmp(entry->d_name, "bloques.dat") == 0) && !(strcmp(entry->d_name, "bitmap.dat") == 0) && !(strcmp(entry->d_name, nombre_ArchivoCompactar) == 0));
+		//printf("el if tira esto: %i\n", !(strcmp(entry->d_name, ".") == 0) && !(strcmp(entry->d_name, "..") == 0) && !(strcmp(entry->d_name, "bloques.dat") == 0) && !(strcmp(entry->d_name, "bitmap.dat") == 0) && !(strcmp(entry->d_name, nombre_ArchivoCompactar) == 0));
 
-		if (!(strcmp(entry->d_name, ".") == 0) && !(strcmp(entry->d_name, "..") == 0) && !(strcmp(entry->d_name, "bloques.dat") == 0) && !(strcmp(entry->d_name, "bitmap.dat") == 0) && !(strcmp(entry->d_name, nombre_ArchivoCompactar) == 0))
+		if (!(strcmp(entry->d_name, ".") == 0) && !(strcmp(entry->d_name, "..") == 0) && !(strcmp(entry->d_name, "bloques.dat") == 0) && !(strcmp(entry->d_name, "bitmap.dat") == 0) && !(strcmp(entry->d_name, nombre_ArchivoCompactar) == 0) && !(strcmp(entry->d_name, "sampleFIle.txt") == 0))
 		{
-			printf("funciono bien por fin");
+			//printf("funciono bien por fin");
 
 			// Construir la ruta completa del archivo
 			char *PATH_archivo;
 			PATH_archivo = string_duplicate(PATH_FS);
 			char *direccion_archivo = string_from_format("/%s", entry->d_name);
 			string_append(&PATH_archivo, direccion_archivo);
-			printf("Hasta aca ejecuto\n");
-			printf("PATH_archivo: %s\n", PATH_archivo);
+			//printf("Hasta aca ejecuto\n");
+			//printf("PATH_archivo: %s\n", PATH_archivo);
 			t_config *connfig_metadatos = config_create(PATH_archivo);
 
 			// Obtener el valor de BLOQUE_INICIAL
@@ -438,7 +441,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 			int bloque_Final_del_archivo = bloqueInicial + (tamanio_en_bloques_del_archivo - 1);
 
 			char *contenido = string_new();
-			printf("bloqueInicial: %i,bloque_Final_del_archivo: %i\n", bloqueInicial, bloque_Final_del_archivo);
+			//printf("bloqueInicial: %i,bloque_Final_del_archivo: %i\n", bloqueInicial, bloque_Final_del_archivo);
 			for (int i = bloqueInicial * tamanioBloque; i < (bloque_Final_del_archivo + 1) * tamanioBloque; i++)
 			{
 				char c = map[i];
@@ -449,7 +452,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 				string_append(&contenido, str);
 			}
 
-			printf("contenido: %s\n", contenido);
+			//printf("contenido: %s\n", contenido);
 
 			colArchivo *guardarCola = (colArchivo *)malloc(sizeof(colArchivo));
 			guardarCola->contenido = contenido;
@@ -564,7 +567,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 
 	config_destroy(connfig_archivo_truncar);
 
-	printf("primerBloqueLibre: %i\n", primerBloqueLibre);
+	//printf("primerBloqueLibre: %i\n", primerBloqueLibre);
 
 	int bloque_Final_del_archivo_truncar_oficial = primerBloqueLibre + (tamanio_en_bloques_del_archivo_truncar - 1);
 
@@ -573,7 +576,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		bitarray_set_bit(copia_bitmap, i);
 	}
 
-	printf("contenidoTruncable: %s", contenidoTruncable);
+	//printf("contenidoTruncable: %s", contenidoTruncable);
 	guardar_en_bloque(PATH_bloques, contenidoTruncable, primerBloqueLibre, tamanioBloque);
 
 	// elimino el archivo que deseo truncar del copia_bitmap
@@ -584,7 +587,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 	*/
 	log_info(io_logger, "PID: %i - Fin Compactacion.", pid);
 
-	log_info(io_logger, "Aplicando retraso de compactacion");
+	//log_info(io_logger, "Aplicando retraso de compactacion");
 
 	int retraso_compactacion = RETRASO_COMPACTACION;
 
@@ -602,7 +605,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		perror("Error al desmapear el archivo");
 	}
 	close(fd);
-	printf("bloque_Final_del_archivo_truncar_oficial: %i\n", bloque_Final_del_archivo_truncar_oficial);
+	//printf("bloque_Final_del_archivo_truncar_oficial: %i\n", bloque_Final_del_archivo_truncar_oficial);
 
 	// int bloque_Final_del_archivo_truncar_oficial = primerBloqueLibre + (tamanio_en_bloques_del_archivo_truncar- 1);
 
@@ -611,8 +614,8 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 	int bloque_final_despues_de_truncar = primerBloqueLibre + (tamanio_en_bloques_despues_de_truncar - 1);
 	// printf("tamanio_en_bloques_despues_de_truncar: %i\n",tamanio_en_bloques_despues_de_truncar);
 
-	printf("tamanio_en_bloques_despues_de_truncar: %i\n", tamanio_en_bloques_despues_de_truncar);
-	printf("bloque_final_despues_de_truncar: %i\n", bloque_final_despues_de_truncar);
+	//printf("tamanio_en_bloques_despues_de_truncar: %i\n", tamanio_en_bloques_despues_de_truncar);
+	//printf("bloque_final_despues_de_truncar: %i\n", bloque_final_despues_de_truncar);
 
 	for (int i = bloque_Final_del_archivo_truncar_oficial + 1; i <= bloque_final_despues_de_truncar; i++)
 	{
@@ -630,7 +633,7 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 void truncarArchivo(char *nombre_Archivo, int tamanioTruncar, int pid)
 {
 
-	log_info(io_logger, "Iniciando truncar del archivo %s", nombre_Archivo);
+	//log_info(io_logger, "Iniciando truncar del archivo %s", nombre_Archivo);
 
 	char *PATH_FS = PATH_BASE_DIALFS;
 
@@ -681,7 +684,7 @@ void truncarArchivo(char *nombre_Archivo, int tamanioTruncar, int pid)
 
 	if (tamanio_en_bloques_del_archivo == nueva_cantidad_de_bloques)
 	{ // por ejemplo, los bloques miden 16, y quiero truncar del tamanio 23 a 32, la cantidad de bloques asignados al archivo sigue siendo 2 antes y despues de truncar
-		log_info(io_logger, "Los bloques que el archivo ocupa antes y despues de truncar son los mismos");
+		//log_info(io_logger, "Los bloques que el archivo ocupa antes y despues de truncar son los mismos");
 
 		bitarray_munmap(mapped_bitarray);
 
@@ -689,13 +692,13 @@ void truncarArchivo(char *nombre_Archivo, int tamanioTruncar, int pid)
 		config_save(connfig_metadatos);
 		config_destroy(connfig_metadatos);
 
-		log_info(io_logger, "FIN de truncar");
+		//log_info(io_logger, "FIN de truncar");
 		return;
 	}
 
 	if (hayBloquesOcupados(mapped_bitarray, bloque_Final_del_archivo, nuevo_Bloque_Final) == 1)
 	{
-		log_info(io_logger, "Sin espacio contiguo suficiente, iniciando compactacion");
+		//log_info(io_logger, "Sin espacio contiguo suficiente, iniciando compactacion");
 		// compactar
 		bitarray_munmap(mapped_bitarray);
 
@@ -703,7 +706,7 @@ void truncarArchivo(char *nombre_Archivo, int tamanioTruncar, int pid)
 	}
 	else
 	{
-		log_info(io_logger, "Hay espacio suficiente para truncar, procediendo con truncar");
+		//log_info(io_logger, "Hay espacio suficiente para truncar, procediendo con truncar");
 		// trunco sin problema
 		config_set_value(connfig_metadatos, "TAMANIO_ARCHIVO", string_itoa(tamanioTruncar));
 		config_save(connfig_metadatos);
@@ -717,12 +720,12 @@ void truncarArchivo(char *nombre_Archivo, int tamanioTruncar, int pid)
 		bitarray_munmap(mapped_bitarray);
 	}
 
-	log_info(io_logger, "FIN de truncar");
+	//log_info(io_logger, "FIN de truncar");
 }
 
 void eliminarArchivo(char *nombre_Archivo)
 {
-	log_info(io_logger, "Iniciando borrado del archivo %s", nombre_Archivo);
+	//log_info(io_logger, "Iniciando borrado del archivo %s", nombre_Archivo);
 
 	char *PATH_FS = PATH_BASE_DIALFS;
 	char *PATH_metadata = string_duplicate(PATH_FS);
@@ -747,7 +750,7 @@ void eliminarArchivo(char *nombre_Archivo)
 	int tamnioArchivo = config_get_int_value(connfig_metadatos, "TAMANIO_ARCHIVO");
 	config_destroy(connfig_metadatos);
 
-	log_info(io_logger, "Liberando bloques bitmap");
+	//log_info(io_logger, "Liberando bloques bitmap");
 	if (tamnioArchivo == 0)
 	{
 		bitarray_clean_bit(mapped_bitarray, bloqueInicial);
@@ -774,6 +777,12 @@ void eliminarArchivo(char *nombre_Archivo)
 	}
 
 	bitarray_munmap(mapped_bitarray);
+
+	if(remove(PATH_metadata)!=0){
+		perror("Error al eliminar el archivo");
+	}
+
+	/*
 	log_info(io_logger, "BLoques del bitmap liberados");
 
 	log_info(io_logger, "Eliminando metadata");
@@ -784,19 +793,20 @@ void eliminarArchivo(char *nombre_Archivo)
 	else
 	{
 
-		perror("Error al eliminar el archivo");
+		
 	}
 
 	log_info(io_logger, "Fin del proceso de borrado");
+	*/
 }
 
 void crearArchivo(char *nombre_Archivo)
 {
-	log_info(io_logger, "Iniciando creacion de archivo de Metadata %s", nombre_Archivo);
+	//log_info(io_logger, "Iniciando creacion de archivo de Metadata %s", nombre_Archivo);
 
 	char *PATH_FS = PATH_BASE_DIALFS;
 
-	printf("EL PATH FS: %s\n", PATH_FS);
+	//printf("EL PATH FS: %s\n", PATH_FS);
 
 	char *PATH_metadata = string_duplicate(PATH_FS);
 
@@ -835,7 +845,7 @@ void crearArchivo(char *nombre_Archivo)
 	int tamanioBloque = BLOCK_SIZE;
 	escribirCentinelaInicialBLoques(PATH_FS, bloqueInicial, tamanioBloque, '\0'); // cambiar '0' a '\0'
 
-	log_info(io_logger, "Fin creacion de archivo de metadata");
+	//log_info(io_logger, "Fin creacion de archivo de metadata");
 }
 
 void avisarKernelTerminoEjecutarIO()
@@ -847,13 +857,13 @@ void avisarKernelTerminoEjecutarIO()
 
 	cargar_string_al_buffer(buffer, nombreInterACrear);
 
-	printf("el nombre de la interfaz es: %s\n", nombreInterACrear);
+	//printf("el nombre de la interfaz es: %s\n", nombreInterACrear);
 
 	t_paquete *paquete = crear_super_paquete(LIBERAR_INTERFAZ, buffer);
 	enviar_paquete(paquete, fd_kernel);
 	destruir_paquete(paquete);
 
-	printf("fui a liberar la interfaz\n");
+	//printf("fui a liberar la interfaz\n");
 }
 
 void atender_interfaz_kernel(int *arg)
@@ -868,7 +878,7 @@ void atender_interfaz_kernel(int *arg)
 	while (control_key)
 	{
 		int cod_op = recibir_operacion(fd_entradasalida_kernel);
-		printf("el codigo de operacion es: %d\n", cod_op);
+		//printf("el codigo de operacion es: %d\n", cod_op);
 
 		switch (cod_op)
 		{
@@ -880,7 +890,7 @@ void atender_interfaz_kernel(int *arg)
 
 			log_info(io_logger, "PID: %i - Operacion: IO_GEN_SLEEP", pid);
 
-			printf("mande a dormir a la io\n");
+			//printf("mande a dormir a la io\n");
 
 			usleep(unidades_trabajo * TIEMPO_UNIDAD_TRABAJO * 1000);
 
@@ -960,24 +970,26 @@ void atender_interfaz_kernel(int *arg)
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 			pid = extraer_int_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
-			printf("ejecute un create\n");
+			//printf("ejecute un create\n");
 
 			// INICIAR_PROCESO /scripts_memoria/instrucciones.txt
 
 			// log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
 
+			/*
 			printf("el pid es %d\n", pid);
 			printf("el nombre del archivo es: %s\n", nombreArchivo);
 			printf("el path: %s\n", PATH_BASE_DIALFS);
+			*/
 
 			log_info(io_logger, "PID: %i - Operacion: IO_FS_CREATE",pid);
 
 			log_info(io_logger, "PID: %i - Crear Archivo: %s",pid, nombreArchivo);
 			crearArchivo(nombreArchivo);
 
-			log_info(io_logger, "Consumiendo unidad de tiempo");
+			//log_info(io_logger, "Consumiendo unidad de tiempo");
 			usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
-			log_info(io_logger, "Unidad de tiempo consumida");
+			//log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
 
@@ -986,19 +998,21 @@ void atender_interfaz_kernel(int *arg)
 			un_buffer = recibir_todo_el_buffer(fd_entradasalida_kernel);
 			pid = extraer_int_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
-			printf("ejecute un delete\n");
+			//printf("ejecute un delete\n");
 
 			log_info(io_logger, "PID: %i - Operacion: IO_FS_DELETE",pid);
 
+			/*
 			printf("el pid es %d\n", pid);
 			printf("el nombre del archivo es: %s\n", nombreArchivo);
+			*/
 
 			log_info(io_logger, "PID: %i - Eliminar Archivo: %s",pid, nombreArchivo);
 			eliminarArchivo(nombreArchivo);
 
-			log_info(io_logger, "Consumiendo unidad de tiempo");
+			//log_info(io_logger, "Consumiendo unidad de tiempo");
 			usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
-			log_info(io_logger, "Unidad de tiempo consumida");
+			//log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
 
@@ -1008,20 +1022,22 @@ void atender_interfaz_kernel(int *arg)
 			pid = extraer_int_del_buffer(un_buffer);
 			nombreArchivo = extraer_string_del_buffer(un_buffer);
 			registro_tamanio = extraer_int_del_buffer(un_buffer);
-			printf("ejecute un truncate\n");
+			//printf("ejecute un truncate\n");
 
 			log_info(io_logger, "PID: %i - Operacion: IO_FS_TRUNCATE",pid);
 
+			/*
 			printf("el pid es %d\n", pid);
 			printf("el nombre del archivo es: %s\n", nombreArchivo);
 			printf("el registro tamanio es: %d\n", registro_tamanio);
+			*/
 
 			log_info(io_logger, "PID: %i - Truncar Archivo: %s - Tamanio: %i",pid,nombreArchivo,registro_tamanio);
 			truncarArchivo(nombreArchivo, registro_tamanio, pid);
 
-			log_info(io_logger, "Consumiendo unidad de tiempo");
+			//log_info(io_logger, "Consumiendo unidad de tiempo");
 			usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
-			log_info(io_logger, "Unidad de tiempo consumida");
+			//log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
 
@@ -1049,6 +1065,8 @@ void atender_interfaz_kernel(int *arg)
 	        int bytes_restantes_en_pagina = extraer_int_del_buffer(un_buffer);
 	        int tamanioALeer = extraer_int_del_buffer(un_buffer);
 			*/
+
+			/*
 		    printf("el pid: %d\n",pid);
 			printf("nombre ar %s\n",nombreArchivo);
 
@@ -1056,7 +1074,7 @@ void atender_interfaz_kernel(int *arg)
 			printf("bytes_restantes_pagina %d\n",bytes_restantes_pagina);
 			printf("tamanio_write %d\n",tamanio_write);
 			printf("direccionesNecesarias %d\n",direccionesNecesarias);
-
+			*/
 
 			log_info(io_logger, "PID: %i - Operacion: IO_FS_WRITE", pid);
 
@@ -1073,7 +1091,7 @@ void atender_interfaz_kernel(int *arg)
 			{
 
 				numero = extraer_int_del_buffer(un_buffer);
-				printf("la DF %d\n", numero);
+				//printf("la DF %d\n", numero);
 				cargar_int_al_buffer(buffer3, numero);
 			}
 
@@ -1081,19 +1099,21 @@ void atender_interfaz_kernel(int *arg)
 			enviar_paquete(paquete3, fd_memoria);
 			destruir_paquete(paquete3);
 
+			/*
 			printf("el pid es %d\n", pid);
 			printf("el nombre del archivo es: %s\n", nombreArchivo);
+			*/
 
 			sem_wait(&esperar_palabra_memoria);
 
-			printf("mensaje obtenido: %s\n", palabraIOWrite);
+			//printf("mensaje obtenido: %s\n", palabraIOWrite);
 
 			log_info(io_logger, "PID: %i - Escribir Archivo: %s - Tamanio a Escribir: %i - Puntero Archivo: %i", pid, nombreArchivo, tamanio_write, registro_puntero_write);
 			escribirArchivo(nombreArchivo, registro_puntero_write, palabraIOWrite);
 
-			log_info(io_logger, "Consumiendo unidad de tiempo");
+			//log_info(io_logger, "Consumiendo unidad de tiempo");
 			usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
-			log_info(io_logger, "Unidad de tiempo consumida");
+			//log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
 
@@ -1112,12 +1132,14 @@ void atender_interfaz_kernel(int *arg)
 
 			log_info(io_logger, "PID: %i - Operacion: IO_FS_READ", pid); // falta pid
 
+			/*
 			printf("El pid es %d\n", pid);
 			printf("El nombre del archivo es: %s\n", nombreArchivo);
 			printf("Puntero read %d\n", punteroRead);
 			printf("Byts restantes %d\n", bytesRestantesPagina);
 			printf("Tamanio escribir %d\n", tamanioEscribirRead);
 			printf("Cantidad direcciones %d\n", cantidadDireccionesXD);
+			*/
 
 			// printf("mensaje obtenido: %s\n",palabraIOWrite);
 
@@ -1139,7 +1161,7 @@ void atender_interfaz_kernel(int *arg)
 			for (int i = 0; i < cantidadDireccionesXD; i++)
 			{
 				numero23 = extraer_int_del_buffer(un_buffer);
-				printf("las direcciones fisicas son: %d\n", numero23);
+				//printf("las direcciones fisicas son: %d\n", numero23);
 				cargar_int_al_buffer(bufferXDD, numero23);
 			}
 
@@ -1147,9 +1169,9 @@ void atender_interfaz_kernel(int *arg)
 			enviar_paquete(paquete23, fd_memoria);
 			destruir_paquete(paquete23);
 
-			log_info(io_logger, "Consumiendo unidad de tiempo");
+			//log_info(io_logger, "Consumiendo unidad de tiempo");
 			usleep(TIEMPO_UNIDAD_TRABAJO * 1000);
-			log_info(io_logger, "Unidad de tiempo consumida");
+			//log_info(io_logger, "Unidad de tiempo consumida");
 
 			avisarKernelTerminoEjecutarIO();
 
