@@ -26,7 +26,7 @@ void atender_interfaz_memoria(int *arg)
 		    un_buffer = recibir_todo_el_buffer(fd_entradasalida_memoria);
 			char* mensajeFINAL = extraer_string_del_buffer(un_buffer);
 
-			printf("mensaje obtenido: %s\n",mensajeFINAL);
+			log_info(io_logger, "Mensaje obtenido: %s",mensajeFINAL);
 
 			avisarKernelTerminoEjecutarIO();
 
