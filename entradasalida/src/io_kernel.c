@@ -585,14 +585,16 @@ void compactar(char *PATH_FS, char *nombre_ArchivoCompactar, int tamanioTruncar,
 		bitarray_clean_bit(copia_bitmap,i);
 	}
 	*/
-	log_info(io_logger, "PID: %i - Fin Compactacion.", pid);
+	
 
 	//log_info(io_logger, "Aplicando retraso de compactacion");
 
 	int retraso_compactacion = RETRASO_COMPACTACION;
 
 	usleep(retraso_compactacion * 1000);
-
+	
+	log_info(io_logger, "PID: %i - Fin Compactacion.", pid);
+	
 	// Sincronizar los cambios
 	if (msync(map, sb.st_size, MS_SYNC) == -1)
 	{
@@ -1143,8 +1145,8 @@ void atender_interfaz_kernel(int *arg)
 
 			// printf("mensaje obtenido: %s\n",palabraIOWrite);
 
-			log_info(io_logger, "PID: %i - Leer Archivo: %s - Tamanio a leer: %i - Puntero Archivo: %i", pid, nombreArchivo, registro_tamanio, registro_puntero_write);
-			char *leidoDelArchivo = leerArchivo(nombreArchivo, registro_puntero_write, registro_tamanio);
+			log_info(io_logger, "PID: %i - Leer Archivo: %s - Tamanio a leer: %i - Puntero Archivo: %i", pid, nombreArchivo, tamanioEscribirRead, punteroRead);
+			char *leidoDelArchivo = leerArchivo(nombreArchivo, punteroRead, tamanioEscribirRead);
 
 			t_buffer *bufferXDD = crear_buffer();
 			bufferXDD->size = 0;
